@@ -1,0 +1,7 @@
+price-factors:
+  increase: 0.05
+  decrease: 0.03
+
+price-limits:
+  min-multiplier: 0.1
+  max-multiplier: 10.0
