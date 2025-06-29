@@ -151,8 +151,17 @@ public class ShopListener implements Listener {
 
         plugin.getLogger().info("Transaction menu click - Type: " + type + " Currently buying: " + currentlyBuying);
 
-        // Debug: mostra l'item selezionato corrente
+        // Prima di tutto, recupera sempre il material selezionato
         Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
+
+        // Se selectedItem è null, prova a estrarlo dal titolo o dal display item
+        if (selectedItem == null) {
+            selectedItem = extractMaterialFromGUI(player);
+            if (selectedItem != null) {
+                plugin.getGUIManager().setPlayerSelectedItem(player.getUniqueId(), selectedItem);
+            }
+        }
+
         plugin.getLogger().info("Current selected item for " + player.getName() + ": " + selectedItem);
 
         if (type == Material.ARROW) {
@@ -172,7 +181,7 @@ public class ShopListener implements Listener {
                 plugin.getGUIManager().openTransactionMenu(player, selectedItem, !currentlyBuying);
             } else {
                 plugin.getLogger().warning("Cannot switch transaction mode - no selected item");
-                player.sendMessage(ChatColor.RED + "Error: No item selected");
+                player.sendMessage(ChatColor.RED + "Error: No item selected. Please close and reopen the shop.");
             }
             return;
         }
@@ -185,58 +194,13 @@ public class ShopListener implements Listener {
             }
 
             String name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
-            selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
 
             plugin.getLogger().info("Button clicked: " + name + " for item: " + selectedItem);
 
             if (selectedItem == null) {
-                plugin.getLogger().warning("No selected item found for player: " + player.getName());
-
-                // Prova a estrarre l'item dal titolo della GUI come fallback
-                String title = player.getOpenInventory().getTitle();
-                String cleanTitle = ChatColor.stripColor(title);
-                plugin.getLogger().info("Trying to extract item from title: '" + cleanTitle + "'");
-
-                if (cleanTitle.startsWith("Buy ") || cleanTitle.startsWith("Sell ")) {
-                    String itemName = cleanTitle.substring(4).trim(); // Rimuovi "Buy " o "Sell "
-                    plugin.getLogger().info("Extracted item name: '" + itemName + "'");
-
-                    // Prova diversi formati del nome
-                    String[] possibleNames = {
-                            itemName.toUpperCase().replace(" ", "_"),
-                            itemName.toUpperCase().replace(" ", ""),
-                            itemName.replace(" ", "_").toUpperCase()
-                    };
-
-                    for (String possibleName : possibleNames) {
-                        try {
-                            Material materialFromTitle = Material.valueOf(possibleName);
-                            selectedItem = materialFromTitle;
-                            plugin.getGUIManager().setPlayerSelectedItem(player.getUniqueId(), selectedItem);
-                            plugin.getLogger().info("Successfully extracted item from title: " + selectedItem);
-                            break;
-                        } catch (IllegalArgumentException e) {
-                            plugin.getLogger().info("Failed to parse material: " + possibleName);
-                        }
-                    }
-
-                    // Se ancora non funziona, prova a cercare nel display item della GUI
-                    if (selectedItem == null) {
-                        ItemStack displayItem = player.getOpenInventory().getItem(13); // Item centrale
-                        if (displayItem != null && displayItem.getType() != Material.AIR) {
-                            selectedItem = displayItem.getType();
-                            plugin.getGUIManager().setPlayerSelectedItem(player.getUniqueId(), selectedItem);
-                            plugin.getLogger().info("Extracted item from display slot: " + selectedItem);
-                        }
-                    }
-                }
-
-                if (selectedItem == null) {
-                    player.sendMessage(ChatColor.RED + "Error: Could not determine the item. Please try reopening the shop.");
-                    plugin.getLogger().severe("Could not determine selected item for player " + player.getName() +
-                            " with title: " + cleanTitle);
-                    return;
-                }
+                player.sendMessage(ChatColor.RED + "Error: Could not determine the item. Please try reopening the shop.");
+                plugin.getLogger().severe("Could not determine selected item for player " + player.getName());
+                return;
             }
 
             int amount = 0;
@@ -286,6 +250,49 @@ public class ShopListener implements Listener {
                 player.sendMessage(ChatColor.RED + "Error: Could not determine amount to trade");
             }
         }
+    }
+
+    // Metodo helper per estrarre il material dalla GUI
+    private Material extractMaterialFromGUI(Player player) {
+        String title = player.getOpenInventory().getTitle();
+        String cleanTitle = ChatColor.stripColor(title);
+        plugin.getLogger().info("Trying to extract item from title: '" + cleanTitle + "'");
+
+        Material material = null;
+
+        // Prima prova a estrarre dal titolo
+        if (cleanTitle.startsWith("Buy ") || cleanTitle.startsWith("Sell ")) {
+            String itemName = cleanTitle.substring(4).trim(); // Rimuovi "Buy " o "Sell "
+            plugin.getLogger().info("Extracted item name: '" + itemName + "'");
+
+            // Prova diversi formati del nome
+            String[] possibleNames = {
+                    itemName.toUpperCase().replace(" ", "_"),
+                    itemName.toUpperCase().replace(" ", ""),
+                    itemName.replace(" ", "_").toUpperCase()
+            };
+
+            for (String possibleName : possibleNames) {
+                try {
+                    material = Material.valueOf(possibleName);
+                    plugin.getLogger().info("Successfully extracted item from title: " + material);
+                    break;
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().info("Failed to parse material: " + possibleName);
+                }
+            }
+        }
+
+        // Se non funziona, prova a cercare nel display item della GUI (slot 13)
+        if (material == null) {
+            ItemStack displayItem = player.getOpenInventory().getItem(13); // Item centrale
+            if (displayItem != null && displayItem.getType() != Material.AIR) {
+                material = displayItem.getType();
+                plugin.getLogger().info("Extracted item from display slot: " + material);
+            }
+        }
+
+        return material;
     }
 
     private void processBuyTransaction(Player player, Material material, int amount) {
