@@ -6,6 +6,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import com.Lino.dynamicShopGUI.database.DatabaseManager;
 import com.Lino.dynamicShopGUI.managers.ShopManager;
 import com.Lino.dynamicShopGUI.managers.GUIManager;
+import com.Lino.dynamicShopGUI.managers.RestockManager;
 import com.Lino.dynamicShopGUI.commands.ShopCommand;
 import com.Lino.dynamicShopGUI.listeners.ShopListener;
 import com.Lino.dynamicShopGUI.config.ShopConfig;
@@ -18,6 +19,7 @@ public class DynamicShopGUI extends JavaPlugin {
     private ShopManager shopManager;
     private GUIManager guiManager;
     private ShopConfig shopConfig;
+    private RestockManager restockManager;
 
     @Override
     public void onEnable() {
@@ -39,6 +41,7 @@ public class DynamicShopGUI extends JavaPlugin {
             return;
         }
 
+        restockManager = new RestockManager(this);
         shopManager = new ShopManager(this);
         guiManager = new GUIManager(this);
 
@@ -50,9 +53,14 @@ public class DynamicShopGUI extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (restockManager != null) {
+            restockManager.shutdown();
+        }
+
         if (databaseManager != null) {
             databaseManager.close();
         }
+
         getLogger().info("DynamicShopGUI has been disabled!");
     }
 
@@ -98,5 +106,9 @@ public class DynamicShopGUI extends JavaPlugin {
 
     public ShopConfig getShopConfig() {
         return shopConfig;
+    }
+
+    public RestockManager getRestockManager() {
+        return restockManager;
     }
 }

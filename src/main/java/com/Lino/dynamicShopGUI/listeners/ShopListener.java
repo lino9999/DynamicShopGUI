@@ -4,6 +4,7 @@ import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.managers.ShopManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,6 +12,8 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class ShopListener implements Listener {
 
@@ -37,10 +40,15 @@ public class ShopListener implements Listener {
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) return;
 
+        // Play click sound if enabled
+        if (plugin.getShopConfig().isSoundEnabled()) {
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+        }
+
         if (title.equals(ChatColor.DARK_GREEN + "Dynamic Shop")) {
             handleMainMenuClick(player, clicked);
         } else if (title.startsWith(ChatColor.DARK_GREEN + "Shop -")) {
-            handleCategoryMenuClick(player, clicked, event.getClick());
+            handleCategoryMenuClick(player, clicked, event.getClick(), title);
         } else if (title.startsWith(ChatColor.DARK_GREEN + "Buy ") ||
                 title.startsWith(ChatColor.DARK_RED + "Sell ")) {
             handleTransactionMenuClick(player, clicked, title.startsWith(ChatColor.DARK_GREEN + "Buy "));
@@ -79,13 +87,25 @@ public class ShopListener implements Listener {
         }
 
         if (category != null) {
-            plugin.getGUIManager().openCategoryMenu(player, category);
+            plugin.getGUIManager().openCategoryMenu(player, category, 0);
         }
     }
 
-    private void handleCategoryMenuClick(Player player, ItemStack clicked, ClickType clickType) {
+    private void handleCategoryMenuClick(Player player, ItemStack clicked, ClickType clickType, String title) {
         if (clicked.getType() == Material.ARROW) {
-            plugin.getGUIManager().openMainMenu(player);
+            String displayName = clicked.getItemMeta().getDisplayName();
+
+            if (displayName.contains("Back to Categories")) {
+                plugin.getGUIManager().openMainMenu(player);
+            } else if (displayName.contains("Previous Page")) {
+                String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
+                int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
+                plugin.getGUIManager().openCategoryMenu(player, category, currentPage - 1);
+            } else if (displayName.contains("Next Page")) {
+                String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
+                int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
+                plugin.getGUIManager().openCategoryMenu(player, category, currentPage + 1);
+            }
             return;
         }
 
@@ -96,6 +116,19 @@ public class ShopListener implements Listener {
         Material material = clicked.getType();
         boolean isBuying = clickType == ClickType.LEFT || clickType == ClickType.SHIFT_LEFT;
 
+        // Check if item is out of stock
+        if (clicked.getItemMeta() != null && clicked.getItemMeta().getLore() != null) {
+            for (String loreLine : clicked.getItemMeta().getLore()) {
+                if (loreLine.contains("Out of Stock")) {
+                    player.sendMessage(ChatColor.RED + "This item is out of stock!");
+                    if (plugin.getShopConfig().isSoundEnabled()) {
+                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+                    }
+                    return;
+                }
+            }
+        }
+
         plugin.getGUIManager().openTransactionMenu(player, material, isBuying);
     }
 
@@ -105,7 +138,8 @@ public class ShopListener implements Listener {
         if (type == Material.ARROW) {
             String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
             if (category != null) {
-                plugin.getGUIManager().openCategoryMenu(player, category);
+                int page = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
+                plugin.getGUIManager().openCategoryMenu(player, category, page);
             } else {
                 plugin.getGUIManager().openMainMenu(player);
             }
@@ -121,24 +155,27 @@ public class ShopListener implements Listener {
         }
 
         if (type == Material.LIME_STAINED_GLASS_PANE || type == Material.RED_STAINED_GLASS_PANE) {
-            String name = clicked.getItemMeta().getDisplayName();
+            if (clicked.getItemMeta() == null || clicked.getItemMeta().getDisplayName() == null) return;
+
+            String name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
             Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
 
             if (selectedItem == null) return;
 
             int amount = 0;
-            if (name.contains("1") && !name.contains("10") && !name.contains("128")) {
-                amount = 1;
-            } else if (name.contains("10")) {
-                amount = 10;
-            } else if (name.contains("32")) {
-                amount = 32;
-            } else if (name.contains("64")) {
-                amount = 64;
-            } else if (name.contains("128")) {
-                amount = 128;
-            } else if (name.contains("All")) {
+
+            // Extract amount from the display name
+            if (name.contains("All")) {
                 amount = countItemsInInventory(player, selectedItem);
+            } else {
+                // Extract number from the string
+                String[] parts = name.split(" ");
+                for (String part : parts) {
+                    try {
+                        amount = Integer.parseInt(part);
+                        break;
+                    } catch (NumberFormatException ignored) {}
+                }
             }
 
             if (amount > 0) {
@@ -155,8 +192,14 @@ public class ShopListener implements Listener {
         plugin.getShopManager().buyItem(player, material, amount).thenAccept(result -> {
             if (result.isSuccess()) {
                 player.sendMessage(ChatColor.GREEN + result.getMessage());
+                if (plugin.getShopConfig().isSoundEnabled()) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.2f);
+                }
             } else {
                 player.sendMessage(ChatColor.RED + result.getMessage());
+                if (plugin.getShopConfig().isSoundEnabled()) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+                }
             }
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
@@ -169,8 +212,14 @@ public class ShopListener implements Listener {
         plugin.getShopManager().sellItem(player, material, amount).thenAccept(result -> {
             if (result.isSuccess()) {
                 player.sendMessage(ChatColor.GREEN + result.getMessage());
+                if (plugin.getShopConfig().isSoundEnabled()) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.0f);
+                }
             } else {
                 player.sendMessage(ChatColor.RED + result.getMessage());
+                if (plugin.getShopConfig().isSoundEnabled()) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+                }
             }
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {

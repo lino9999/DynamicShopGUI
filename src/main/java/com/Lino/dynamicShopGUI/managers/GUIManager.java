@@ -16,6 +16,7 @@ public class GUIManager {
     private final DynamicShopGUI plugin;
     private final Map<UUID, String> playerCategory = new HashMap<>();
     private final Map<UUID, Material> playerSelectedItem = new HashMap<>();
+    private final Map<UUID, Integer> playerPage = new HashMap<>();
 
     public GUIManager(DynamicShopGUI plugin) {
         this.plugin = plugin;
@@ -37,8 +38,10 @@ public class GUIManager {
         player.openInventory(inv);
     }
 
-    public void openCategoryMenu(Player player, String category) {
+    public void openCategoryMenu(Player player, String category, int page) {
         playerCategory.put(player.getUniqueId(), category);
+        playerPage.put(player.getUniqueId(), page);
+
         String displayName = plugin.getShopConfig().getCategoryDisplayName(category.toLowerCase());
         String title = ChatColor.DARK_GREEN + "Shop - " + displayName;
         Inventory inv = Bukkit.createInventory(null, 54, title);
@@ -47,13 +50,39 @@ public class GUIManager {
             List<Map.Entry<Material, ShopItem>> sortedItems = new ArrayList<>(items.entrySet());
             sortedItems.sort(Map.Entry.comparingByKey());
 
-            int slot = 0;
-            for (Map.Entry<Material, ShopItem> entry : sortedItems) {
-                if (slot >= 45) break;
+            int itemsPerPage = plugin.getShopConfig().getItemsPerPage();
+            int totalPages = (int) Math.ceil((double) sortedItems.size() / itemsPerPage);
+            page = Math.max(0, Math.min(page, totalPages - 1));
 
+            int startIndex = page * itemsPerPage;
+            int endIndex = Math.min(startIndex + itemsPerPage, sortedItems.size());
+
+            int slot = 0;
+            for (int i = startIndex; i < endIndex && slot < 45; i++) {
+                Map.Entry<Material, ShopItem> entry = sortedItems.get(i);
                 ShopItem shopItem = entry.getValue();
+
+                // Check if item needs restocking
+                if (shopItem.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
+                    if (!plugin.getRestockManager().isRestocking(shopItem.getMaterial())) {
+                        plugin.getRestockManager().startRestockTimer(shopItem.getMaterial());
+                    }
+                }
+
                 ItemStack displayItem = createShopItemDisplay(shopItem);
                 inv.setItem(slot++, displayItem);
+            }
+
+            // Navigation buttons
+            if (page > 0) {
+                ItemStack prevPage = new ItemStack(Material.ARROW);
+                ItemMeta prevMeta = prevPage.getItemMeta();
+                prevMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
+                List<String> prevLore = new ArrayList<>();
+                prevLore.add(ChatColor.GRAY + "Page " + page + "/" + totalPages);
+                prevMeta.setLore(prevLore);
+                prevPage.setItemMeta(prevMeta);
+                inv.setItem(48, prevPage);
             }
 
             ItemStack backButton = new ItemStack(Material.ARROW);
@@ -61,6 +90,29 @@ public class GUIManager {
             backMeta.setDisplayName(ChatColor.RED + "Back to Categories");
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
+
+            if (page < totalPages - 1) {
+                ItemStack nextPage = new ItemStack(Material.ARROW);
+                ItemMeta nextMeta = nextPage.getItemMeta();
+                nextMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
+                List<String> nextLore = new ArrayList<>();
+                nextLore.add(ChatColor.GRAY + "Page " + (page + 2) + "/" + totalPages);
+                nextMeta.setLore(nextLore);
+                nextPage.setItemMeta(nextMeta);
+                inv.setItem(50, nextPage);
+            }
+
+            // Page info
+            if (totalPages > 1) {
+                ItemStack pageInfo = new ItemStack(Material.PAPER);
+                ItemMeta pageMeta = pageInfo.getItemMeta();
+                pageMeta.setDisplayName(ChatColor.GOLD + "Page " + (page + 1) + "/" + totalPages);
+                List<String> pageLore = new ArrayList<>();
+                pageLore.add(ChatColor.GRAY + "Total items: " + sortedItems.size());
+                pageMeta.setLore(pageLore);
+                pageInfo.setItemMeta(pageMeta);
+                inv.setItem(53, pageInfo);
+            }
 
             fillBottomBorder(inv);
 
@@ -80,31 +132,56 @@ public class GUIManager {
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
+            // Check if item needs restocking
+            if (item.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
+                if (!plugin.getRestockManager().isRestocking(material)) {
+                    plugin.getRestockManager().startRestockTimer(material);
+                }
+            }
+
             ItemStack displayItem = new ItemStack(material);
             ItemMeta displayMeta = displayItem.getItemMeta();
             displayMeta.setDisplayName(ChatColor.YELLOW + formatMaterialName(material));
             List<String> displayLore = new ArrayList<>();
-            displayLore.add(ChatColor.GRAY + "Stock: " + ChatColor.WHITE + item.getStock() + "/" + item.getMaxStock());
+
+            if (plugin.getShopConfig().showStock()) {
+                displayLore.add(ChatColor.GRAY + "Stock: " + ChatColor.WHITE + item.getStock() + "/" + item.getMaxStock());
+            }
+
             displayLore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
             displayLore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", item.getSellPrice()));
-            displayLore.add("");
-            displayLore.add(formatPriceChange(item.getPriceChangePercent()));
+
+            if (plugin.getShopConfig().showPriceTrends()) {
+                displayLore.add("");
+                displayLore.add(formatPriceChange(item.getPriceChangePercent()));
+            }
+
+            // Add restock countdown if out of stock
+            if (item.getStock() == 0 && plugin.getRestockManager().isRestocking(material)) {
+                String countdown = plugin.getRestockManager().getRestockCountdown(material);
+                if (countdown != null) {
+                    displayLore.add("");
+                    displayLore.add(ChatColor.RED + "Out of Stock!");
+                    displayLore.add(ChatColor.YELLOW + "Restocking in: " + ChatColor.GOLD + countdown);
+                }
+            }
+
             displayMeta.setLore(displayLore);
             displayItem.setItemMeta(displayMeta);
             inv.setItem(13, displayItem);
 
             if (isBuying) {
-                setAmountButton(inv, 29, Material.LIME_STAINED_GLASS_PANE, 1, true);
-                setAmountButton(inv, 30, Material.LIME_STAINED_GLASS_PANE, 10, true);
-                setAmountButton(inv, 31, Material.LIME_STAINED_GLASS_PANE, 32, true);
-                setAmountButton(inv, 32, Material.LIME_STAINED_GLASS_PANE, 64, true);
-                setAmountButton(inv, 33, Material.LIME_STAINED_GLASS_PANE, 128, true);
+                setAmountButton(inv, 29, Material.LIME_STAINED_GLASS_PANE, 1, true, item);
+                setAmountButton(inv, 30, Material.LIME_STAINED_GLASS_PANE, 10, true, item);
+                setAmountButton(inv, 31, Material.LIME_STAINED_GLASS_PANE, 32, true, item);
+                setAmountButton(inv, 32, Material.LIME_STAINED_GLASS_PANE, 64, true, item);
+                setAmountButton(inv, 33, Material.LIME_STAINED_GLASS_PANE, 128, true, item);
             } else {
-                setAmountButton(inv, 29, Material.RED_STAINED_GLASS_PANE, 1, false);
-                setAmountButton(inv, 30, Material.RED_STAINED_GLASS_PANE, 10, false);
-                setAmountButton(inv, 31, Material.RED_STAINED_GLASS_PANE, 32, false);
-                setAmountButton(inv, 32, Material.RED_STAINED_GLASS_PANE, 64, false);
-                setAmountButton(inv, 33, Material.RED_STAINED_GLASS_PANE, -1, false);
+                setAmountButton(inv, 29, Material.RED_STAINED_GLASS_PANE, 1, false, item);
+                setAmountButton(inv, 30, Material.RED_STAINED_GLASS_PANE, 10, false, item);
+                setAmountButton(inv, 31, Material.RED_STAINED_GLASS_PANE, 32, false, item);
+                setAmountButton(inv, 32, Material.RED_STAINED_GLASS_PANE, 64, false, item);
+                setAmountButton(inv, 33, Material.RED_STAINED_GLASS_PANE, -1, false, item);
             }
 
             ItemStack toggleButton = new ItemStack(Material.HOPPER);
@@ -132,15 +209,33 @@ public class GUIManager {
         meta.setDisplayName(ChatColor.YELLOW + formatMaterialName(item.getMaterial()));
 
         List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "Stock: " + ChatColor.WHITE + item.getStock() + "/" + item.getMaxStock());
+
+        if (plugin.getShopConfig().showStock()) {
+            lore.add(ChatColor.GRAY + "Stock: " + ChatColor.WHITE + item.getStock() + "/" + item.getMaxStock());
+        }
+
         lore.add("");
         lore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
         lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", item.getSellPrice()));
-        lore.add("");
-        lore.add(formatPriceChange(item.getPriceChangePercent()));
-        lore.add("");
-        lore.add(ChatColor.YELLOW + "Left Click to Buy");
-        lore.add(ChatColor.YELLOW + "Right Click to Sell");
+
+        if (plugin.getShopConfig().showPriceTrends()) {
+            lore.add("");
+            lore.add(formatPriceChange(item.getPriceChangePercent()));
+        }
+
+        // Add restock countdown if out of stock
+        if (item.getStock() == 0 && plugin.getRestockManager().isRestocking(item.getMaterial())) {
+            String countdown = plugin.getRestockManager().getRestockCountdown(item.getMaterial());
+            if (countdown != null) {
+                lore.add("");
+                lore.add(ChatColor.RED + "Out of Stock!");
+                lore.add(ChatColor.YELLOW + "Restocking in: " + ChatColor.GOLD + countdown);
+            }
+        } else {
+            lore.add("");
+            lore.add(ChatColor.YELLOW + "Left Click to Buy");
+            lore.add(ChatColor.YELLOW + "Right Click to Sell");
+        }
 
         meta.setLore(lore);
         display.setItemMeta(meta);
@@ -159,23 +254,29 @@ public class GUIManager {
         inv.setItem(slot, item);
     }
 
-    private void setAmountButton(Inventory inv, int slot, Material material, int amount, boolean isBuying) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
+    private void setAmountButton(Inventory inv, int slot, Material material, int amount, boolean isBuying, ShopItem item) {
+        ItemStack button = new ItemStack(material);
+        ItemMeta meta = button.getItemMeta();
 
         String action = isBuying ? "Buy" : "Sell";
         String amountText = amount == -1 ? "All" : String.valueOf(amount);
 
         meta.setDisplayName(ChatColor.GREEN + action + " " + amountText);
 
+        List<String> lore = new ArrayList<>();
         if (amount == -1) {
-            List<String> lore = new ArrayList<>();
             lore.add(ChatColor.GRAY + "Sell all items in inventory");
-            meta.setLore(lore);
+        } else if (isBuying) {
+            double totalCost = item.getBuyPrice() * amount;
+            lore.add(ChatColor.GRAY + "Total cost: " + ChatColor.GREEN + "$" + String.format("%.2f", totalCost));
+        } else {
+            double totalEarn = item.getSellPrice() * amount;
+            lore.add(ChatColor.GRAY + "Total earnings: " + ChatColor.GREEN + "$" + String.format("%.2f", totalEarn));
         }
 
-        item.setItemMeta(meta);
-        inv.setItem(slot, item);
+        meta.setLore(lore);
+        button.setItemMeta(meta);
+        inv.setItem(slot, button);
     }
 
     private void fillBorders(Inventory inv) {
@@ -237,7 +338,6 @@ public class GUIManager {
         return formatted.toString();
     }
 
-
     public String getPlayerCategory(UUID uuid) {
         return playerCategory.get(uuid);
     }
@@ -246,8 +346,13 @@ public class GUIManager {
         return playerSelectedItem.get(uuid);
     }
 
+    public int getPlayerPage(UUID uuid) {
+        return playerPage.getOrDefault(uuid, 0);
+    }
+
     public void clearPlayerData(UUID uuid) {
         playerCategory.remove(uuid);
         playerSelectedItem.remove(uuid);
+        playerPage.remove(uuid);
     }
 }

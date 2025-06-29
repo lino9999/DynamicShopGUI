@@ -1,7 +1,88 @@
-price-factors:
-  increase: 0.05
-  decrease: 0.03
+# DynamicShopGUI Configuration
 
+# Price factors - how much prices change with transactions
+price-factors:
+  increase: 0.05  # Price increase factor when items are bought
+  decrease: 0.03  # Price decrease factor when items are sold
+
+# Price limits - min/max price multipliers relative to base price
 price-limits:
-  min-multiplier: 0.1
-  max-multiplier: 10.0
+  min-multiplier: 0.1   # Minimum price is 10% of base price
+  max-multiplier: 10.0  # Maximum price is 10x base price
+
+# Stock settings
+stock:
+  # Initial stock for all items (can be overridden per category)
+  initial-stock: 100
+  
+  # Maximum stock per category
+  max-stock:
+    building: 10000
+    ores: 1000
+    food: 5000
+    tools: 500
+    armor: 200
+    redstone: 2000
+    farming: 5000
+    misc: 1000
+  
+  # Special max stock for specific items (overrides category max)
+  special-items:
+    NETHERITE_INGOT: 10
+    NETHERITE_HELMET: 5
+    NETHERITE_CHESTPLATE: 5
+    NETHERITE_LEGGINGS: 5
+    NETHERITE_BOOTS: 5
+    NETHERITE_PICKAXE: 5
+    NETHERITE_AXE: 5
+    NETHERITE_SHOVEL: 5
+    NETHERITE_HOE: 5
+    DIAMOND: 100
+    EMERALD: 200
+    ELYTRA: 3
+    TOTEM_OF_UNDYING: 5
+    HEART_OF_THE_SEA: 10
+
+# Restock settings
+restock:
+  # Enable automatic restocking
+  enabled: true
+  
+  # Time in minutes before items restock when out of stock
+  restock-time: 60
+  
+  # Amount to restock (percentage of initial stock)
+  restock-percentage: 100
+
+# GUI settings
+gui:
+  # Enable sounds in GUI
+  sounds-enabled: true
+  
+  # Items per page in category view
+  items-per-page: 45
+  
+  # Show stock information in item lore
+  show-stock: true
+  
+  # Show price trends in item lore
+  show-price-trends: true
+
+# Messages
+messages:
+  # Prefix for all shop messages
+  prefix: "&8[&aDynamicShop&8] &7"
+  
+  # Transaction messages
+  buy-success: "&aSuccessfully purchased %amount%x %item% for $%price%"
+  sell-success: "&aSuccessfully sold %amount%x %item% for $%price%"
+  
+  # Error messages
+  insufficient-funds: "&cInsufficient funds! You need $%price%"
+  insufficient-items: "&cYou don't have enough items to sell!"
+  out-of-stock: "&cThis item is currently out of stock!"
+  shop-full: "&cThe shop is full of this item!"
+  
+  # Restock messages
+  restock-countdown: "&eRestocking in: &6%time%"
+  item-restocked: "&aThis item has been restocked!"

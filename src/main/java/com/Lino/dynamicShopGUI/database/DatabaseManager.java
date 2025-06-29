@@ -71,6 +71,7 @@ public class DatabaseManager {
 
     private void initializeDefaultData() throws SQLException {
         Map<String, Map<String, Double>> shopConfig = plugin.getShopConfig().getShopItems();
+        int initialStock = plugin.getShopConfig().getInitialStock();
 
         String insertQuery = "INSERT OR IGNORE INTO shop_items (material, category, base_price, current_price, stock, max_stock) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -84,44 +85,21 @@ public class DatabaseManager {
 
                     try {
                         Material material = Material.valueOf(materialName);
-                        int maxStock = calculateMaxStock(material, category);
+                        int maxStock = plugin.getShopConfig().getMaxStock(category, material);
 
                         pstmt.setString(1, materialName);
                         pstmt.setString(2, category);
                         pstmt.setDouble(3, basePrice);
                         pstmt.setDouble(4, basePrice);
-                        pstmt.setInt(5, 0);
+                        pstmt.setInt(5, initialStock);
                         pstmt.setInt(6, maxStock);
                         pstmt.addBatch();
                     } catch (IllegalArgumentException ignored) {
+                        plugin.getLogger().warning("Invalid material in shop.yml: " + materialName);
                     }
                 }
             }
             pstmt.executeBatch();
-        }
-    }
-
-
-    private int calculateMaxStock(Material material, String category) {
-        switch (category) {
-            case "BUILDING":
-                return 10000;
-            case "ORES":
-                if (material.name().contains("NETHERITE")) return 10;
-                if (material.name().contains("DIAMOND")) return 100;
-                if (material.name().contains("EMERALD")) return 200;
-                return 1000;
-            case "TOOLS":
-            case "ARMOR":
-                if (material.name().contains("NETHERITE")) return 5;
-                if (material.name().contains("DIAMOND")) return 20;
-                return 50;
-            case "MISC":
-                if (material == Material.ELYTRA) return 3;
-                if (material == Material.TOTEM_OF_UNDYING) return 5;
-                return 100;
-            default:
-                return 500;
         }
     }
 
