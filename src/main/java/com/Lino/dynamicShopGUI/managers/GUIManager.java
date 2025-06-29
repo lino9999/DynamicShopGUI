@@ -121,14 +121,26 @@ public class GUIManager {
     }
 
     public void openTransactionMenu(Player player, Material material, boolean isBuying) {
+        // Imposta l'item selezionato PRIMA di fare la query asincrona
         playerSelectedItem.put(player.getUniqueId(), material);
 
+        plugin.getLogger().info("GUIManager: Setting selected item for " + player.getName() + ": " + material + " (isBuying: " + isBuying + ")");
+        plugin.getLogger().info("GUIManager: Current playerSelectedItem map contents: " + playerSelectedItem.toString());
+
         plugin.getDatabaseManager().getShopItem(material).thenAccept(item -> {
-            if (item == null) return;
+            if (item == null) {
+                plugin.getLogger().warning("GUIManager: Item not found in database: " + material);
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    player.sendMessage(ChatColor.RED + "This item is not available in the shop!");
+                });
+                return;
+            }
 
             String title = isBuying ?
                     ChatColor.DARK_GREEN + "Buy " + formatMaterialName(material) :
                     ChatColor.DARK_RED + "Sell " + formatMaterialName(material);
+
+            plugin.getLogger().info("GUIManager: Creating GUI with title: " + title);
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
@@ -228,9 +240,17 @@ public class GUIManager {
             String countdown = plugin.getRestockManager().getRestockCountdown(item.getMaterial());
             if (countdown != null) {
                 lore.add("");
-                lore.add(ChatColor.RED + "Out of Stock!");
+                lore.add(ChatColor.RED + "Out of Stock for Purchase!");
                 lore.add(ChatColor.YELLOW + "Restocking in: " + ChatColor.GOLD + countdown);
+                lore.add("");
+                lore.add(ChatColor.GRAY + "You can still sell this item to the shop");
+                lore.add(ChatColor.YELLOW + "Right Click to Sell");
             }
+        } else if (item.getStock() == 0) {
+            lore.add("");
+            lore.add(ChatColor.RED + "Out of Stock for Purchase!");
+            lore.add(ChatColor.GRAY + "You can still sell this item to the shop");
+            lore.add(ChatColor.YELLOW + "Right Click to Sell");
         } else {
             lore.add("");
             lore.add(ChatColor.YELLOW + "Left Click to Buy");
@@ -343,7 +363,15 @@ public class GUIManager {
     }
 
     public Material getPlayerSelectedItem(UUID uuid) {
-        return playerSelectedItem.get(uuid);
+        Material selected = playerSelectedItem.get(uuid);
+        plugin.getLogger().info("GUIManager: Getting selected item for " + uuid + ": " + selected);
+        plugin.getLogger().info("GUIManager: Current playerSelectedItem map: " + playerSelectedItem.toString());
+        return selected;
+    }
+
+    public void setPlayerSelectedItem(UUID uuid, Material material) {
+        playerSelectedItem.put(uuid, material);
+        plugin.getLogger().info("GUIManager: Manually set selected item for " + uuid + ": " + material);
     }
 
     public int getPlayerPage(UUID uuid) {
