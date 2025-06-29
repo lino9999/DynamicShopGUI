@@ -17,6 +17,17 @@ public class ShopCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (!sender.hasPermission("dynamicshop.admin")) {
+                sender.sendMessage(ChatColor.RED + "You don't have permission to reload the shop!");
+                return true;
+            }
+
+            plugin.getShopConfig().reload();
+            sender.sendMessage(ChatColor.GREEN + "Shop configuration reloaded!");
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
             return true;

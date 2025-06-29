@@ -1,0 +1,183 @@
+categories:
+  building:
+    display-name: "Building Blocks"
+    items:
+      STONE: 2.0
+      COBBLESTONE: 1.5
+      GRANITE: 3.0
+      DIORITE: 3.0
+      ANDESITE: 3.0
+      DIRT: 1.0
+      GRASS_BLOCK: 2.0
+      OAK_LOG: 5.0
+      SPRUCE_LOG: 5.0
+      BIRCH_LOG: 5.0
+      JUNGLE_LOG: 5.0
+      ACACIA_LOG: 5.0
+      DARK_OAK_LOG: 5.0
+      OAK_PLANKS: 1.5
+      SPRUCE_PLANKS: 1.5
+      BIRCH_PLANKS: 1.5
+      JUNGLE_PLANKS: 1.5
+      ACACIA_PLANKS: 1.5
+      DARK_OAK_PLANKS: 1.5
+      SAND: 2.0
+      RED_SAND: 3.0
+      GRAVEL: 2.0
+      GLASS: 3.0
+      BRICKS: 10.0
+      STONE_BRICKS: 4.0
+      NETHER_BRICKS: 15.0
+      QUARTZ_BLOCK: 20.0
+      TERRACOTTA: 5.0
+      WHITE_CONCRETE: 4.0
+      WHITE_WOOL: 8.0
+
+  ores:
+    display-name: "Ores & Minerals"
+    items:
+      COAL: 5.0
+      IRON_INGOT: 15.0
+      GOLD_INGOT: 50.0
+      DIAMOND: 200.0
+      EMERALD: 150.0
+      LAPIS_LAZULI: 10.0
+      REDSTONE: 8.0
+      COPPER_INGOT: 12.0
+      NETHERITE_INGOT: 2000.0
+      QUARTZ: 5.0
+      AMETHYST_SHARD: 25.0
+
+  food:
+    display-name: "Food"
+    items:
+      APPLE: 5.0
+      BREAD: 8.0
+      COOKED_BEEF: 15.0
+      COOKED_PORKCHOP: 12.0
+      COOKED_CHICKEN: 10.0
+      COOKED_COD: 10.0
+      COOKED_SALMON: 12.0
+      GOLDEN_APPLE: 500.0
+      GOLDEN_CARROT: 100.0
+      COOKIE: 3.0
+      MELON_SLICE: 2.0
+      PUMPKIN_PIE: 20.0
+      CAKE: 50.0
+      HONEY_BOTTLE: 15.0
+      SWEET_BERRIES: 3.0
+
+  tools:
+    display-name: "Tools"
+    items:
+      WOODEN_PICKAXE: 10.0
+      STONE_PICKAXE: 20.0
+      IRON_PICKAXE: 80.0
+      GOLDEN_PICKAXE: 150.0
+      DIAMOND_PICKAXE: 600.0
+      NETHERITE_PICKAXE: 4000.0
+      WOODEN_AXE: 10.0
+      STONE_AXE: 20.0
+      IRON_AXE: 80.0
+      GOLDEN_AXE: 150.0
+      DIAMOND_AXE: 600.0
+      NETHERITE_AXE: 4000.0
+      WOODEN_SHOVEL: 8.0
+      STONE_SHOVEL: 15.0
+      IRON_SHOVEL: 60.0
+      GOLDEN_SHOVEL: 120.0
+      DIAMOND_SHOVEL: 500.0
+      NETHERITE_SHOVEL: 3500.0
+      WOODEN_HOE: 8.0
+      STONE_HOE: 15.0
+      IRON_HOE: 60.0
+      GOLDEN_HOE: 120.0
+      DIAMOND_HOE: 500.0
+      NETHERITE_HOE: 3500.0
+
+  armor:
+    display-name: "Armor"
+    items:
+      LEATHER_HELMET: 20.0
+      LEATHER_CHESTPLATE: 40.0
+      LEATHER_LEGGINGS: 35.0
+      LEATHER_BOOTS: 20.0
+      CHAINMAIL_HELMET: 60.0
+      CHAINMAIL_CHESTPLATE: 120.0
+      CHAINMAIL_LEGGINGS: 100.0
+      CHAINMAIL_BOOTS: 60.0
+      IRON_HELMET: 100.0
+      IRON_CHESTPLATE: 200.0
+      IRON_LEGGINGS: 175.0
+      IRON_BOOTS: 100.0
+      GOLDEN_HELMET: 200.0
+      GOLDEN_CHESTPLATE: 400.0
+      GOLDEN_LEGGINGS: 350.0
+      GOLDEN_BOOTS: 200.0
+      DIAMOND_HELMET: 800.0
+      DIAMOND_CHESTPLATE: 1600.0
+      DIAMOND_LEGGINGS: 1400.0
+      DIAMOND_BOOTS: 800.0
+      NETHERITE_HELMET: 5000.0
+      NETHERITE_CHESTPLATE: 10000.0
+      NETHERITE_LEGGINGS: 8000.0
+      NETHERITE_BOOTS: 5000.0
+
+  redstone:
+    display-name: "Redstone"
+    items:
+      REDSTONE: 8.0
+      REDSTONE_TORCH: 10.0
+      REDSTONE_BLOCK: 72.0
+      REPEATER: 15.0
+      COMPARATOR: 20.0
+      PISTON: 30.0
+      STICKY_PISTON: 40.0
+      OBSERVER: 50.0
+      HOPPER: 100.0
+      DROPPER: 25.0
+      DISPENSER: 30.0
+      NOTE_BLOCK: 35.0
+      LEVER: 5.0
+      STONE_BUTTON: 3.0
+      TRIPWIRE_HOOK: 15.0
+      DAYLIGHT_DETECTOR: 40.0
+
+  farming:
+    display-name: "Farming"
+    items:
+      WHEAT_SEEDS: 1.0
+      PUMPKIN_SEEDS: 3.0
+      MELON_SEEDS: 3.0
+      BEETROOT_SEEDS: 2.0
+      CARROT: 3.0
+      POTATO: 3.0
+      WHEAT: 4.0
+      SUGAR_CANE: 2.0
+      CACTUS: 3.0
+      BAMBOO: 2.0
+      KELP: 2.0
+      BONE_MEAL: 5.0
+      COCOA_BEANS: 8.0
+
+  misc:
+    display-name: "Miscellaneous"
+    items:
+      ENDER_PEARL: 50.0
+      BLAZE_ROD: 100.0
+      SLIME_BALL: 30.0
+      GUNPOWDER: 20.0
+      STRING: 5.0
+      SPIDER_EYE: 10.0
+      GHAST_TEAR: 200.0
+      MAGMA_CREAM: 40.0
+      PHANTOM_MEMBRANE: 100.0
+      SHULKER_SHELL: 500.0
+      NAUTILUS_SHELL: 150.0
+      HEART_OF_THE_SEA: 2000.0
+      TOTEM_OF_UNDYING: 5000.0
+      ENCHANTED_BOOK: 300.0
+      NAME_TAG: 100.0
+      SADDLE: 150.0
+      LEAD: 20.0
+      ELYTRA: 20000.0

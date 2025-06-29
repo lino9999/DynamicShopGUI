@@ -70,43 +70,27 @@ public class DatabaseManager {
     }
 
     private void initializeDefaultData() throws SQLException {
-        String checkQuery = "SELECT COUNT(*) FROM shop_items";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(checkQuery)) {
-            if (rs.next() && rs.getInt(1) > 0) {
-                return;
-            }
-        }
+        Map<String, Map<String, Double>> shopConfig = plugin.getShopConfig().getShopItems();
 
-        Map<String, String> categories = new HashMap<>();
-        categories.put("BUILDING", "STONE,COBBLESTONE,GRANITE,DIORITE,ANDESITE,DIRT,GRASS_BLOCK,OAK_LOG,SPRUCE_LOG,BIRCH_LOG,JUNGLE_LOG,ACACIA_LOG,DARK_OAK_LOG,OAK_PLANKS,SPRUCE_PLANKS,BIRCH_PLANKS,JUNGLE_PLANKS,ACACIA_PLANKS,DARK_OAK_PLANKS,SAND,RED_SAND,GRAVEL,GLASS,BRICKS,STONE_BRICKS,NETHER_BRICKS,QUARTZ_BLOCK,TERRACOTTA,CONCRETE,WOOL");
-        categories.put("ORES", "COAL,IRON_INGOT,GOLD_INGOT,DIAMOND,EMERALD,LAPIS_LAZULI,REDSTONE,COPPER_INGOT,NETHERITE_INGOT,QUARTZ,AMETHYST_SHARD");
-        categories.put("FOOD", "APPLE,BREAD,COOKED_BEEF,COOKED_PORKCHOP,COOKED_CHICKEN,COOKED_COD,COOKED_SALMON,GOLDEN_APPLE,GOLDEN_CARROT,COOKIE,MELON_SLICE,PUMPKIN_PIE,CAKE,HONEY_BOTTLE,SWEET_BERRIES");
-        categories.put("TOOLS", "WOODEN_PICKAXE,STONE_PICKAXE,IRON_PICKAXE,GOLDEN_PICKAXE,DIAMOND_PICKAXE,NETHERITE_PICKAXE,WOODEN_AXE,STONE_AXE,IRON_AXE,GOLDEN_AXE,DIAMOND_AXE,NETHERITE_AXE,WOODEN_SHOVEL,STONE_SHOVEL,IRON_SHOVEL,GOLDEN_SHOVEL,DIAMOND_SHOVEL,NETHERITE_SHOVEL,WOODEN_HOE,STONE_HOE,IRON_HOE,GOLDEN_HOE,DIAMOND_HOE,NETHERITE_HOE");
-        categories.put("ARMOR", "LEATHER_HELMET,LEATHER_CHESTPLATE,LEATHER_LEGGINGS,LEATHER_BOOTS,CHAINMAIL_HELMET,CHAINMAIL_CHESTPLATE,CHAINMAIL_LEGGINGS,CHAINMAIL_BOOTS,IRON_HELMET,IRON_CHESTPLATE,IRON_LEGGINGS,IRON_BOOTS,GOLDEN_HELMET,GOLDEN_CHESTPLATE,GOLDEN_LEGGINGS,GOLDEN_BOOTS,DIAMOND_HELMET,DIAMOND_CHESTPLATE,DIAMOND_LEGGINGS,DIAMOND_BOOTS,NETHERITE_HELMET,NETHERITE_CHESTPLATE,NETHERITE_LEGGINGS,NETHERITE_BOOTS");
-        categories.put("REDSTONE", "REDSTONE,REDSTONE_TORCH,REDSTONE_BLOCK,REPEATER,COMPARATOR,PISTON,STICKY_PISTON,OBSERVER,HOPPER,DROPPER,DISPENSER,NOTE_BLOCK,LEVER,STONE_BUTTON,TRIPWIRE_HOOK,DAYLIGHT_DETECTOR");
-        categories.put("FARMING", "WHEAT_SEEDS,PUMPKIN_SEEDS,MELON_SEEDS,BEETROOT_SEEDS,CARROT,POTATO,WHEAT,SUGAR_CANE,CACTUS,BAMBOO,KELP,BONE_MEAL,COCOA_BEANS");
-        categories.put("MISC", "ENDER_PEARL,BLAZE_ROD,SLIME_BALL,GUNPOWDER,STRING,SPIDER_EYE,GHAST_TEAR,MAGMA_CREAM,PHANTOM_MEMBRANE,SHULKER_SHELL,NAUTILUS_SHELL,HEART_OF_THE_SEA,TOTEM_OF_UNDYING,ENCHANTED_BOOK,NAME_TAG,SADDLE,LEAD,ELYTRA");
-
-        String insertQuery = "INSERT INTO shop_items (material, category, base_price, current_price, stock, max_stock) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertQuery = "INSERT OR IGNORE INTO shop_items (material, category, base_price, current_price, stock, max_stock) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            for (Map.Entry<String, String> entry : categories.entrySet()) {
-                String category = entry.getKey();
-                String[] items = entry.getValue().split(",");
+            for (Map.Entry<String, Map<String, Double>> categoryEntry : shopConfig.entrySet()) {
+                String category = categoryEntry.getKey();
 
-                for (String item : items) {
+                for (Map.Entry<String, Double> itemEntry : categoryEntry.getValue().entrySet()) {
+                    String materialName = itemEntry.getKey();
+                    double basePrice = itemEntry.getValue();
+
                     try {
-                        Material material = Material.valueOf(item);
-                        double basePrice = calculateBasePrice(material, category);
+                        Material material = Material.valueOf(materialName);
                         int maxStock = calculateMaxStock(material, category);
-                        int initialStock = maxStock / 2;
 
-                        pstmt.setString(1, item);
+                        pstmt.setString(1, materialName);
                         pstmt.setString(2, category);
                         pstmt.setDouble(3, basePrice);
                         pstmt.setDouble(4, basePrice);
-                        pstmt.setInt(5, initialStock);
+                        pstmt.setInt(5, 0);
                         pstmt.setInt(6, maxStock);
                         pstmt.addBatch();
                     } catch (IllegalArgumentException ignored) {
@@ -117,44 +101,6 @@ public class DatabaseManager {
         }
     }
 
-    private double calculateBasePrice(Material material, String category) {
-        switch (category) {
-            case "ORES":
-                if (material.name().contains("NETHERITE")) return 5000.0;
-                if (material.name().contains("DIAMOND")) return 500.0;
-                if (material.name().contains("EMERALD")) return 300.0;
-                if (material.name().contains("GOLD")) return 150.0;
-                if (material.name().contains("IRON")) return 50.0;
-                return 20.0;
-            case "TOOLS":
-                if (material.name().contains("NETHERITE")) return 10000.0;
-                if (material.name().contains("DIAMOND")) return 1500.0;
-                if (material.name().contains("GOLDEN")) return 500.0;
-                if (material.name().contains("IRON")) return 200.0;
-                if (material.name().contains("STONE")) return 50.0;
-                return 20.0;
-            case "ARMOR":
-                if (material.name().contains("NETHERITE")) return 12000.0;
-                if (material.name().contains("DIAMOND")) return 2000.0;
-                if (material.name().contains("GOLDEN")) return 800.0;
-                if (material.name().contains("IRON")) return 400.0;
-                if (material.name().contains("CHAINMAIL")) return 300.0;
-                return 100.0;
-            case "FOOD":
-                if (material == Material.GOLDEN_APPLE) return 1000.0;
-                if (material == Material.GOLDEN_CARROT) return 500.0;
-                if (material == Material.CAKE) return 100.0;
-                return 10.0;
-            case "MISC":
-                if (material == Material.ELYTRA) return 50000.0;
-                if (material == Material.TOTEM_OF_UNDYING) return 10000.0;
-                if (material == Material.SHULKER_SHELL) return 1000.0;
-                if (material == Material.HEART_OF_THE_SEA) return 5000.0;
-                return 100.0;
-            default:
-                return 10.0;
-        }
-    }
 
     private int calculateMaxStock(Material material, String category) {
         switch (category) {

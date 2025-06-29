@@ -116,27 +116,26 @@ public class ShopManager {
 
     private double calculateNewPrice(ShopItem item, boolean isBuying) {
         double stockRatio = (double) item.getStock() / item.getMaxStock();
-        double demandFactor = (double) item.getTransactionsBuy() / Math.max(1, item.getTransactionsSell());
 
         double priceFactor = 1.0;
 
-        if (stockRatio < 0.2) {
-            priceFactor = 2.0 - (stockRatio * 5);
+        if (stockRatio == 0) {
+            priceFactor = 3.0;
+        } else if (stockRatio < 0.1) {
+            priceFactor = 2.0;
+        } else if (stockRatio < 0.3) {
+            priceFactor = 1.5;
         } else if (stockRatio < 0.5) {
             priceFactor = 1.2;
-        } else if (stockRatio > 0.8) {
+        } else if (stockRatio > 0.7) {
             priceFactor = 0.8;
+        } else if (stockRatio > 0.9) {
+            priceFactor = 0.6;
         }
 
-        if (demandFactor > 2.0) {
-            priceFactor *= 1.2;
-        } else if (demandFactor < 0.5) {
-            priceFactor *= 0.8;
-        }
-
-        if (isBuying) {
+        if (isBuying && item.getStock() > 0) {
             priceFactor *= (1 + PRICE_INCREASE_FACTOR);
-        } else {
+        } else if (!isBuying) {
             priceFactor *= (1 - PRICE_DECREASE_FACTOR);
         }
 

@@ -8,6 +8,7 @@ import com.Lino.dynamicShopGUI.managers.ShopManager;
 import com.Lino.dynamicShopGUI.managers.GUIManager;
 import com.Lino.dynamicShopGUI.commands.ShopCommand;
 import com.Lino.dynamicShopGUI.listeners.ShopListener;
+import com.Lino.dynamicShopGUI.config.ShopConfig;
 
 public class DynamicShopGUI extends JavaPlugin {
 
@@ -16,6 +17,7 @@ public class DynamicShopGUI extends JavaPlugin {
     private DatabaseManager databaseManager;
     private ShopManager shopManager;
     private GUIManager guiManager;
+    private ShopConfig shopConfig;
 
     @Override
     public void onEnable() {
@@ -28,6 +30,7 @@ public class DynamicShopGUI extends JavaPlugin {
         }
 
         saveDefaultConfig();
+        shopConfig = new ShopConfig(this);
 
         databaseManager = new DatabaseManager(this);
         if (!databaseManager.initialize()) {
@@ -91,5 +94,9 @@ public class DynamicShopGUI extends JavaPlugin {
 
     public GUIManager getGUIManager() {
         return guiManager;
+    }
+
+    public ShopConfig getShopConfig() {
+        return shopConfig;
     }
 }

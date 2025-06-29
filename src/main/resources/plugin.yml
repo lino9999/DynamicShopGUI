@@ -3,7 +3,7 @@ version: '1.0'
 main: com.Lino.dynamicShopGUI.DynamicShopGUI
 api-version: '1.21'
 depend: [Vault]
-authors: Lino
+authors: [Lino]
 description: Dynamic shop plugin with supply and demand pricing
 
 commands:

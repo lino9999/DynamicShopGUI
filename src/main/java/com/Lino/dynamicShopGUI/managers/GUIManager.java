@@ -39,7 +39,8 @@ public class GUIManager {
 
     public void openCategoryMenu(Player player, String category) {
         playerCategory.put(player.getUniqueId(), category);
-        String title = ChatColor.DARK_GREEN + "Shop - " + getCategoryDisplayName(category);
+        String displayName = plugin.getShopConfig().getCategoryDisplayName(category.toLowerCase());
+        String title = ChatColor.DARK_GREEN + "Shop - " + displayName;
         Inventory inv = Bukkit.createInventory(null, 54, title);
 
         plugin.getDatabaseManager().getItemsByCategory(category).thenAccept(items -> {
@@ -236,19 +237,6 @@ public class GUIManager {
         return formatted.toString();
     }
 
-    private String getCategoryDisplayName(String category) {
-        switch (category) {
-            case "BUILDING": return "Building Blocks";
-            case "ORES": return "Ores & Minerals";
-            case "FOOD": return "Food";
-            case "TOOLS": return "Tools";
-            case "ARMOR": return "Armor";
-            case "REDSTONE": return "Redstone";
-            case "FARMING": return "Farming";
-            case "MISC": return "Miscellaneous";
-            default: return category;
-        }
-    }
 
     public String getPlayerCategory(UUID uuid) {
         return playerCategory.get(uuid);
