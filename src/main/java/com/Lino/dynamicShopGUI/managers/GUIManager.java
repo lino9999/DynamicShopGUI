@@ -52,9 +52,9 @@ public class GUIManager {
 
             int itemsPerPage = plugin.getShopConfig().getItemsPerPage();
             int totalPages = (int) Math.ceil((double) sortedItems.size() / itemsPerPage);
-            page = Math.max(0, Math.min(page, totalPages - 1));
+            final int finalPage = Math.max(0, Math.min(page, totalPages - 1));
 
-            int startIndex = page * itemsPerPage;
+            int startIndex = finalPage * itemsPerPage;
             int endIndex = Math.min(startIndex + itemsPerPage, sortedItems.size());
 
             int slot = 0;
@@ -74,12 +74,12 @@ public class GUIManager {
             }
 
             // Navigation buttons
-            if (page > 0) {
+            if (finalPage > 0) {
                 ItemStack prevPage = new ItemStack(Material.ARROW);
                 ItemMeta prevMeta = prevPage.getItemMeta();
                 prevMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
                 List<String> prevLore = new ArrayList<>();
-                prevLore.add(ChatColor.GRAY + "Page " + page + "/" + totalPages);
+                prevLore.add(ChatColor.GRAY + "Page " + finalPage + "/" + totalPages);
                 prevMeta.setLore(prevLore);
                 prevPage.setItemMeta(prevMeta);
                 inv.setItem(48, prevPage);
@@ -91,12 +91,12 @@ public class GUIManager {
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
-            if (page < totalPages - 1) {
+            if (finalPage < totalPages - 1) {
                 ItemStack nextPage = new ItemStack(Material.ARROW);
                 ItemMeta nextMeta = nextPage.getItemMeta();
                 nextMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
                 List<String> nextLore = new ArrayList<>();
-                nextLore.add(ChatColor.GRAY + "Page " + (page + 2) + "/" + totalPages);
+                nextLore.add(ChatColor.GRAY + "Page " + (finalPage + 2) + "/" + totalPages);
                 nextMeta.setLore(nextLore);
                 nextPage.setItemMeta(nextMeta);
                 inv.setItem(50, nextPage);
@@ -106,7 +106,7 @@ public class GUIManager {
             if (totalPages > 1) {
                 ItemStack pageInfo = new ItemStack(Material.PAPER);
                 ItemMeta pageMeta = pageInfo.getItemMeta();
-                pageMeta.setDisplayName(ChatColor.GOLD + "Page " + (page + 1) + "/" + totalPages);
+                pageMeta.setDisplayName(ChatColor.GOLD + "Page " + (finalPage + 1) + "/" + totalPages);
                 List<String> pageLore = new ArrayList<>();
                 pageLore.add(ChatColor.GRAY + "Total items: " + sortedItems.size());
                 pageMeta.setLore(pageLore);
