@@ -124,12 +124,8 @@ public class GUIManager {
         // Imposta l'item selezionato PRIMA di fare la query asincrona
         playerSelectedItem.put(player.getUniqueId(), material);
 
-        plugin.getLogger().info("GUIManager: Setting selected item for " + player.getName() + ": " + material + " (isBuying: " + isBuying + ")");
-        plugin.getLogger().info("GUIManager: Current playerSelectedItem map contents: " + playerSelectedItem.toString());
-
         plugin.getDatabaseManager().getShopItem(material).thenAccept(item -> {
             if (item == null) {
-                plugin.getLogger().warning("GUIManager: Item not found in database: " + material);
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
                     player.sendMessage(ChatColor.RED + "This item is not available in the shop!");
                 });
@@ -139,8 +135,6 @@ public class GUIManager {
             String title = isBuying ?
                     ChatColor.DARK_GREEN + "Buy " + formatMaterialName(material) :
                     ChatColor.DARK_RED + "Sell " + formatMaterialName(material);
-
-            plugin.getLogger().info("GUIManager: Creating GUI with title: " + title);
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
@@ -162,6 +156,16 @@ public class GUIManager {
 
             displayLore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
             displayLore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", item.getSellPrice()));
+
+            // Show tax information if enabled and player is selling
+            if (!isBuying && plugin.getShopConfig().showTaxInfo() && plugin.getShopConfig().isTaxEnabled()) {
+                if (!plugin.getShopConfig().isTaxExempt(material)) {
+                    double taxRate = plugin.getShopConfig().getTaxRate(item.getCategory()) * 100;
+                    displayLore.add(ChatColor.DARK_GRAY + "Tax Rate: " + ChatColor.GRAY + String.format("%.1f%%", taxRate));
+                } else {
+                    displayLore.add(ChatColor.DARK_GRAY + "Tax: " + ChatColor.GREEN + "Exempt");
+                }
+            }
 
             if (plugin.getShopConfig().showPriceTrends()) {
                 displayLore.add("");
@@ -228,7 +232,23 @@ public class GUIManager {
 
         lore.add("");
         lore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
-        lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", item.getSellPrice()));
+
+        // Calculate and show net sell price (after tax)
+        double sellPrice = item.getSellPrice();
+        if (plugin.getShopConfig().showTaxInfo() && plugin.getShopConfig().isTaxEnabled()) {
+            double tax = plugin.getShopConfig().calculateTax(item.getMaterial(), item.getCategory(), sellPrice);
+            double netPrice = sellPrice - tax;
+
+            if (tax > 0) {
+                lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", sellPrice) +
+                        ChatColor.DARK_GRAY + " (Net: $" + String.format("%.2f", netPrice) + ")");
+            } else {
+                lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", sellPrice) +
+                        ChatColor.GREEN + " (Tax Exempt)");
+            }
+        } else {
+            lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", sellPrice));
+        }
 
         if (plugin.getShopConfig().showPriceTrends()) {
             lore.add("");
@@ -291,7 +311,14 @@ public class GUIManager {
             lore.add(ChatColor.GRAY + "Total cost: " + ChatColor.GREEN + "$" + String.format("%.2f", totalCost));
         } else {
             double totalEarn = item.getSellPrice() * amount;
+            double tax = plugin.getShopConfig().calculateTax(item.getMaterial(), item.getCategory(), totalEarn);
+            double netEarn = totalEarn - tax;
+
             lore.add(ChatColor.GRAY + "Total earnings: " + ChatColor.GREEN + "$" + String.format("%.2f", totalEarn));
+            if (tax > 0) {
+                lore.add(ChatColor.DARK_GRAY + "Tax: " + ChatColor.RED + "-$" + String.format("%.2f", tax));
+                lore.add(ChatColor.GRAY + "Net earnings: " + ChatColor.GREEN + "$" + String.format("%.2f", netEarn));
+            }
         }
 
         meta.setLore(lore);
@@ -363,15 +390,11 @@ public class GUIManager {
     }
 
     public Material getPlayerSelectedItem(UUID uuid) {
-        Material selected = playerSelectedItem.get(uuid);
-        plugin.getLogger().info("GUIManager: Getting selected item for " + uuid + ": " + selected);
-        plugin.getLogger().info("GUIManager: Current playerSelectedItem map: " + playerSelectedItem.toString());
-        return selected;
+        return playerSelectedItem.get(uuid);
     }
 
     public void setPlayerSelectedItem(UUID uuid, Material material) {
         playerSelectedItem.put(uuid, material);
-        plugin.getLogger().info("GUIManager: Manually set selected item for " + uuid + ": " + material);
     }
 
     public int getPlayerPage(UUID uuid) {

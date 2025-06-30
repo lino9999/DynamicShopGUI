@@ -30,9 +30,6 @@ public class ShopListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String title = event.getView().getTitle();
 
-        // Debug print per capire quale GUI stiamo gestendo
-        plugin.getLogger().info("GUI Title: " + title);
-
         if (!title.contains("Dynamic Shop") && !title.contains("Shop -") &&
                 !title.contains("Buy ") && !title.contains("Sell ")) {
             return;
@@ -47,11 +44,6 @@ public class ShopListener implements Listener {
         if (plugin.getShopConfig().isSoundEnabled()) {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
         }
-
-        // Debug print per capire cosa è stato cliccato
-        String itemName = clicked.getItemMeta() != null && clicked.getItemMeta().getDisplayName() != null ?
-                clicked.getItemMeta().getDisplayName() : clicked.getType().name();
-        plugin.getLogger().info("Clicked item: " + itemName + " of type: " + clicked.getType());
 
         if (title.equals(ChatColor.DARK_GREEN + "Dynamic Shop")) {
             handleMainMenuClick(player, clicked);
@@ -95,7 +87,6 @@ public class ShopListener implements Listener {
         }
 
         if (category != null) {
-            plugin.getLogger().info("Opening category: " + category);
             plugin.getGUIManager().openCategoryMenu(player, category, 0);
         }
     }
@@ -138,18 +129,13 @@ public class ShopListener implements Listener {
             }
         }
 
-        plugin.getLogger().info("Opening transaction menu for: " + material + " isBuying: " + isBuying);
-
         // Assicurati che l'item sia impostato nel GUIManager prima di aprire il menu
         plugin.getGUIManager().setPlayerSelectedItem(player.getUniqueId(), material);
-
         plugin.getGUIManager().openTransactionMenu(player, material, isBuying);
     }
 
     private void handleTransactionMenuClick(Player player, ItemStack clicked, boolean currentlyBuying) {
         Material type = clicked.getType();
-
-        plugin.getLogger().info("Transaction menu click - Type: " + type + " Currently buying: " + currentlyBuying);
 
         // Prima di tutto, recupera sempre il material selezionato
         Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
@@ -161,8 +147,6 @@ public class ShopListener implements Listener {
                 plugin.getGUIManager().setPlayerSelectedItem(player.getUniqueId(), selectedItem);
             }
         }
-
-        plugin.getLogger().info("Current selected item for " + player.getName() + ": " + selectedItem);
 
         if (type == Material.ARROW) {
             String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
@@ -177,10 +161,8 @@ public class ShopListener implements Listener {
 
         if (type == Material.HOPPER) {
             if (selectedItem != null) {
-                plugin.getLogger().info("Switching transaction mode for: " + selectedItem);
                 plugin.getGUIManager().openTransactionMenu(player, selectedItem, !currentlyBuying);
             } else {
-                plugin.getLogger().warning("Cannot switch transaction mode - no selected item");
                 player.sendMessage(ChatColor.RED + "Error: No item selected. Please close and reopen the shop.");
             }
             return;
@@ -189,17 +171,13 @@ public class ShopListener implements Listener {
         // Gestione dei pulsanti per comprare/vendere quantità specifiche
         if (type == Material.LIME_STAINED_GLASS_PANE || type == Material.RED_STAINED_GLASS_PANE) {
             if (clicked.getItemMeta() == null || clicked.getItemMeta().getDisplayName() == null) {
-                plugin.getLogger().warning("Button clicked but no display name found");
                 return;
             }
 
             String name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
-            plugin.getLogger().info("Button clicked: " + name + " for item: " + selectedItem);
-
             if (selectedItem == null) {
                 player.sendMessage(ChatColor.RED + "Error: Could not determine the item. Please try reopening the shop.");
-                plugin.getLogger().severe("Could not determine selected item for player " + player.getName());
                 return;
             }
 
@@ -209,9 +187,7 @@ public class ShopListener implements Listener {
             if (name.toLowerCase().contains("all")) {
                 if (!currentlyBuying) {
                     amount = countItemsInInventory(player, selectedItem);
-                    plugin.getLogger().info("Selling all items: " + amount);
                 } else {
-                    plugin.getLogger().warning("'All' option should not be available for buying");
                     return;
                 }
             } else {
@@ -235,18 +211,13 @@ public class ShopListener implements Listener {
                 }
             }
 
-            plugin.getLogger().info("Parsed amount: " + amount);
-
             if (amount > 0) {
                 if (currentlyBuying) {
-                    plugin.getLogger().info("Processing buy transaction: " + amount + "x " + selectedItem);
                     processBuyTransaction(player, selectedItem, amount);
                 } else {
-                    plugin.getLogger().info("Processing sell transaction: " + amount + "x " + selectedItem);
                     processSellTransaction(player, selectedItem, amount);
                 }
             } else {
-                plugin.getLogger().warning("Could not parse amount from button: " + name);
                 player.sendMessage(ChatColor.RED + "Error: Could not determine amount to trade");
             }
         }
@@ -256,14 +227,12 @@ public class ShopListener implements Listener {
     private Material extractMaterialFromGUI(Player player) {
         String title = player.getOpenInventory().getTitle();
         String cleanTitle = ChatColor.stripColor(title);
-        plugin.getLogger().info("Trying to extract item from title: '" + cleanTitle + "'");
 
         Material material = null;
 
         // Prima prova a estrarre dal titolo
         if (cleanTitle.startsWith("Buy ") || cleanTitle.startsWith("Sell ")) {
             String itemName = cleanTitle.substring(4).trim(); // Rimuovi "Buy " o "Sell "
-            plugin.getLogger().info("Extracted item name: '" + itemName + "'");
 
             // Prova diversi formati del nome
             String[] possibleNames = {
@@ -275,10 +244,9 @@ public class ShopListener implements Listener {
             for (String possibleName : possibleNames) {
                 try {
                     material = Material.valueOf(possibleName);
-                    plugin.getLogger().info("Successfully extracted item from title: " + material);
                     break;
                 } catch (IllegalArgumentException e) {
-                    plugin.getLogger().info("Failed to parse material: " + possibleName);
+                    // Continue trying
                 }
             }
         }
@@ -288,7 +256,6 @@ public class ShopListener implements Listener {
             ItemStack displayItem = player.getOpenInventory().getItem(13); // Item centrale
             if (displayItem != null && displayItem.getType() != Material.AIR) {
                 material = displayItem.getType();
-                plugin.getLogger().info("Extracted item from display slot: " + material);
             }
         }
 
@@ -296,11 +263,7 @@ public class ShopListener implements Listener {
     }
 
     private void processBuyTransaction(Player player, Material material, int amount) {
-        plugin.getLogger().info("Starting buy transaction for " + player.getName() + ": " + amount + "x " + material);
-
         plugin.getShopManager().buyItem(player, material, amount).thenAccept(result -> {
-            plugin.getLogger().info("Buy transaction result: " + result.isSuccess() + " - " + result.getMessage());
-
             // Esegui sulla main thread
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (result.isSuccess()) {
@@ -319,7 +282,6 @@ public class ShopListener implements Listener {
                 plugin.getGUIManager().openTransactionMenu(player, material, true);
             });
         }).exceptionally(throwable -> {
-            plugin.getLogger().severe("Error in buy transaction: " + throwable.getMessage());
             throwable.printStackTrace();
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
@@ -332,11 +294,7 @@ public class ShopListener implements Listener {
     }
 
     private void processSellTransaction(Player player, Material material, int amount) {
-        plugin.getLogger().info("Starting sell transaction for " + player.getName() + ": " + amount + "x " + material);
-
         plugin.getShopManager().sellItem(player, material, amount).thenAccept(result -> {
-            plugin.getLogger().info("Sell transaction result: " + result.isSuccess() + " - " + result.getMessage());
-
             // Esegui sulla main thread
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (result.isSuccess()) {
@@ -355,7 +313,6 @@ public class ShopListener implements Listener {
                 plugin.getGUIManager().openTransactionMenu(player, material, false);
             });
         }).exceptionally(throwable -> {
-            plugin.getLogger().severe("Error in sell transaction: " + throwable.getMessage());
             throwable.printStackTrace();
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {

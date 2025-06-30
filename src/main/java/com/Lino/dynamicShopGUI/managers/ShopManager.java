@@ -6,6 +6,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import java.util.concurrent.CompletableFuture;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 
 public class ShopManager {
 
@@ -24,32 +27,20 @@ public class ShopManager {
     }
 
     public CompletableFuture<TransactionResult> buyItem(Player player, Material material, int amount) {
-        plugin.getLogger().info("ShopManager: Starting buy transaction for " + player.getName() +
-                ": " + amount + "x " + material);
-
         return plugin.getDatabaseManager().getShopItem(material).thenCompose(item -> {
             if (item == null) {
-                plugin.getLogger().warning("ShopManager: Item not found in database: " + material);
                 return CompletableFuture.completedFuture(
                         new TransactionResult(false, "Item not found in shop"));
             }
 
-            plugin.getLogger().info("ShopManager: Item found - Stock: " + item.getStock() +
-                    ", Price: " + item.getBuyPrice());
-
             if (item.getStock() < amount) {
-                plugin.getLogger().info("ShopManager: Insufficient stock. Available: " + item.getStock() +
-                        ", Requested: " + amount);
                 return CompletableFuture.completedFuture(new TransactionResult(false,
                         String.format("Not enough stock! Available: %d", item.getStock())));
             }
 
             double totalCost = item.getBuyPrice() * amount;
-            plugin.getLogger().info("ShopManager: Total cost: " + totalCost);
 
             if (!plugin.getEconomy().has(player, totalCost)) {
-                plugin.getLogger().info("ShopManager: Player has insufficient funds. Required: " + totalCost +
-                        ", Available: " + plugin.getEconomy().getBalance(player));
                 return CompletableFuture.completedFuture(new TransactionResult(false,
                         String.format("Insufficient funds! You need $%.2f", totalCost)));
             }
@@ -57,7 +48,6 @@ public class ShopManager {
             // Withdraw money
             boolean withdrawSuccess = plugin.getEconomy().withdrawPlayer(player, totalCost).transactionSuccess();
             if (!withdrawSuccess) {
-                plugin.getLogger().warning("ShopManager: Failed to withdraw money from player");
                 return CompletableFuture.completedFuture(new TransactionResult(false,
                         "Failed to process payment"));
             }
@@ -77,95 +67,101 @@ public class ShopManager {
                 player.getInventory().addItem(itemStack);
             }
 
-            // Update item data
+            // Update item data - FIRST update stock
             item.setStock(item.getStock() - amount);
             item.incrementTransactionsBuy();
 
+            // THEN calculate new price based on new stock level
             double oldPrice = item.getCurrentPrice();
-            double newPrice = calculateNewPrice(item, true);
+            double newPrice = calculateNewPrice(item);
             item.setCurrentPrice(newPrice);
 
             double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
             item.setPriceChangePercent(priceChangePercent);
-
-            plugin.getLogger().info("ShopManager: Updated item - New stock: " + item.getStock() +
-                    ", New price: " + newPrice);
 
             // Update database
             plugin.getDatabaseManager().updateShopItem(item);
             plugin.getDatabaseManager().logTransaction(player.getUniqueId().toString(),
                     material, "BUY", amount, item.getBuyPrice(), totalCost);
 
+            // Check for price alert
+            checkPriceAlert(item, oldPrice, newPrice);
+
             return CompletableFuture.completedFuture(new TransactionResult(true,
                     String.format("Successfully purchased %dx %s for $%.2f",
                             amount, formatMaterialName(material), totalCost)));
         }).exceptionally(throwable -> {
-            plugin.getLogger().severe("ShopManager: Error in buyItem: " + throwable.getMessage());
             throwable.printStackTrace();
             return new TransactionResult(false, "An error occurred during the transaction");
         });
     }
 
     public CompletableFuture<TransactionResult> sellItem(Player player, Material material, int amount) {
-        plugin.getLogger().info("ShopManager: Starting sell transaction for " + player.getName() +
-                ": " + amount + "x " + material);
-
         return plugin.getDatabaseManager().getShopItem(material).thenCompose(item -> {
             if (item == null) {
-                plugin.getLogger().warning("ShopManager: Item not found in database: " + material);
                 return CompletableFuture.completedFuture(
                         new TransactionResult(false, "This item cannot be sold"));
             }
 
-            plugin.getLogger().info("ShopManager: Item found - Stock: " + item.getStock() +
-                    "/" + item.getMaxStock() + ", Sell price: " + item.getSellPrice());
-
             if (item.getStock() >= item.getMaxStock()) {
-                plugin.getLogger().info("ShopManager: Shop is full for this item");
                 return CompletableFuture.completedFuture(new TransactionResult(false,
                         "Shop is full of this item! Cannot buy more"));
             }
 
             if (!hasItem(player, material, amount)) {
-                plugin.getLogger().info("ShopManager: Player doesn't have enough items");
                 return CompletableFuture.completedFuture(new TransactionResult(false,
                         "You don't have enough of this item"));
             }
 
             int canAccept = Math.min(amount, item.getMaxStock() - item.getStock());
-            plugin.getLogger().info("ShopManager: Can accept " + canAccept + " items");
 
             removeItem(player, material, canAccept);
 
             double totalEarnings = item.getSellPrice() * canAccept;
-            plugin.getEconomy().depositPlayer(player, totalEarnings);
 
-            // Update item data
+            // Calculate and apply tax
+            double taxAmount = plugin.getShopConfig().calculateTax(material, item.getCategory(), totalEarnings);
+            double netEarnings = totalEarnings - taxAmount;
+
+            plugin.getEconomy().depositPlayer(player, netEarnings);
+
+            // Update item data - FIRST update stock
             item.setStock(item.getStock() + canAccept);
             item.incrementTransactionsSell();
 
+            // THEN calculate new price based on new stock level
             double oldPrice = item.getCurrentPrice();
-            double newPrice = calculateNewPrice(item, false);
+            double newPrice = calculateNewPrice(item);
             item.setCurrentPrice(newPrice);
 
             double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
             item.setPriceChangePercent(priceChangePercent);
 
-            plugin.getLogger().info("ShopManager: Updated item - New stock: " + item.getStock() +
-                    ", New price: " + newPrice + ", Earnings: " + totalEarnings);
-
-            // Update database
+            // Update database - log the actual amount player received (after tax)
             plugin.getDatabaseManager().updateShopItem(item);
             plugin.getDatabaseManager().logTransaction(player.getUniqueId().toString(),
-                    material, "SELL", canAccept, item.getSellPrice(), totalEarnings);
+                    material, "SELL", canAccept, item.getSellPrice(), netEarnings);
 
-            String message = canAccept < amount ?
-                    String.format("Shop could only accept %d items. Sold for $%.2f", canAccept, totalEarnings) :
-                    String.format("Successfully sold %dx %s for $%.2f", canAccept, formatMaterialName(material), totalEarnings);
+            // Check for price alert
+            checkPriceAlert(item, oldPrice, newPrice);
+
+            // Create appropriate message based on tax
+            String message;
+            if (taxAmount > 0) {
+                message = canAccept < amount ?
+                        String.format("Shop could only accept %d items. Sold for $%.2f (Tax: $%.2f)",
+                                canAccept, netEarnings, taxAmount) :
+                        String.format("Successfully sold %dx %s for $%.2f (Tax: $%.2f)",
+                                canAccept, formatMaterialName(material), netEarnings, taxAmount);
+            } else {
+                message = canAccept < amount ?
+                        String.format("Shop could only accept %d items. Sold for $%.2f", canAccept, netEarnings) :
+                        String.format("Successfully sold %dx %s for $%.2f",
+                                canAccept, formatMaterialName(material), netEarnings);
+            }
 
             return CompletableFuture.completedFuture(new TransactionResult(true, message));
         }).exceptionally(throwable -> {
-            plugin.getLogger().severe("ShopManager: Error in sellItem: " + throwable.getMessage());
             throwable.printStackTrace();
             return new TransactionResult(false, "An error occurred during the transaction");
         });
@@ -192,33 +188,49 @@ public class ShopManager {
         return remaining <= 0;
     }
 
-    private double calculateNewPrice(ShopItem item, boolean isBuying) {
+    private double calculateNewPrice(ShopItem item) {
         double stockRatio = (double) item.getStock() / item.getMaxStock();
 
-        double priceFactor = 1.0;
+        // Base price multiplier based on stock level
+        // Low stock = high prices, high stock = low prices
+        double priceFactor;
 
-        if (stockRatio == 0) {
-            priceFactor = 3.0;
-        } else if (stockRatio < 0.1) {
+        if (stockRatio <= 0.05) {           // 0-5% stock
+            priceFactor = 2.5;
+        } else if (stockRatio <= 0.1) {    // 5-10% stock
             priceFactor = 2.0;
-        } else if (stockRatio < 0.3) {
+        } else if (stockRatio <= 0.2) {    // 10-20% stock
+            priceFactor = 1.7;
+        } else if (stockRatio <= 0.3) {    // 20-30% stock
             priceFactor = 1.5;
-        } else if (stockRatio < 0.5) {
-            priceFactor = 1.2;
-        } else if (stockRatio > 0.7) {
+        } else if (stockRatio <= 0.4) {    // 30-40% stock
+            priceFactor = 1.3;
+        } else if (stockRatio <= 0.5) {    // 40-50% stock
+            priceFactor = 1.15;
+        } else if (stockRatio <= 0.6) {    // 50-60% stock
+            priceFactor = 1.0;
+        } else if (stockRatio <= 0.7) {    // 60-70% stock
+            priceFactor = 0.9;
+        } else if (stockRatio <= 0.8) {    // 70-80% stock
             priceFactor = 0.8;
-        } else if (stockRatio > 0.9) {
+        } else if (stockRatio <= 0.9) {    // 80-90% stock
+            priceFactor = 0.7;
+        } else {                            // 90-100% stock
             priceFactor = 0.6;
         }
 
-        if (isBuying && item.getStock() > 0) {
-            priceFactor *= (1 + PRICE_INCREASE_FACTOR);
-        } else if (!isBuying) {
-            priceFactor *= (1 - PRICE_DECREASE_FACTOR);
+        // Apply transaction momentum (slight additional change based on recent activity)
+        int recentActivity = item.getTransactionsBuy() + item.getTransactionsSell();
+        if (recentActivity > 0) {
+            double buyRatio = (double) item.getTransactionsBuy() / recentActivity;
+            // If more people are buying than selling, increase price slightly
+            double momentumFactor = 1.0 + ((buyRatio - 0.5) * 0.1);
+            priceFactor *= momentumFactor;
         }
 
         double newPrice = item.getBasePrice() * priceFactor;
 
+        // Apply min/max limits
         double minPrice = item.getBasePrice() * MIN_PRICE_MULTIPLIER;
         double maxPrice = item.getBasePrice() * MAX_PRICE_MULTIPLIER;
 
@@ -273,6 +285,85 @@ public class ShopManager {
         }
 
         return formatted.toString();
+    }
+
+    private void checkPriceAlert(ShopItem item, double oldPrice, double newPrice) {
+        if (!plugin.getShopConfig().isPriceAlertsEnabled()) return;
+
+        double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
+
+        boolean shouldAlert = false;
+        boolean isIncrease = priceChangePercent > 0;
+
+        if (priceChangePercent >= plugin.getShopConfig().getPriceIncreaseThreshold()) {
+            shouldAlert = true;
+        } else if (priceChangePercent <= plugin.getShopConfig().getPriceDecreaseThreshold()) {
+            shouldAlert = true;
+        }
+
+        if (shouldAlert) {
+            // Run alert on main thread
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                String itemName = formatMaterialName(item.getMaterial());
+                String message;
+                Sound alertSound = null;
+
+                if (isIncrease) {
+                    message = plugin.getShopConfig().getMessage("price-increase-alert")
+                            .replace("%item%", itemName)
+                            .replace("%percent%", String.format("%.0f", Math.abs(priceChangePercent)))
+                            .replace("%price%", String.format("%.2f", newPrice));
+
+                    String soundName = plugin.getShopConfig().getPriceIncreaseSound();
+                    if (!soundName.equalsIgnoreCase("none")) {
+                        try {
+                            alertSound = Sound.valueOf(soundName);
+                        } catch (IllegalArgumentException ignored) {}
+                    }
+                } else {
+                    message = plugin.getShopConfig().getMessage("price-decrease-alert")
+                            .replace("%item%", itemName)
+                            .replace("%percent%", String.format("%.0f", Math.abs(priceChangePercent)))
+                            .replace("%price%", String.format("%.2f", newPrice));
+
+                    String soundName = plugin.getShopConfig().getPriceDecreaseSound();
+                    if (!soundName.equalsIgnoreCase("none")) {
+                        try {
+                            alertSound = Sound.valueOf(soundName);
+                        } catch (IllegalArgumentException ignored) {}
+                    }
+                }
+
+                // Broadcast message to all players
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    onlinePlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+
+                    // Play sound if configured
+                    if (alertSound != null) {
+                        onlinePlayer.playSound(onlinePlayer.getLocation(), alertSound,
+                                plugin.getShopConfig().getSoundVolume(),
+                                plugin.getShopConfig().getSoundPitch());
+                    }
+
+                    // Show title if configured
+                    if (plugin.getShopConfig().showTitle()) {
+                        String title;
+                        String subtitle;
+
+                        if (isIncrease) {
+                            title = ChatColor.RED + "" + ChatColor.BOLD + "PRICE SURGE!";
+                            subtitle = ChatColor.YELLOW + itemName + " +" + String.format("%.0f%%", priceChangePercent);
+                        } else {
+                            title = ChatColor.GREEN + "" + ChatColor.BOLD + "PRICE DROP!";
+                            subtitle = ChatColor.YELLOW + itemName + " " + String.format("%.0f%%", priceChangePercent);
+                        }
+
+                        int duration = plugin.getShopConfig().getTitleDuration();
+                        onlinePlayer.sendTitle(title, subtitle, 10, duration, 20);
+                    }
+                }
+            });
+        }
     }
 
     public static class TransactionResult {

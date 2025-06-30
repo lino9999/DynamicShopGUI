@@ -1,20 +1,60 @@
 # DynamicShopGUI Configuration
 
+# Dynamic Pricing System:
+# Prices change automatically based on stock levels:
+# - 0-5% stock: 2.5x base price
+# - 5-10% stock: 2.0x base price
+# - 10-20% stock: 1.7x base price
+# - 20-30% stock: 1.5x base price
+# - 30-40% stock: 1.3x base price
+# - 40-50% stock: 1.15x base price
+# - 50-60% stock: 1.0x base price (normal)
+# - 60-70% stock: 0.9x base price
+# - 70-80% stock: 0.8x base price
+# - 80-90% stock: 0.7x base price
+# - 90-100% stock: 0.6x base price
+
 # Price factors - how much prices change with transactions
 price-factors:
-  increase: 0.05  # Price increase factor when items are bought
-  decrease: 0.03  # Price decrease factor when items are sold
+  # These factors are now used for momentum-based adjustments
+  # The main price changes are based on stock levels
+  increase: 0.05  # Additional price momentum when items are bought frequently
+  decrease: 0.03  # Additional price momentum when items are sold frequently
 
 # Price limits - min/max price multipliers relative to base price
 price-limits:
   min-multiplier: 0.1   # Minimum price is 10% of base price
   max-multiplier: 10.0  # Maximum price is 10x base price
 
+# Tax settings - to prevent exploits
+tax:
+  # Enable tax on selling items
+  enabled: true
+
+  # Tax rate as a percentage (0-100)
+  # Example: 15 = 15% tax on all sales
+  rate: 15
+
+  # Minimum tax amount (useful for low value items)
+  minimum: 0.01
+
+  # Tax-exempt items (no tax applied)
+  exempt-items:
+    - DIRT
+    - COBBLESTONE
+    - NETHERRACK
+
+  # Different tax rates for specific categories (overrides global rate)
+  category-rates:
+    ores: 20      # Higher tax on ores to prevent mining exploits
+    building: 10  # Lower tax on building materials
+    food: 5       # Minimal tax on food items
+
 # Stock settings
 stock:
   # Initial stock for all items (can be overridden per category)
   initial-stock: 100
-  
+
   # Maximum stock per category
   max-stock:
     building: 10000
@@ -25,7 +65,7 @@ stock:
     redstone: 2000
     farming: 5000
     misc: 1000
-  
+
   # Special max stock for specific items (overrides category max)
   special-items:
     NETHERITE_INGOT: 10
@@ -47,10 +87,10 @@ stock:
 restock:
   # Enable automatic restocking
   enabled: true
-  
+
   # Time in minutes before items restock when out of stock
   restock-time: 60
-  
+
   # Amount to restock (percentage of initial stock)
   restock-percentage: 100
 
@@ -58,31 +98,62 @@ restock:
 gui:
   # Enable sounds in GUI
   sounds-enabled: true
-  
+
   # Items per page in category view
   items-per-page: 45
-  
+
   # Show stock information in item lore
   show-stock: true
-  
+
   # Show price trends in item lore
   show-price-trends: true
+
+  # Show tax information in item lore
+  show-tax-info: true
 
 # Messages
 messages:
   # Prefix for all shop messages
   prefix: "&8[&aDynamicShop&8] &7"
-  
+
   # Transaction messages
   buy-success: "&aSuccessfully purchased %amount%x %item% for $%price%"
   sell-success: "&aSuccessfully sold %amount%x %item% for $%price%"
-  
+  sell-success-with-tax: "&aSuccessfully sold %amount%x %item% for $%price% &7(Tax: $%tax%)"
+
   # Error messages
   insufficient-funds: "&cInsufficient funds! You need $%price%"
   insufficient-items: "&cYou don't have enough items to sell!"
   out-of-stock: "&cThis item is currently out of stock!"
   shop-full: "&cThe shop is full of this item!"
-  
+
   # Restock messages
   restock-countdown: "&eRestocking in: &6%time%"
   item-restocked: "&aThis item has been restocked!"
+
+  # Price alert messages
+  price-increase-alert: "&c&l[PRICE SURGE] &e%item% &7price increased by &c%percent%%&7! New price: &a$%price%"
+  price-decrease-alert: "&a&l[PRICE DROP] &e%item% &7price decreased by &a%percent%%&7! New price: &e$%price%"
+
+# Price alert settings
+price-alerts:
+  # Enable global price alerts
+  enabled: true
+
+  # Minimum percentage change to trigger an alert
+  # Positive for increases, negative for decreases
+  increase-threshold: 70  # Alert when price increases by 70% or more
+  decrease-threshold: -70 # Alert when price decreases by 70% or more
+
+  # Sound to play when alert is triggered
+  # Set to "none" to disable sound
+  increase-sound: "ENTITY_ENDER_DRAGON_GROWL"
+  decrease-sound: "ENTITY_PLAYER_LEVELUP"
+
+  # Sound volume and pitch
+  sound-volume: 0.5
+  sound-pitch: 1.0
+
+  # Title display for alerts (shows on screen)
+  show-title: true
+  title-duration: 60  # Duration in ticks (20 ticks = 1 second)

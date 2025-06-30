@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ShopConfig {
@@ -89,6 +90,46 @@ public class ShopConfig {
         return 1000;
     }
 
+    // Tax related methods
+    public boolean isTaxEnabled() {
+        return plugin.getConfig().getBoolean("tax.enabled", true);
+    }
+
+    public double getTaxRate() {
+        return plugin.getConfig().getDouble("tax.rate", 15.0) / 100.0; // Convert percentage to decimal
+    }
+
+    public double getTaxRate(String category) {
+        // Check for category-specific tax rate
+        String categoryKey = "tax.category-rates." + category.toLowerCase();
+        if (plugin.getConfig().contains(categoryKey)) {
+            return plugin.getConfig().getDouble(categoryKey) / 100.0;
+        }
+        // Fall back to global tax rate
+        return getTaxRate();
+    }
+
+    public double getMinimumTax() {
+        return plugin.getConfig().getDouble("tax.minimum", 0.01);
+    }
+
+    public boolean isTaxExempt(Material material) {
+        List<String> exemptItems = plugin.getConfig().getStringList("tax.exempt-items");
+        return exemptItems.contains(material.name());
+    }
+
+    public double calculateTax(Material material, String category, double amount) {
+        if (!isTaxEnabled() || isTaxExempt(material)) {
+            return 0.0;
+        }
+
+        double taxRate = getTaxRate(category);
+        double tax = amount * taxRate;
+
+        // Apply minimum tax if configured
+        return Math.max(tax, getMinimumTax());
+    }
+
     // Restock related methods
     public boolean isRestockEnabled() {
         return plugin.getConfig().getBoolean("restock.enabled", true);
@@ -119,6 +160,10 @@ public class ShopConfig {
         return plugin.getConfig().getBoolean("gui.show-price-trends", true);
     }
 
+    public boolean showTaxInfo() {
+        return plugin.getConfig().getBoolean("gui.show-tax-info", true);
+    }
+
     // Message methods
     public String getMessage(String key) {
         String message = plugin.getConfig().getString("messages." + key, key);
@@ -145,6 +190,43 @@ public class ShopConfig {
 
     public double getMaxPriceMultiplier() {
         return plugin.getConfig().getDouble("price-limits.max-multiplier", 10.0);
+    }
+
+    // Price alert methods
+    public boolean isPriceAlertsEnabled() {
+        return plugin.getConfig().getBoolean("price-alerts.enabled", true);
+    }
+
+    public double getPriceIncreaseThreshold() {
+        return plugin.getConfig().getDouble("price-alerts.increase-threshold", 70.0);
+    }
+
+    public double getPriceDecreaseThreshold() {
+        return plugin.getConfig().getDouble("price-alerts.decrease-threshold", -70.0);
+    }
+
+    public String getPriceIncreaseSound() {
+        return plugin.getConfig().getString("price-alerts.increase-sound", "ENTITY_ENDER_DRAGON_GROWL");
+    }
+
+    public String getPriceDecreaseSound() {
+        return plugin.getConfig().getString("price-alerts.decrease-sound", "ENTITY_PLAYER_LEVELUP");
+    }
+
+    public float getSoundVolume() {
+        return (float) plugin.getConfig().getDouble("price-alerts.sound-volume", 0.5);
+    }
+
+    public float getSoundPitch() {
+        return (float) plugin.getConfig().getDouble("price-alerts.sound-pitch", 1.0);
+    }
+
+    public boolean showTitle() {
+        return plugin.getConfig().getBoolean("price-alerts.show-title", true);
+    }
+
+    public int getTitleDuration() {
+        return plugin.getConfig().getInt("price-alerts.title-duration", 60);
     }
 
     public void save() {
