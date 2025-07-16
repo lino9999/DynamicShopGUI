@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.listeners;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.managers.ShopManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -14,6 +15,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import java.util.Map;
 
 public class ShopListener implements Listener {
 
@@ -40,7 +42,6 @@ public class ShopListener implements Listener {
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) return;
 
-        // Play click sound if enabled
         if (plugin.getShopConfig().isSoundEnabled()) {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
         }
@@ -56,38 +57,17 @@ public class ShopListener implements Listener {
     }
 
     private void handleMainMenuClick(Player player, ItemStack clicked) {
-        Material type = clicked.getType();
-        String category = null;
+        if (clicked.getItemMeta() == null || clicked.getItemMeta().getDisplayName() == null) return;
 
-        switch (type) {
-            case STONE:
-                category = "BUILDING";
-                break;
-            case DIAMOND:
-                category = "ORES";
-                break;
-            case BREAD:
-                category = "FOOD";
-                break;
-            case DIAMOND_PICKAXE:
-                category = "TOOLS";
-                break;
-            case DIAMOND_CHESTPLATE:
-                category = "ARMOR";
-                break;
-            case REDSTONE:
-                category = "REDSTONE";
-                break;
-            case WHEAT:
-                category = "FARMING";
-                break;
-            case ENDER_PEARL:
-                category = "MISC";
-                break;
-        }
+        String clickedName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
-        if (category != null) {
-            plugin.getGUIManager().openCategoryMenu(player, category, 0);
+        Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
+
+        for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry : categories.entrySet()) {
+            if (entry.getValue().getDisplayName().equalsIgnoreCase(clickedName)) {
+                plugin.getGUIManager().openCategoryMenu(player, entry.getKey(), 0);
+                return;
+            }
         }
     }
 
@@ -116,7 +96,6 @@ public class ShopListener implements Listener {
         Material material = clicked.getType();
         boolean isBuying = clickType == ClickType.LEFT || clickType == ClickType.SHIFT_LEFT;
 
-        // Check if item is out of stock ONLY for buying, not selling
         if (isBuying && clicked.getItemMeta() != null && clicked.getItemMeta().getLore() != null) {
             for (String loreLine : clicked.getItemMeta().getLore()) {
                 if (loreLine.contains("Out of Stock")) {
@@ -129,7 +108,6 @@ public class ShopListener implements Listener {
             }
         }
 
-        // Assicurati che l'item sia impostato nel GUIManager prima di aprire il menu
         plugin.getGUIManager().setPlayerSelectedItem(player.getUniqueId(), material);
         plugin.getGUIManager().openTransactionMenu(player, material, isBuying);
     }
@@ -137,10 +115,8 @@ public class ShopListener implements Listener {
     private void handleTransactionMenuClick(Player player, ItemStack clicked, boolean currentlyBuying) {
         Material type = clicked.getType();
 
-        // Prima di tutto, recupera sempre il material selezionato
         Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
 
-        // Se selectedItem è null, prova a estrarlo dal titolo o dal display item
         if (selectedItem == null) {
             selectedItem = extractMaterialFromGUI(player);
             if (selectedItem != null) {
@@ -168,7 +144,6 @@ public class ShopListener implements Listener {
             return;
         }
 
-        // Gestione dei pulsanti per comprare/vendere quantità specifiche
         if (type == Material.LIME_STAINED_GLASS_PANE || type == Material.RED_STAINED_GLASS_PANE) {
             if (clicked.getItemMeta() == null || clicked.getItemMeta().getDisplayName() == null) {
                 return;
@@ -183,7 +158,6 @@ public class ShopListener implements Listener {
 
             int amount = 0;
 
-            // Extract amount from the display name
             if (name.toLowerCase().contains("all")) {
                 if (!currentlyBuying) {
                     amount = countItemsInInventory(player, selectedItem);
@@ -191,7 +165,6 @@ public class ShopListener implements Listener {
                     return;
                 }
             } else {
-                // Extract number from the string - improved parsing
                 String[] parts = name.split(" ");
                 for (String part : parts) {
                     try {
@@ -200,7 +173,6 @@ public class ShopListener implements Listener {
                     } catch (NumberFormatException ignored) {}
                 }
 
-                // Se non troviamo un numero nei parts, proviamo a cercare numeri nella stringa
                 if (amount == 0) {
                     String numberOnly = name.replaceAll("[^0-9]", "");
                     if (!numberOnly.isEmpty()) {
@@ -223,18 +195,15 @@ public class ShopListener implements Listener {
         }
     }
 
-    // Metodo helper per estrarre il material dalla GUI
     private Material extractMaterialFromGUI(Player player) {
         String title = player.getOpenInventory().getTitle();
         String cleanTitle = ChatColor.stripColor(title);
 
         Material material = null;
 
-        // Prima prova a estrarre dal titolo
         if (cleanTitle.startsWith("Buy ") || cleanTitle.startsWith("Sell ")) {
-            String itemName = cleanTitle.substring(4).trim(); // Rimuovi "Buy " o "Sell "
+            String itemName = cleanTitle.substring(4).trim();
 
-            // Prova diversi formati del nome
             String[] possibleNames = {
                     itemName.toUpperCase().replace(" ", "_"),
                     itemName.toUpperCase().replace(" ", ""),
@@ -251,9 +220,8 @@ public class ShopListener implements Listener {
             }
         }
 
-        // Se non funziona, prova a cercare nel display item della GUI (slot 13)
         if (material == null) {
-            ItemStack displayItem = player.getOpenInventory().getItem(13); // Item centrale
+            ItemStack displayItem = player.getOpenInventory().getItem(13);
             if (displayItem != null && displayItem.getType() != Material.AIR) {
                 material = displayItem.getType();
             }
@@ -264,7 +232,6 @@ public class ShopListener implements Listener {
 
     private void processBuyTransaction(Player player, Material material, int amount) {
         plugin.getShopManager().buyItem(player, material, amount).thenAccept(result -> {
-            // Esegui sulla main thread
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (result.isSuccess()) {
                     player.sendMessage(ChatColor.GREEN + result.getMessage());
@@ -278,7 +245,6 @@ public class ShopListener implements Listener {
                     }
                 }
 
-                // Refresh the GUI
                 plugin.getGUIManager().openTransactionMenu(player, material, true);
             });
         }).exceptionally(throwable -> {
@@ -295,7 +261,6 @@ public class ShopListener implements Listener {
 
     private void processSellTransaction(Player player, Material material, int amount) {
         plugin.getShopManager().sellItem(player, material, amount).thenAccept(result -> {
-            // Esegui sulla main thread
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (result.isSuccess()) {
                     player.sendMessage(ChatColor.GREEN + result.getMessage());
@@ -309,7 +274,6 @@ public class ShopListener implements Listener {
                     }
                 }
 
-                // Refresh the GUI
                 plugin.getGUIManager().openTransactionMenu(player, material, false);
             });
         }).exceptionally(throwable -> {

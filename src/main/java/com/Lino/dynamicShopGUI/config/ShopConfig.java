@@ -3,11 +3,6 @@ package com.Lino.dynamicShopGUI.config;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,97 +10,97 @@ import java.util.Map;
 public class ShopConfig {
 
     private final DynamicShopGUI plugin;
-    private File shopFile;
-    private FileConfiguration shopConfig;
+    private final CategoryConfigLoader categoryLoader;
 
     public ShopConfig(DynamicShopGUI plugin) {
         this.plugin = plugin;
-        createDefaultShopConfig();
-        loadShopConfig();
-    }
-
-    private void createDefaultShopConfig() {
-        shopFile = new File(plugin.getDataFolder(), "shop.yml");
-        if (!shopFile.exists()) {
-            shopFile.getParentFile().mkdirs();
-            plugin.saveResource("shop.yml", false);
-        }
-    }
-
-    private void loadShopConfig() {
-        shopConfig = YamlConfiguration.loadConfiguration(shopFile);
+        this.categoryLoader = new CategoryConfigLoader(plugin);
     }
 
     public void reload() {
         plugin.reloadConfig();
-        loadShopConfig();
+        categoryLoader.reload();
     }
 
     public Map<String, Map<String, Double>> getShopItems() {
         Map<String, Map<String, Double>> items = new HashMap<>();
 
-        ConfigurationSection categoriesSection = shopConfig.getConfigurationSection("categories");
-        if (categoriesSection == null) return items;
+        for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry : categoryLoader.getAllCategories().entrySet()) {
+            String categoryName = entry.getKey();
+            CategoryConfigLoader.CategoryConfig category = entry.getValue();
 
-        for (String category : categoriesSection.getKeys(false)) {
             Map<String, Double> categoryItems = new HashMap<>();
-            ConfigurationSection itemsSection = categoriesSection.getConfigurationSection(category + ".items");
-
-            if (itemsSection != null) {
-                for (String item : itemsSection.getKeys(false)) {
-                    double price = itemsSection.getDouble(item);
-                    categoryItems.put(item, price);
-                }
+            for (Map.Entry<Material, CategoryConfigLoader.ItemConfig> itemEntry : category.getItems().entrySet()) {
+                categoryItems.put(itemEntry.getKey().name(), itemEntry.getValue().getPrice());
             }
 
-            items.put(category.toUpperCase(), categoryItems);
+            items.put(categoryName, categoryItems);
         }
 
         return items;
     }
 
     public String getCategoryDisplayName(String category) {
-        return shopConfig.getString("categories." + category.toLowerCase() + ".display-name", category);
+        CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
+        return categoryConfig != null ? categoryConfig.getDisplayName() : category;
     }
 
-    // Stock related methods
+    public Material getCategoryIcon(String category) {
+        CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
+        return categoryConfig != null ? categoryConfig.getIcon() : Material.CHEST;
+    }
+
     public int getInitialStock() {
         return plugin.getConfig().getInt("stock.initial-stock", 100);
     }
 
+    public int getInitialStock(String category, Material material) {
+        CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
+        if (categoryConfig != null) {
+            CategoryConfigLoader.ItemConfig itemConfig = categoryConfig.getItemConfig(material);
+            if (itemConfig != null) {
+                return itemConfig.getInitialStock();
+            }
+        }
+        return getInitialStock();
+    }
+
     public int getMaxStock(String category, Material material) {
-        // Check for special item override first
-        String materialName = material.name();
-        if (plugin.getConfig().contains("stock.special-items." + materialName)) {
-            return plugin.getConfig().getInt("stock.special-items." + materialName);
+        CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
+        if (categoryConfig != null) {
+            CategoryConfigLoader.ItemConfig itemConfig = categoryConfig.getItemConfig(material);
+            if (itemConfig != null) {
+                return itemConfig.getMaxStock();
+            }
         }
 
-        // Then check category max stock
         String categoryKey = "stock.max-stock." + category.toLowerCase();
         if (plugin.getConfig().contains(categoryKey)) {
             return plugin.getConfig().getInt(categoryKey);
         }
 
-        // Default fallback
         return 1000;
     }
 
-    // Tax related methods
     public boolean isTaxEnabled() {
         return plugin.getConfig().getBoolean("tax.enabled", true);
     }
 
     public double getTaxRate() {
-        return plugin.getConfig().getDouble("tax.rate", 15.0) / 100.0; // Convert percentage to decimal
+        return plugin.getConfig().getDouble("tax.rate", 15.0) / 100.0;
     }
 
     public double getTaxRate(String category) {
-        // Check for category-specific tax rate
+        CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
+        if (categoryConfig != null) {
+            return categoryConfig.getTaxRate() / 100.0;
+        }
+
         String categoryKey = "tax.category-rates." + category.toLowerCase();
         if (plugin.getConfig().contains(categoryKey)) {
             return plugin.getConfig().getDouble(categoryKey) / 100.0;
         }
-        // Fall back to global tax rate
+
         return getTaxRate();
     }
 
@@ -126,11 +121,9 @@ public class ShopConfig {
         double taxRate = getTaxRate(category);
         double tax = amount * taxRate;
 
-        // Apply minimum tax if configured
         return Math.max(tax, getMinimumTax());
     }
 
-    // Restock related methods
     public boolean isRestockEnabled() {
         return plugin.getConfig().getBoolean("restock.enabled", true);
     }
@@ -143,7 +136,6 @@ public class ShopConfig {
         return plugin.getConfig().getInt("restock.restock-percentage", 100);
     }
 
-    // GUI related methods
     public boolean isSoundEnabled() {
         return plugin.getConfig().getBoolean("gui.sounds-enabled", true);
     }
@@ -164,7 +156,6 @@ public class ShopConfig {
         return plugin.getConfig().getBoolean("gui.show-tax-info", true);
     }
 
-    // Message methods
     public String getMessage(String key) {
         String message = plugin.getConfig().getString("messages." + key, key);
         return ChatColor.translateAlternateColorCodes('&', message);
@@ -175,7 +166,6 @@ public class ShopConfig {
         return ChatColor.translateAlternateColorCodes('&', prefix);
     }
 
-    // Price factor methods
     public double getPriceIncreaseFactor() {
         return plugin.getConfig().getDouble("price-factors.increase", 0.05);
     }
@@ -192,7 +182,6 @@ public class ShopConfig {
         return plugin.getConfig().getDouble("price-limits.max-multiplier", 10.0);
     }
 
-    // Price alert methods
     public boolean isPriceAlertsEnabled() {
         return plugin.getConfig().getBoolean("price-alerts.enabled", true);
     }
@@ -229,11 +218,15 @@ public class ShopConfig {
         return plugin.getConfig().getInt("price-alerts.title-duration", 60);
     }
 
+    public CategoryConfigLoader getCategoryLoader() {
+        return categoryLoader;
+    }
+
+    public Map<String, CategoryConfigLoader.CategoryConfig> getAllCategories() {
+        return categoryLoader.getAllCategories();
+    }
+
     public void save() {
-        try {
-            shopConfig.save(shopFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // This method is no longer needed as categories are saved in separate files
     }
 }

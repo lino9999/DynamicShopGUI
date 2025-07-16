@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.database;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.models.ShopItem;
 import org.bukkit.Material;
 import java.sql.*;
@@ -70,33 +71,26 @@ public class DatabaseManager {
     }
 
     private void initializeDefaultData() throws SQLException {
-        Map<String, Map<String, Double>> shopConfig = plugin.getShopConfig().getShopItems();
-        int initialStock = plugin.getShopConfig().getInitialStock();
+        Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
 
         String insertQuery = "INSERT OR IGNORE INTO shop_items (material, category, base_price, current_price, stock, max_stock) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            for (Map.Entry<String, Map<String, Double>> categoryEntry : shopConfig.entrySet()) {
-                String category = categoryEntry.getKey();
+            for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> categoryEntry : categories.entrySet()) {
+                String categoryName = categoryEntry.getKey();
+                CategoryConfigLoader.CategoryConfig category = categoryEntry.getValue();
 
-                for (Map.Entry<String, Double> itemEntry : categoryEntry.getValue().entrySet()) {
-                    String materialName = itemEntry.getKey();
-                    double basePrice = itemEntry.getValue();
+                for (Map.Entry<Material, CategoryConfigLoader.ItemConfig> itemEntry : category.getItems().entrySet()) {
+                    Material material = itemEntry.getKey();
+                    CategoryConfigLoader.ItemConfig itemConfig = itemEntry.getValue();
 
-                    try {
-                        Material material = Material.valueOf(materialName);
-                        int maxStock = plugin.getShopConfig().getMaxStock(category, material);
-
-                        pstmt.setString(1, materialName);
-                        pstmt.setString(2, category);
-                        pstmt.setDouble(3, basePrice);
-                        pstmt.setDouble(4, basePrice);
-                        pstmt.setInt(5, initialStock);
-                        pstmt.setInt(6, maxStock);
-                        pstmt.addBatch();
-                    } catch (IllegalArgumentException ignored) {
-                        plugin.getLogger().warning("Invalid material in shop.yml: " + materialName);
-                    }
+                    pstmt.setString(1, material.name());
+                    pstmt.setString(2, categoryName);
+                    pstmt.setDouble(3, itemConfig.getPrice());
+                    pstmt.setDouble(4, itemConfig.getPrice());
+                    pstmt.setInt(5, itemConfig.getInitialStock());
+                    pstmt.setInt(6, itemConfig.getMaxStock());
+                    pstmt.addBatch();
                 }
             }
             pstmt.executeBatch();

@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.managers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.models.ShopItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,16 +24,39 @@ public class GUIManager {
     }
 
     public void openMainMenu(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_GREEN + "Dynamic Shop");
+        Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
+        int size = ((categories.size() - 1) / 9 + 1) * 9;
+        size = Math.max(27, Math.min(54, size));
 
-        setCategory(inv, 10, Material.STONE, ChatColor.GRAY + "Building Blocks", "BUILDING");
-        setCategory(inv, 11, Material.DIAMOND, ChatColor.AQUA + "Ores & Minerals", "ORES");
-        setCategory(inv, 12, Material.BREAD, ChatColor.GOLD + "Food", "FOOD");
-        setCategory(inv, 13, Material.DIAMOND_PICKAXE, ChatColor.BLUE + "Tools", "TOOLS");
-        setCategory(inv, 14, Material.DIAMOND_CHESTPLATE, ChatColor.DARK_AQUA + "Armor", "ARMOR");
-        setCategory(inv, 15, Material.REDSTONE, ChatColor.RED + "Redstone", "REDSTONE");
-        setCategory(inv, 16, Material.WHEAT, ChatColor.GREEN + "Farming", "FARMING");
-        setCategory(inv, 22, Material.ENDER_PEARL, ChatColor.LIGHT_PURPLE + "Miscellaneous", "MISC");
+        Inventory inv = Bukkit.createInventory(null, size, ChatColor.DARK_GREEN + "Dynamic Shop");
+
+        int slot = 10;
+        int row = 1;
+
+        for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry : categories.entrySet()) {
+            CategoryConfigLoader.CategoryConfig category = entry.getValue();
+
+            ItemStack categoryItem = new ItemStack(category.getIcon());
+            ItemMeta meta = categoryItem.getItemMeta();
+            meta.setDisplayName(ChatColor.YELLOW + category.getDisplayName());
+
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.GRAY + "Click to browse " + category.getDisplayName().toLowerCase());
+            lore.add("");
+            lore.add(ChatColor.DARK_GRAY + "Items: " + ChatColor.GRAY + category.getItems().size());
+            lore.add(ChatColor.DARK_GRAY + "Tax Rate: " + ChatColor.GRAY + category.getTaxRate() + "%");
+
+            meta.setLore(lore);
+            categoryItem.setItemMeta(meta);
+
+            inv.setItem(slot, categoryItem);
+
+            slot++;
+            if ((slot - 8) % 9 == 0) {
+                slot += 2;
+                row++;
+            }
+        }
 
         fillBorders(inv);
         player.openInventory(inv);
@@ -62,7 +86,6 @@ public class GUIManager {
                 Map.Entry<Material, ShopItem> entry = sortedItems.get(i);
                 ShopItem shopItem = entry.getValue();
 
-                // Check if item needs restocking
                 if (shopItem.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
                     if (!plugin.getRestockManager().isRestocking(shopItem.getMaterial())) {
                         plugin.getRestockManager().startRestockTimer(shopItem.getMaterial());
@@ -73,7 +96,6 @@ public class GUIManager {
                 inv.setItem(slot++, displayItem);
             }
 
-            // Navigation buttons
             if (finalPage > 0) {
                 ItemStack prevPage = new ItemStack(Material.ARROW);
                 ItemMeta prevMeta = prevPage.getItemMeta();
@@ -102,7 +124,6 @@ public class GUIManager {
                 inv.setItem(50, nextPage);
             }
 
-            // Page info
             if (totalPages > 1) {
                 ItemStack pageInfo = new ItemStack(Material.PAPER);
                 ItemMeta pageMeta = pageInfo.getItemMeta();
@@ -121,7 +142,6 @@ public class GUIManager {
     }
 
     public void openTransactionMenu(Player player, Material material, boolean isBuying) {
-        // Imposta l'item selezionato PRIMA di fare la query asincrona
         playerSelectedItem.put(player.getUniqueId(), material);
 
         plugin.getDatabaseManager().getShopItem(material).thenAccept(item -> {
@@ -138,7 +158,6 @@ public class GUIManager {
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
-            // Check if item needs restocking
             if (item.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
                 if (!plugin.getRestockManager().isRestocking(material)) {
                     plugin.getRestockManager().startRestockTimer(material);
@@ -157,7 +176,6 @@ public class GUIManager {
             displayLore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
             displayLore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", item.getSellPrice()));
 
-            // Show tax information if enabled and player is selling
             if (!isBuying && plugin.getShopConfig().showTaxInfo() && plugin.getShopConfig().isTaxEnabled()) {
                 if (!plugin.getShopConfig().isTaxExempt(material)) {
                     double taxRate = plugin.getShopConfig().getTaxRate(item.getCategory()) * 100;
@@ -172,7 +190,6 @@ public class GUIManager {
                 displayLore.add(formatPriceChange(item.getPriceChangePercent()));
             }
 
-            // Add restock countdown if out of stock
             if (item.getStock() == 0 && plugin.getRestockManager().isRestocking(material)) {
                 String countdown = plugin.getRestockManager().getRestockCountdown(material);
                 if (countdown != null) {
@@ -233,7 +250,6 @@ public class GUIManager {
         lore.add("");
         lore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
 
-        // Calculate and show net sell price (after tax)
         double sellPrice = item.getSellPrice();
         if (plugin.getShopConfig().showTaxInfo() && plugin.getShopConfig().isTaxEnabled()) {
             double tax = plugin.getShopConfig().calculateTax(item.getMaterial(), item.getCategory(), sellPrice);
@@ -255,7 +271,6 @@ public class GUIManager {
             lore.add(formatPriceChange(item.getPriceChangePercent()));
         }
 
-        // Add restock countdown if out of stock
         if (item.getStock() == 0 && plugin.getRestockManager().isRestocking(item.getMaterial())) {
             String countdown = plugin.getRestockManager().getRestockCountdown(item.getMaterial());
             if (countdown != null) {
@@ -281,17 +296,6 @@ public class GUIManager {
         display.setItemMeta(meta);
 
         return display;
-    }
-
-    private void setCategory(Inventory inv, int slot, Material material, String name, String category) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "Click to browse " + category.toLowerCase() + " items");
-        meta.setLore(lore);
-        item.setItemMeta(meta);
-        inv.setItem(slot, item);
     }
 
     private void setAmountButton(Inventory inv, int slot, Material material, int amount, boolean isBuying, ShopItem item) {
