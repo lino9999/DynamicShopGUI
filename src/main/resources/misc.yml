@@ -1,0 +1,461 @@
+# Miscellaneous Category Configuration
+category:
+  display-name: "Miscellaneous"
+  icon: ENDER_PEARL
+  tax-rate: 15.0  # Standard tax rate for misc items
+
+# Default values for all items in this category
+defaults:
+  min-stock: 0
+  max-stock: 1000
+  initial-stock: 50
+
+# Items in this category
+items:
+  # Mob Drops
+  ENDER_PEARL:
+    price: 50.0
+    max-stock: 2000
+    initial-stock: 100
+
+  ENDER_EYE:
+    price: 100.0
+    max-stock: 500
+    initial-stock: 25
+
+  BLAZE_ROD:
+    price: 100.0
+
+  BLAZE_POWDER:
+    price: 50.0
+    max-stock: 2000
+
+  SLIME_BALL:
+    price: 30.0
+    max-stock: 3000
+    initial-stock: 150
+
+  MAGMA_CREAM:
+    price: 40.0
+    max-stock: 2000
+    initial-stock: 100
+
+  GUNPOWDER:
+    price: 20.0
+    max-stock: 4000
+    initial-stock: 200
+
+  STRING:
+    price: 5.0
+    max-stock: 5000
+    initial-stock: 250
+
+  SPIDER_EYE:
+    price: 10.0
+    max-stock: 3000
+    initial-stock: 150
+
+  FERMENTED_SPIDER_EYE:
+    price: 25.0
+    max-stock: 1500
+
+  GHAST_TEAR:
+    price: 200.0
+    max-stock: 500
+    initial-stock: 25
+
+  PHANTOM_MEMBRANE:
+    price: 100.0
+
+  SHULKER_SHELL:
+    price: 500.0
+    max-stock: 200
+    initial-stock: 20
+
+  RABBIT_FOOT:
+    price: 50.0
+    max-stock: 1500
+
+  RABBIT_HIDE:
+    price: 10.0
+    max-stock: 3000
+
+  LEATHER:
+    price: 8.0
+    max-stock: 4000
+    initial-stock: 200
+
+  FEATHER:
+    price: 5.0
+    max-stock: 5000
+    initial-stock: 250
+
+  EGG:
+    price: 3.0
+    max-stock: 6000
+    initial-stock: 300
+
+  TURTLE_EGG:
+    price: 100.0
+    max-stock: 100
+    initial-stock: 10
+
+  SCUTE:
+    price: 80.0
+    max-stock: 800
+    initial-stock: 40
+
+  ARMADILLO_SCUTE:
+    price: 60.0
+    max-stock: 1000
+    initial-stock: 50
+
+  # Special Items
+  TOTEM_OF_UNDYING:
+    price: 5000.0
+    max-stock: 10
+    initial-stock: 2
+
+  NAUTILUS_SHELL:
+    price: 150.0
+    max-stock: 500
+    initial-stock: 25
+
+  HEART_OF_THE_SEA:
+    price: 2000.0
+    max-stock: 20
+    initial-stock: 5
+
+  ENCHANTED_BOOK:
+    price: 300.0
+    max-stock: 300
+    initial-stock: 30
+
+  BOTTLE_O_ENCHANTING:
+    price: 50.0
+    max-stock: 2000
+    initial-stock: 100
+
+  NAME_TAG:
+    price: 100.0
+    max-stock: 500
+    initial-stock: 50
+
+  SADDLE:
+    price: 150.0
+    max-stock: 400
+    initial-stock: 40
+
+  LEAD:
+    price: 20.0
+    max-stock: 2000
+    initial-stock: 100
+
+  # End Items
+  END_ROD:
+    price: 60.0
+    max-stock: 1500
+
+  CHORUS_FRUIT:
+    price: 20.0
+    max-stock: 2000
+
+  POPPED_CHORUS_FRUIT:
+    price: 25.0
+    max-stock: 1500
+
+  SHULKER_BOX:
+    price: 1100.0
+    max-stock: 100
+    initial-stock: 10
+
+  # Nether Items
+  NETHER_STAR:
+    price: 10000.0
+    max-stock: 5
+    initial-stock: 1
+
+  WITHER_SKELETON_SKULL:
+    price: 2000.0
+    max-stock: 15
+    initial-stock: 3
+
+  # Ocean Items
+  SPONGE:
+    price: 200.0
+    max-stock: 500
+    initial-stock: 25
+
+  WET_SPONGE:
+    price: 180.0
+    max-stock: 500
+
+  CONDUIT:
+    price: 3000.0
+    max-stock: 20
+    initial-stock: 5
+
+  # Brewing Items
+  GLASS_BOTTLE:
+    price: 5.0
+    max-stock: 5000
+    initial-stock: 250
+
+  BREWING_STAND:
+    price: 150.0
+    max-stock: 800
+    initial-stock: 80
+
+  CAULDRON:
+    price: 105.0
+
+  GLISTERING_MELON_SLICE:
+    price: 60.0
+    max-stock: 1500
+
+  # Music Discs
+  MUSIC_DISC_13:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_CAT:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_BLOCKS:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_CHIRP:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_FAR:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_MALL:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_MELLOHI:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_STAL:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_STRAD:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_WARD:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_11:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_WAIT:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  MUSIC_DISC_PIGSTEP:
+    price: 1000.0
+    max-stock: 50
+    initial-stock: 5
+
+  MUSIC_DISC_OTHERSIDE:
+    price: 800.0
+    max-stock: 80
+    initial-stock: 8
+
+  MUSIC_DISC_5:
+    price: 1500.0
+    max-stock: 30
+    initial-stock: 3
+
+  MUSIC_DISC_RELIC:
+    price: 1200.0
+    max-stock: 40
+    initial-stock: 4
+
+  # Banner Patterns
+  FLOWER_BANNER_PATTERN:
+    price: 100.0
+    max-stock: 500
+
+  CREEPER_BANNER_PATTERN:
+    price: 150.0
+    max-stock: 400
+
+  SKULL_BANNER_PATTERN:
+    price: 200.0
+    max-stock: 300
+
+  MOJANG_BANNER_PATTERN:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  GLOBE_BANNER_PATTERN:
+    price: 300.0
+    max-stock: 200
+    initial-stock: 20
+
+  PIGLIN_BANNER_PATTERN:
+    price: 400.0
+    max-stock: 150
+    initial-stock: 15
+
+  # Other Items
+  PAPER:
+    price: 2.0
+    max-stock: 8000
+    initial-stock: 400
+
+  BOOK:
+    price: 15.0
+    max-stock: 3000
+    initial-stock: 150
+
+  WRITABLE_BOOK:
+    price: 20.0
+    max-stock: 2000
+    initial-stock: 100
+
+  EXPERIENCE_BOTTLE:
+    price: 50.0
+    max-stock: 2000
+    initial-stock: 100
+
+  FIREWORK_ROCKET:
+    price: 10.0
+    max-stock: 4000
+    initial-stock: 200
+
+  FIREWORK_STAR:
+    price: 50.0
+    max-stock: 2000
+    initial-stock: 100
+
+  DRAGON_BREATH:
+    price: 300.0
+    max-stock: 300
+    initial-stock: 30
+
+  DRAGON_EGG:
+    price: 50000.0
+    max-stock: 1
+    initial-stock: 0
+
+  BEACON:
+    price: 15000.0
+    max-stock: 10
+    initial-stock: 2
+
+  ENCHANTING_TABLE:
+    price: 1000.0
+    max-stock: 100
+    initial-stock: 20
+
+  ANVIL:
+    price: 500.0
+    max-stock: 200
+    initial-stock: 40
+
+  SMITHING_TABLE:
+    price: 100.0
+    max-stock: 500
+
+  GRINDSTONE:
+    price: 80.0
+    max-stock: 600
+
+  LECTERN:
+    price: 120.0
+    max-stock: 400
+
+  CARTOGRAPHY_TABLE:
+    price: 90.0
+    max-stock: 500
+
+  FLETCHING_TABLE:
+    price: 90.0
+    max-stock: 500
+
+  STONECUTTER:
+    price: 70.0
+    max-stock: 600
+
+  LOOM:
+    price: 80.0
+    max-stock: 500
+
+  CHEST:
+    price: 20.0
+    max-stock: 3000
+    initial-stock: 150
+
+  ENDER_CHEST:
+    price: 200.0
+    max-stock: 500
+    initial-stock: 50
+
+  CRAFTING_TABLE:
+    price: 10.0
+    max-stock: 4000
+    initial-stock: 200
+
+  FURNACE:
+    price: 16.0
+    max-stock: 3000
+    initial-stock: 150
+
+  BLAST_FURNACE:
+    price: 200.0
+    max-stock: 1000
+
+  SMOKER:
+    price: 100.0
+    max-stock: 1500
+
+  CAMPFIRE:
+    price: 50.0
+    max-stock: 2000
+
+  SOUL_CAMPFIRE:
+    price: 70.0
+    max-stock: 1500
+
+  LANTERN:
+    price: 25.0
+    max-stock: 3000
+
+  SOUL_LANTERN:
+    price: 35.0
+    max-stock: 2500
+
+  TORCH:
+    price: 2.0
+    max-stock: 10000
+    initial-stock: 500
+
+  SOUL_TORCH:
+    price: 3.0
+    max-stock: 8000
+    initial-stock: 400

@@ -1,0 +1,183 @@
+# Building Blocks Category Configuration
+category:
+  display-name: "Building Blocks"
+  icon: STONE
+  tax-rate: 10.0  # Tax rate as percentage for this category
+
+# Default values for all items in this category
+defaults:
+  min-stock: 0
+  max-stock: 10000
+  initial-stock: 100
+
+# Items in this category
+items:
+  STONE:
+    price: 2.0
+    max-stock: 15000
+
+  COBBLESTONE:
+    price: 1.5
+    max-stock: 20000
+
+  GRANITE:
+    price: 3.0
+
+  DIORITE:
+    price: 3.0
+
+  ANDESITE:
+    price: 3.0
+
+  DIRT:
+    price: 1.0
+    max-stock: 25000
+
+  GRASS_BLOCK:
+    price: 2.0
+
+  OAK_LOG:
+    price: 5.0
+    max-stock: 5000
+
+  SPRUCE_LOG:
+    price: 5.0
+    max-stock: 5000
+
+  BIRCH_LOG:
+    price: 5.0
+    max-stock: 5000
+
+  JUNGLE_LOG:
+    price: 5.0
+    max-stock: 5000
+
+  ACACIA_LOG:
+    price: 5.0
+    max-stock: 5000
+
+  DARK_OAK_LOG:
+    price: 5.0
+    max-stock: 5000
+
+  MANGROVE_LOG:
+    price: 6.0
+    max-stock: 4000
+
+  CHERRY_LOG:
+    price: 7.0
+    max-stock: 3000
+
+  OAK_PLANKS:
+    price: 1.5
+
+  SPRUCE_PLANKS:
+    price: 1.5
+
+  BIRCH_PLANKS:
+    price: 1.5
+
+  JUNGLE_PLANKS:
+    price: 1.5
+
+  ACACIA_PLANKS:
+    price: 1.5
+
+  DARK_OAK_PLANKS:
+    price: 1.5
+
+  MANGROVE_PLANKS:
+    price: 2.0
+
+  CHERRY_PLANKS:
+    price: 2.5
+
+  SAND:
+    price: 2.0
+    max-stock: 15000
+
+  RED_SAND:
+    price: 3.0
+    max-stock: 10000
+
+  GRAVEL:
+    price: 2.0
+    max-stock: 15000
+
+  GLASS:
+    price: 3.0
+
+  BRICKS:
+    price: 10.0
+    max-stock: 3000
+
+  STONE_BRICKS:
+    price: 4.0
+
+  NETHER_BRICKS:
+    price: 15.0
+    max-stock: 2000
+
+  QUARTZ_BLOCK:
+    price: 20.0
+    max-stock: 1000
+
+  TERRACOTTA:
+    price: 5.0
+
+  WHITE_CONCRETE:
+    price: 4.0
+
+  WHITE_WOOL:
+    price: 8.0
+    max-stock: 5000
+
+  DEEPSLATE:
+    price: 3.0
+
+  CALCITE:
+    price: 5.0
+    max-stock: 3000
+
+  TUFF:
+    price: 2.0
+
+  BLACKSTONE:
+    price: 4.0
+    max-stock: 5000
+
+  BASALT:
+    price: 3.0
+    max-stock: 8000
+
+  PRISMARINE:
+    price: 15.0
+    max-stock: 2000
+
+  DARK_PRISMARINE:
+    price: 20.0
+    max-stock: 1500
+
+  SEA_LANTERN:
+    price: 50.0
+    max-stock: 500
+
+  END_STONE:
+    price: 10.0
+    max-stock: 3000
+
+  END_STONE_BRICKS:
+    price: 15.0
+    max-stock: 2000
+
+  PURPUR_BLOCK:
+    price: 25.0
+    max-stock: 1000
+
+  OBSIDIAN:
+    price: 20.0
+    max-stock: 2000
+
+  CRYING_OBSIDIAN:
+    price: 50.0
+    max-stock: 500

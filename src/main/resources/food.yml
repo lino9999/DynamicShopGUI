@@ -1,0 +1,162 @@
+# Food Category Configuration
+category:
+  display-name: "Food"
+  icon: BREAD
+  tax-rate: 5.0  # Lower tax rate for food items
+
+# Default values for all items in this category
+defaults:
+  min-stock: 0
+  max-stock: 5000
+  initial-stock: 200
+
+# Items in this category
+items:
+  APPLE:
+    price: 5.0
+    max-stock: 8000
+
+  BREAD:
+    price: 8.0
+
+  RAW_BEEF:
+    price: 6.0
+
+  COOKED_BEEF:
+    price: 15.0
+
+  RAW_PORKCHOP:
+    price: 5.0
+
+  COOKED_PORKCHOP:
+    price: 12.0
+
+  RAW_CHICKEN:
+    price: 4.0
+
+  COOKED_CHICKEN:
+    price: 10.0
+
+  RAW_MUTTON:
+    price: 4.0
+
+  COOKED_MUTTON:
+    price: 10.0
+
+  RAW_RABBIT:
+    price: 5.0
+
+  COOKED_RABBIT:
+    price: 12.0
+
+  RAW_COD:
+    price: 4.0
+
+  COOKED_COD:
+    price: 10.0
+
+  RAW_SALMON:
+    price: 5.0
+
+  COOKED_SALMON:
+    price: 12.0
+
+  TROPICAL_FISH:
+    price: 8.0
+    max-stock: 2000
+
+  PUFFERFISH:
+    price: 20.0
+    max-stock: 1000
+
+  GOLDEN_APPLE:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 10
+
+  ENCHANTED_GOLDEN_APPLE:
+    price: 5000.0
+    max-stock: 10
+    initial-stock: 2
+
+  GOLDEN_CARROT:
+    price: 100.0
+    max-stock: 500
+    initial-stock: 50
+
+  COOKIE:
+    price: 3.0
+    max-stock: 10000
+
+  MELON_SLICE:
+    price: 2.0
+    max-stock: 10000
+
+  PUMPKIN_PIE:
+    price: 20.0
+
+  CAKE:
+    price: 50.0
+    max-stock: 1000
+
+  HONEY_BOTTLE:
+    price: 15.0
+    max-stock: 3000
+
+  SWEET_BERRIES:
+    price: 3.0
+    max-stock: 8000
+
+  GLOW_BERRIES:
+    price: 5.0
+    max-stock: 6000
+
+  CARROT:
+    price: 3.0
+    max-stock: 8000
+
+  POTATO:
+    price: 3.0
+    max-stock: 8000
+
+  BAKED_POTATO:
+    price: 6.0
+
+  POISONOUS_POTATO:
+    price: 1.0
+    max-stock: 2000
+
+  BEETROOT:
+    price: 2.0
+    max-stock: 6000
+
+  BEETROOT_SOUP:
+    price: 12.0
+
+  MUSHROOM_STEW:
+    price: 15.0
+
+  RABBIT_STEW:
+    price: 25.0
+    max-stock: 2000
+
+  SUSPICIOUS_STEW:
+    price: 30.0
+    max-stock: 1000
+
+  DRIED_KELP:
+    price: 2.0
+    max-stock: 8000
+
+  ROTTEN_FLESH:
+    price: 1.0
+    max-stock: 15000
+
+  SPIDER_EYE:
+    price: 10.0
+    max-stock: 3000
+
+  CHORUS_FRUIT:
+    price: 20.0
+    max-stock: 2000
+    initial-stock: 100

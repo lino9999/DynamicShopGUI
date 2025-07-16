@@ -1,0 +1,315 @@
+# Farming Category Configuration
+category:
+  display-name: "Farming"
+  icon: WHEAT
+  tax-rate: 8.0  # Lower tax rate for farming items
+
+# Default values for all items in this category
+defaults:
+  min-stock: 0
+  max-stock: 5000
+  initial-stock: 300
+
+# Items in this category
+items:
+  # Seeds
+  WHEAT_SEEDS:
+    price: 1.0
+    max-stock: 10000
+
+  PUMPKIN_SEEDS:
+    price: 3.0
+    max-stock: 8000
+
+  MELON_SEEDS:
+    price: 3.0
+    max-stock: 8000
+
+  BEETROOT_SEEDS:
+    price: 2.0
+    max-stock: 8000
+
+  TORCHFLOWER_SEEDS:
+    price: 50.0
+    max-stock: 1000
+    initial-stock: 50
+
+  PITCHER_POD:
+    price: 80.0
+    max-stock: 800
+    initial-stock: 40
+
+  # Crops
+  WHEAT:
+    price: 4.0
+
+  CARROT:
+    price: 3.0
+    max-stock: 8000
+
+  POTATO:
+    price: 3.0
+    max-stock: 8000
+
+  BEETROOT:
+    price: 2.0
+    max-stock: 6000
+
+  SUGAR_CANE:
+    price: 2.0
+    max-stock: 10000
+
+  CACTUS:
+    price: 3.0
+    max-stock: 8000
+
+  BAMBOO:
+    price: 2.0
+    max-stock: 10000
+
+  KELP:
+    price: 2.0
+    max-stock: 10000
+
+  PUMPKIN:
+    price: 15.0
+    max-stock: 3000
+
+  MELON:
+    price: 20.0
+    max-stock: 2500
+
+  # Farming Tools
+  BONE_MEAL:
+    price: 5.0
+    max-stock: 8000
+
+  BONE_BLOCK:
+    price: 45.0
+    max-stock: 1000
+
+  COMPOSTER:
+    price: 35.0
+    max-stock: 2000
+
+  # Flowers
+  DANDELION:
+    price: 2.0
+    max-stock: 8000
+
+  POPPY:
+    price: 2.0
+    max-stock: 8000
+
+  BLUE_ORCHID:
+    price: 5.0
+    max-stock: 4000
+
+  ALLIUM:
+    price: 3.0
+    max-stock: 6000
+
+  AZURE_BLUET:
+    price: 3.0
+    max-stock: 6000
+
+  RED_TULIP:
+    price: 4.0
+
+  ORANGE_TULIP:
+    price: 4.0
+
+  WHITE_TULIP:
+    price: 4.0
+
+  PINK_TULIP:
+    price: 4.0
+
+  OXEYE_DAISY:
+    price: 3.0
+    max-stock: 6000
+
+  CORNFLOWER:
+    price: 3.0
+    max-stock: 6000
+
+  LILY_OF_THE_VALLEY:
+    price: 5.0
+    max-stock: 4000
+
+  WITHER_ROSE:
+    price: 100.0
+    max-stock: 500
+    initial-stock: 25
+
+  SUNFLOWER:
+    price: 6.0
+    max-stock: 4000
+
+  LILAC:
+    price: 6.0
+    max-stock: 4000
+
+  ROSE_BUSH:
+    price: 6.0
+    max-stock: 4000
+
+  PEONY:
+    price: 6.0
+    max-stock: 4000
+
+  TORCHFLOWER:
+    price: 60.0
+    max-stock: 1000
+    initial-stock: 50
+
+  PITCHER_PLANT:
+    price: 100.0
+    max-stock: 800
+    initial-stock: 40
+
+  # Dyes from Farming
+  COCOA_BEANS:
+    price: 8.0
+    max-stock: 4000
+
+  INK_SAC:
+    price: 10.0
+    max-stock: 3000
+
+  GLOW_INK_SAC:
+    price: 25.0
+    max-stock: 2000
+    initial-stock: 100
+
+  # Mushrooms
+  BROWN_MUSHROOM:
+    price: 5.0
+    max-stock: 4000
+
+  RED_MUSHROOM:
+    price: 5.0
+    max-stock: 4000
+
+  BROWN_MUSHROOM_BLOCK:
+    price: 20.0
+    max-stock: 1500
+
+  RED_MUSHROOM_BLOCK:
+    price: 20.0
+    max-stock: 1500
+
+  MUSHROOM_STEM:
+    price: 15.0
+    max-stock: 2000
+
+  # Other Farming Items
+  HAY_BLOCK:
+    price: 36.0
+    max-stock: 2000
+
+  DRIED_KELP_BLOCK:
+    price: 18.0
+    max-stock: 3000
+
+  HONEYCOMB:
+    price: 10.0
+    max-stock: 3000
+
+  HONEYCOMB_BLOCK:
+    price: 40.0
+    max-stock: 1000
+
+  BEE_NEST:
+    price: 200.0
+    max-stock: 200
+    initial-stock: 20
+
+  BEEHIVE:
+    price: 100.0
+    max-stock: 500
+
+  MOSS_BLOCK:
+    price: 8.0
+    max-stock: 4000
+
+  MOSS_CARPET:
+    price: 3.0
+    max-stock: 6000
+
+  AZALEA:
+    price: 10.0
+    max-stock: 3000
+
+  FLOWERING_AZALEA:
+    price: 15.0
+    max-stock: 2500
+
+  BIG_DRIPLEAF:
+    price: 12.0
+    max-stock: 3000
+
+  SMALL_DRIPLEAF:
+    price: 8.0
+    max-stock: 4000
+
+  SPORE_BLOSSOM:
+    price: 50.0
+    max-stock: 1000
+    initial-stock: 50
+
+  GLOW_LICHEN:
+    price: 10.0
+    max-stock: 4000
+
+  HANGING_ROOTS:
+    price: 5.0
+    max-stock: 5000
+
+  NETHER_WART:
+    price: 10.0
+    max-stock: 3000
+
+  NETHER_WART_BLOCK:
+    price: 90.0
+    max-stock: 500
+
+  WARPED_WART_BLOCK:
+    price: 90.0
+    max-stock: 500
+
+  CRIMSON_FUNGUS:
+    price: 15.0
+    max-stock: 2500
+
+  WARPED_FUNGUS:
+    price: 15.0
+    max-stock: 2500
+
+  WEEPING_VINES:
+    price: 8.0
+    max-stock: 4000
+
+  TWISTING_VINES:
+    price: 8.0
+    max-stock: 4000
+
+  VINE:
+    price: 5.0
+    max-stock: 6000
+
+  LILY_PAD:
+    price: 8.0
+    max-stock: 4000
+
+  SEA_PICKLE:
+    price: 12.0
+    max-stock: 3000
+
+  SEAGRASS:
+    price: 3.0
+    max-stock: 8000
+
+  TALL_SEAGRASS:
+    price: 5.0
+    max-stock: 6000

@@ -1,0 +1,211 @@
+# Tools Category Configuration
+category:
+  display-name: "Tools"
+  icon: DIAMOND_PICKAXE
+  tax-rate: 15.0  # Standard tax rate for tools
+
+# Default values for all items in this category
+defaults:
+  min-stock: 0
+  max-stock: 500
+  initial-stock: 50
+
+# Items in this category
+items:
+  # Pickaxes
+  WOODEN_PICKAXE:
+    price: 10.0
+    max-stock: 1000
+
+  STONE_PICKAXE:
+    price: 20.0
+    max-stock: 800
+
+  IRON_PICKAXE:
+    price: 80.0
+    max-stock: 400
+
+  GOLDEN_PICKAXE:
+    price: 150.0
+    max-stock: 200
+
+  DIAMOND_PICKAXE:
+    price: 600.0
+    max-stock: 100
+    initial-stock: 20
+
+  NETHERITE_PICKAXE:
+    price: 4000.0
+    max-stock: 10
+    initial-stock: 2
+
+  # Axes
+  WOODEN_AXE:
+    price: 10.0
+    max-stock: 1000
+
+  STONE_AXE:
+    price: 20.0
+    max-stock: 800
+
+  IRON_AXE:
+    price: 80.0
+    max-stock: 400
+
+  GOLDEN_AXE:
+    price: 150.0
+    max-stock: 200
+
+  DIAMOND_AXE:
+    price: 600.0
+    max-stock: 100
+    initial-stock: 20
+
+  NETHERITE_AXE:
+    price: 4000.0
+    max-stock: 10
+    initial-stock: 2
+
+  # Shovels
+  WOODEN_SHOVEL:
+    price: 8.0
+    max-stock: 1000
+
+  STONE_SHOVEL:
+    price: 15.0
+    max-stock: 800
+
+  IRON_SHOVEL:
+    price: 60.0
+    max-stock: 400
+
+  GOLDEN_SHOVEL:
+    price: 120.0
+    max-stock: 200
+
+  DIAMOND_SHOVEL:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 20
+
+  NETHERITE_SHOVEL:
+    price: 3500.0
+    max-stock: 10
+    initial-stock: 2
+
+  # Hoes
+  WOODEN_HOE:
+    price: 8.0
+    max-stock: 1000
+
+  STONE_HOE:
+    price: 15.0
+    max-stock: 800
+
+  IRON_HOE:
+    price: 60.0
+    max-stock: 400
+
+  GOLDEN_HOE:
+    price: 120.0
+    max-stock: 200
+
+  DIAMOND_HOE:
+    price: 500.0
+    max-stock: 100
+    initial-stock: 20
+
+  NETHERITE_HOE:
+    price: 3500.0
+    max-stock: 10
+    initial-stock: 2
+
+  # Swords
+  WOODEN_SWORD:
+    price: 12.0
+    max-stock: 800
+
+  STONE_SWORD:
+    price: 25.0
+    max-stock: 600
+
+  IRON_SWORD:
+    price: 100.0
+    max-stock: 300
+
+  GOLDEN_SWORD:
+    price: 180.0
+    max-stock: 150
+
+  DIAMOND_SWORD:
+    price: 700.0
+    max-stock: 80
+    initial-stock: 15
+
+  NETHERITE_SWORD:
+    price: 4500.0
+    max-stock: 8
+    initial-stock: 2
+
+  # Special Tools
+  BOW:
+    price: 50.0
+    max-stock: 600
+
+  CROSSBOW:
+    price: 100.0
+    max-stock: 400
+
+  SHIELD:
+    price: 80.0
+    max-stock: 500
+
+  FISHING_ROD:
+    price: 30.0
+    max-stock: 800
+
+  FLINT_AND_STEEL:
+    price: 25.0
+    max-stock: 1000
+
+  SHEARS:
+    price: 40.0
+    max-stock: 800
+
+  COMPASS:
+    price: 50.0
+    max-stock: 600
+
+  CLOCK:
+    price: 60.0
+    max-stock: 500
+
+  SPYGLASS:
+    price: 100.0
+    max-stock: 300
+
+  BUCKET:
+    price: 45.0
+    max-stock: 1000
+
+  WATER_BUCKET:
+    price: 50.0
+    max-stock: 800
+
+  LAVA_BUCKET:
+    price: 100.0
+    max-stock: 400
+
+  MILK_BUCKET:
+    price: 60.0
+    max-stock: 600
+
+  TRIDENT:
+    price: 1000.0
+    max-stock: 20
+    initial-stock: 5
+
+  MACE:
+    price: 800.0
+    max-stock: 30
+    initial-stock: 8

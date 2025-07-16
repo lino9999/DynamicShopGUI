@@ -1,0 +1,152 @@
+# Ores & Minerals Category Configuration
+category:
+  display-name: "Ores & Minerals"
+  icon: DIAMOND
+  tax-rate: 20.0  # Higher tax rate to prevent mining exploits
+
+# Default values for all items in this category
+defaults:
+  min-stock: 0
+  max-stock: 1000
+  initial-stock: 50
+
+# Items in this category
+items:
+  COAL:
+    price: 5.0
+    max-stock: 5000
+    initial-stock: 200
+
+  CHARCOAL:
+    price: 6.0
+    max-stock: 3000
+    initial-stock: 150
+
+  IRON_INGOT:
+    price: 15.0
+    max-stock: 2000
+    initial-stock: 100
+
+  COPPER_INGOT:
+    price: 12.0
+    max-stock: 2500
+    initial-stock: 120
+
+  GOLD_INGOT:
+    price: 50.0
+    max-stock: 500
+    initial-stock: 30
+
+  DIAMOND:
+    price: 200.0
+    max-stock: 100
+    initial-stock: 10
+
+  EMERALD:
+    price: 150.0
+    max-stock: 200
+    initial-stock: 20
+
+  NETHERITE_INGOT:
+    price: 2000.0
+    max-stock: 10
+    initial-stock: 2
+
+  LAPIS_LAZULI:
+    price: 10.0
+    max-stock: 3000
+    initial-stock: 150
+
+  REDSTONE:
+    price: 8.0
+    max-stock: 4000
+    initial-stock: 200
+
+  QUARTZ:
+    price: 5.0
+    max-stock: 3000
+    initial-stock: 150
+
+  AMETHYST_SHARD:
+    price: 25.0
+    max-stock: 1000
+    initial-stock: 50
+
+  ANCIENT_DEBRIS:
+    price: 500.0
+    max-stock: 20
+    initial-stock: 5
+
+  RAW_IRON:
+    price: 10.0
+    max-stock: 3000
+
+  RAW_COPPER:
+    price: 8.0
+    max-stock: 4000
+
+  RAW_GOLD:
+    price: 35.0
+    max-stock: 800
+
+  COAL_BLOCK:
+    price: 45.0
+    max-stock: 500
+
+  IRON_BLOCK:
+    price: 135.0
+    max-stock: 200
+
+  COPPER_BLOCK:
+    price: 108.0
+    max-stock: 250
+
+  GOLD_BLOCK:
+    price: 450.0
+    max-stock: 50
+
+  DIAMOND_BLOCK:
+    price: 1800.0
+    max-stock: 10
+
+  EMERALD_BLOCK:
+    price: 1350.0
+    max-stock: 20
+
+  NETHERITE_BLOCK:
+    price: 18000.0
+    max-stock: 2
+    initial-stock: 1
+
+  LAPIS_BLOCK:
+    price: 90.0
+    max-stock: 300
+
+  REDSTONE_BLOCK:
+    price: 72.0
+    max-stock: 400
+
+  GLOWSTONE_DUST:
+    price: 15.0
+    max-stock: 2000
+
+  GLOWSTONE:
+    price: 60.0
+    max-stock: 500
+
+  PRISMARINE_CRYSTALS:
+    price: 30.0
+    max-stock: 800
+
+  PRISMARINE_SHARD:
+    price: 20.0
+    max-stock: 1200
+
+  NETHER_QUARTZ_ORE:
+    price: 20.0
+    max-stock: 1000
+
+  ECHO_SHARD:
+    price: 100.0
+    max-stock: 50
+    initial-stock: 5
