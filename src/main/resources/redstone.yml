@@ -1,0 +1,184 @@
+# Redstone Category Configuration
+category:
+  display-name: "Redstone"
+  icon: REDSTONE
+  tax-rate: 12.0  # Standard tax rate for redstone components
+
+# Default values for all items in this category
+defaults:
+  min-stock: 0
+  max-stock: 2000
+  initial-stock: 100
+
+# Items in this category
+items:
+  REDSTONE:
+    price: 8.0
+    max-stock: 4000
+    initial-stock: 200
+
+  REDSTONE_TORCH:
+    price: 10.0
+    max-stock: 3000
+
+  REDSTONE_BLOCK:
+    price: 72.0
+    max-stock: 400
+    initial-stock: 50
+
+  REPEATER:
+    price: 15.0
+
+  COMPARATOR:
+    price: 20.0
+
+  PISTON:
+    price: 30.0
+
+  STICKY_PISTON:
+    price: 40.0
+
+  OBSERVER:
+    price: 50.0
+    max-stock: 1500
+
+  HOPPER:
+    price: 100.0
+    max-stock: 1000
+    initial-stock: 50
+
+  DROPPER:
+    price: 25.0
+
+  DISPENSER:
+    price: 30.0
+
+  NOTE_BLOCK:
+    price: 35.0
+
+  JUKEBOX:
+    price: 250.0
+    max-stock: 500
+    initial-stock: 30
+
+  LEVER:
+    price: 5.0
+    max-stock: 5000
+
+  STONE_BUTTON:
+    price: 3.0
+    max-stock: 5000
+
+  OAK_BUTTON:
+    price: 3.0
+    max-stock: 5000
+
+  STONE_PRESSURE_PLATE:
+    price: 5.0
+    max-stock: 4000
+
+  OAK_PRESSURE_PLATE:
+    price: 5.0
+    max-stock: 4000
+
+  LIGHT_WEIGHTED_PRESSURE_PLATE:
+    price: 120.0
+    max-stock: 800
+
+  HEAVY_WEIGHTED_PRESSURE_PLATE:
+    price: 40.0
+    max-stock: 1200
+
+  TRIPWIRE_HOOK:
+    price: 15.0
+    max-stock: 3000
+
+  TRAPPED_CHEST:
+    price: 35.0
+
+  TNT:
+    price: 50.0
+    max-stock: 1000
+    initial-stock: 50
+
+  REDSTONE_LAMP:
+    price: 60.0
+    max-stock: 1500
+
+  DAYLIGHT_DETECTOR:
+    price: 40.0
+    max-stock: 1500
+
+  IRON_DOOR:
+    price: 40.0
+
+  IRON_TRAPDOOR:
+    price: 70.0
+    max-stock: 1000
+
+  OAK_DOOR:
+    price: 10.0
+    max-stock: 3000
+
+  OAK_TRAPDOOR:
+    price: 15.0
+    max-stock: 3000
+
+  OAK_FENCE_GATE:
+    price: 12.0
+    max-stock: 3000
+
+  POWERED_RAIL:
+    price: 120.0
+    max-stock: 1000
+    initial-stock: 50
+
+  DETECTOR_RAIL:
+    price: 25.0
+
+  RAIL:
+    price: 10.0
+    max-stock: 5000
+    initial-stock: 200
+
+  ACTIVATOR_RAIL:
+    price: 30.0
+
+  MINECART:
+    price: 75.0
+    max-stock: 1500
+
+  CHEST_MINECART:
+    price: 100.0
+    max-stock: 1000
+
+  FURNACE_MINECART:
+    price: 100.0
+    max-stock: 1000
+
+  TNT_MINECART:
+    price: 125.0
+    max-stock: 500
+
+  HOPPER_MINECART:
+    price: 175.0
+    max-stock: 500
+
+  COMMAND_BLOCK_MINECART:
+    price: 500.0
+    max-stock: 50
+    initial-stock: 5
+
+  TARGET:
+    price: 40.0
+    max-stock: 1500
+
+  SCULK_SENSOR:
+    price: 80.0
+    max-stock: 800
+    initial-stock: 40
+
+  CALIBRATED_SCULK_SENSOR:
+    price: 120.0
+    max-stock: 500
+    initial-stock: 25
