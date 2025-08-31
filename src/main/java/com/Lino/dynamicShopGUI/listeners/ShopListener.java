@@ -61,6 +61,17 @@ public class ShopListener implements Listener {
 
         String clickedName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
+        if (clicked.getType() == Material.BARRIER) {
+            player.closeInventory();
+            return;
+        }
+
+        if (clicked.getType() == Material.BOOK || clicked.getType() == Material.PLAYER_HEAD ||
+                clicked.getType() == Material.EMERALD_BLOCK || clicked.getType() == Material.BLACK_STAINED_GLASS_PANE ||
+                clicked.getType() == Material.GREEN_STAINED_GLASS_PANE) {
+            return;
+        }
+
         Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
 
         for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry : categories.entrySet()) {
@@ -79,18 +90,33 @@ public class ShopListener implements Listener {
                 plugin.getGUIManager().openMainMenu(player);
             } else if (displayName.contains("Previous Page")) {
                 String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
-                int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
-                plugin.getGUIManager().openCategoryMenu(player, category, currentPage - 1);
+                if (category != null) {
+                    int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
+                    plugin.getGUIManager().openCategoryMenu(player, category, currentPage - 1);
+                }
             } else if (displayName.contains("Next Page")) {
                 String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
-                int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
-                plugin.getGUIManager().openCategoryMenu(player, category, currentPage + 1);
+                if (category != null) {
+                    int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
+                    plugin.getGUIManager().openCategoryMenu(player, category, currentPage + 1);
+                }
             }
             return;
         }
 
-        if (clicked.getType() == Material.GRAY_STAINED_GLASS_PANE || clicked.getType() == Material.PAPER) {
+        if (clicked.getType() == Material.GRAY_STAINED_GLASS_PANE ||
+                clicked.getType() == Material.LIME_STAINED_GLASS_PANE ||
+                clicked.getType() == Material.PAPER ||
+                clicked.getItemMeta().getDisplayName().contains("Page")) {
             return;
+        }
+
+        String categoryName = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
+        if (categoryName != null) {
+            Material categoryIcon = plugin.getShopConfig().getCategoryIcon(categoryName);
+            if (clicked.getType() == categoryIcon) {
+                return;
+            }
         }
 
         Material material = clicked.getType();
@@ -141,6 +167,12 @@ public class ShopListener implements Listener {
             } else {
                 player.sendMessage(ChatColor.RED + "Error: No item selected. Please close and reopen the shop.");
             }
+            return;
+        }
+
+        if (type == Material.BLACK_STAINED_GLASS_PANE || type == Material.EMERALD ||
+                (currentlyBuying && type == Material.RED_STAINED_GLASS_PANE) ||
+                (!currentlyBuying && type == Material.LIME_STAINED_GLASS_PANE)) {
             return;
         }
 
@@ -215,7 +247,6 @@ public class ShopListener implements Listener {
                     material = Material.valueOf(possibleName);
                     break;
                 } catch (IllegalArgumentException e) {
-                    // Continue trying
                 }
             }
         }

@@ -126,6 +126,9 @@ public class CategoryConfigLoader {
     }
 
     public CategoryConfig getCategory(String name) {
+        if (name == null) {
+            return null;
+        }
         return categories.get(name.toLowerCase());
     }
 

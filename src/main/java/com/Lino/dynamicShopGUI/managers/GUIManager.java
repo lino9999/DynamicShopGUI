@@ -25,40 +25,110 @@ public class GUIManager {
 
     public void openMainMenu(Player player) {
         Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
-        int size = ((categories.size() - 1) / 9 + 1) * 9;
-        size = Math.max(27, Math.min(54, size));
 
-        Inventory inv = Bukkit.createInventory(null, size, ChatColor.DARK_GREEN + "Dynamic Shop");
+        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_GREEN + "Dynamic Shop");
 
-        int slot = 10;
-        int row = 1;
+        ItemStack glassFiller = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta glassMeta = glassFiller.getItemMeta();
+        glassMeta.setDisplayName(" ");
+        glassFiller.setItemMeta(glassMeta);
 
-        for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry : categories.entrySet()) {
+        ItemStack decorGlass = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+        ItemMeta decorMeta = decorGlass.getItemMeta();
+        decorMeta.setDisplayName(" ");
+        decorGlass.setItemMeta(decorMeta);
+
+        for (int i = 0; i < 54; i++) {
+            inv.setItem(i, glassFiller);
+        }
+
+        inv.setItem(0, decorGlass);
+        inv.setItem(8, decorGlass);
+        inv.setItem(45, decorGlass);
+        inv.setItem(53, decorGlass);
+
+        inv.setItem(9, decorGlass);
+        inv.setItem(17, decorGlass);
+        inv.setItem(36, decorGlass);
+        inv.setItem(44, decorGlass);
+
+        ItemStack centerDecor = new ItemStack(Material.EMERALD_BLOCK);
+        ItemMeta centerMeta = centerDecor.getItemMeta();
+        centerMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "DYNAMIC SHOP");
+        List<String> centerLore = new ArrayList<>();
+        centerLore.add("");
+        centerLore.add(ChatColor.GRAY + "Welcome to the Dynamic Shop!");
+        centerLore.add(ChatColor.GRAY + "Prices change based on supply & demand");
+        centerLore.add("");
+        centerLore.add(ChatColor.YELLOW + "Categories: " + ChatColor.WHITE + categories.size());
+        centerLore.add(ChatColor.YELLOW + "Tax Enabled: " + ChatColor.WHITE + (plugin.getShopConfig().isTaxEnabled() ? "Yes" : "No"));
+        centerMeta.setLore(centerLore);
+        centerDecor.setItemMeta(centerMeta);
+        inv.setItem(4, centerDecor);
+
+        int[] categorySlots = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 38, 39, 40, 41, 42};
+        int slotIndex = 0;
+
+        List<Map.Entry<String, CategoryConfigLoader.CategoryConfig>> sortedCategories = new ArrayList<>(categories.entrySet());
+        sortedCategories.sort(Map.Entry.comparingByKey());
+
+        for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry : sortedCategories) {
+            if (slotIndex >= categorySlots.length) break;
+
             CategoryConfigLoader.CategoryConfig category = entry.getValue();
 
             ItemStack categoryItem = new ItemStack(category.getIcon());
             ItemMeta meta = categoryItem.getItemMeta();
-            meta.setDisplayName(ChatColor.YELLOW + category.getDisplayName());
+            meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + category.getDisplayName());
 
             List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Click to browse " + category.getDisplayName().toLowerCase());
+            lore.add("");
+            lore.add(ChatColor.GRAY + "Click to browse items");
             lore.add("");
             lore.add(ChatColor.DARK_GRAY + "Items: " + ChatColor.GRAY + category.getItems().size());
             lore.add(ChatColor.DARK_GRAY + "Tax Rate: " + ChatColor.GRAY + category.getTaxRate() + "%");
+            lore.add("");
+            lore.add(ChatColor.YELLOW + "» Click to open");
 
             meta.setLore(lore);
             categoryItem.setItemMeta(meta);
 
-            inv.setItem(slot, categoryItem);
-
-            slot++;
-            if ((slot - 8) % 9 == 0) {
-                slot += 2;
-                row++;
-            }
+            inv.setItem(categorySlots[slotIndex], categoryItem);
+            slotIndex++;
         }
 
-        fillBorders(inv);
+        ItemStack playerInfo = new ItemStack(Material.PLAYER_HEAD);
+        ItemMeta playerMeta = playerInfo.getItemMeta();
+        playerMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + player.getName());
+        List<String> playerLore = new ArrayList<>();
+        playerLore.add("");
+        playerLore.add(ChatColor.GRAY + "Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", plugin.getEconomy().getBalance(player)));
+        playerLore.add("");
+        playerLore.add(ChatColor.DARK_GRAY + "Happy shopping!");
+        playerMeta.setLore(playerLore);
+        playerInfo.setItemMeta(playerMeta);
+        inv.setItem(49, playerInfo);
+
+        ItemStack closeButton = new ItemStack(Material.BARRIER);
+        ItemMeta closeMeta = closeButton.getItemMeta();
+        closeMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Close");
+        closeButton.setItemMeta(closeMeta);
+        inv.setItem(50, closeButton);
+
+        ItemStack infoBook = new ItemStack(Material.BOOK);
+        ItemMeta bookMeta = infoBook.getItemMeta();
+        bookMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Shop Guide");
+        List<String> bookLore = new ArrayList<>();
+        bookLore.add("");
+        bookLore.add(ChatColor.GRAY + "• Left click to buy items");
+        bookLore.add(ChatColor.GRAY + "• Right click to sell items");
+        bookLore.add(ChatColor.GRAY + "• Prices change dynamically");
+        bookLore.add(ChatColor.GRAY + "• Low stock = Higher prices");
+        bookLore.add(ChatColor.GRAY + "• High stock = Lower prices");
+        bookMeta.setLore(bookLore);
+        infoBook.setItemMeta(bookMeta);
+        inv.setItem(48, infoBook);
+
         player.openInventory(inv);
     }
 
@@ -69,6 +139,23 @@ public class GUIManager {
         String displayName = plugin.getShopConfig().getCategoryDisplayName(category.toLowerCase());
         String title = ChatColor.DARK_GREEN + "Shop - " + displayName;
         Inventory inv = Bukkit.createInventory(null, 54, title);
+
+        ItemStack glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta glassMeta = glassFiller.getItemMeta();
+        glassMeta.setDisplayName(" ");
+        glassFiller.setItemMeta(glassMeta);
+
+        for (int i = 45; i < 54; i++) {
+            inv.setItem(i, glassFiller);
+        }
+
+        ItemStack decorGlass = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemMeta decorMeta = decorGlass.getItemMeta();
+        decorMeta.setDisplayName(" ");
+        decorGlass.setItemMeta(decorMeta);
+
+        inv.setItem(45, decorGlass);
+        inv.setItem(53, decorGlass);
 
         plugin.getDatabaseManager().getItemsByCategory(category).thenAccept(items -> {
             List<Map.Entry<Material, ShopItem>> sortedItems = new ArrayList<>(items.entrySet());
@@ -99,7 +186,7 @@ public class GUIManager {
             if (finalPage > 0) {
                 ItemStack prevPage = new ItemStack(Material.ARROW);
                 ItemMeta prevMeta = prevPage.getItemMeta();
-                prevMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
+                prevMeta.setDisplayName(ChatColor.YELLOW + "« Previous Page");
                 List<String> prevLore = new ArrayList<>();
                 prevLore.add(ChatColor.GRAY + "Page " + finalPage + "/" + totalPages);
                 prevMeta.setLore(prevLore);
@@ -109,14 +196,14 @@ public class GUIManager {
 
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
-            backMeta.setDisplayName(ChatColor.RED + "Back to Categories");
+            backMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Back to Categories");
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
             if (finalPage < totalPages - 1) {
                 ItemStack nextPage = new ItemStack(Material.ARROW);
                 ItemMeta nextMeta = nextPage.getItemMeta();
-                nextMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
+                nextMeta.setDisplayName(ChatColor.YELLOW + "Next Page »");
                 List<String> nextLore = new ArrayList<>();
                 nextLore.add(ChatColor.GRAY + "Page " + (finalPage + 2) + "/" + totalPages);
                 nextMeta.setLore(nextLore);
@@ -127,15 +214,25 @@ public class GUIManager {
             if (totalPages > 1) {
                 ItemStack pageInfo = new ItemStack(Material.PAPER);
                 ItemMeta pageMeta = pageInfo.getItemMeta();
-                pageMeta.setDisplayName(ChatColor.GOLD + "Page " + (finalPage + 1) + "/" + totalPages);
+                pageMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Page " + (finalPage + 1) + "/" + totalPages);
                 List<String> pageLore = new ArrayList<>();
                 pageLore.add(ChatColor.GRAY + "Total items: " + sortedItems.size());
+                pageLore.add(ChatColor.GRAY + "Items per page: " + itemsPerPage);
                 pageMeta.setLore(pageLore);
                 pageInfo.setItemMeta(pageMeta);
-                inv.setItem(53, pageInfo);
+                inv.setItem(52, pageInfo);
             }
 
-            fillBottomBorder(inv);
+            ItemStack categoryInfo = new ItemStack(plugin.getShopConfig().getCategoryIcon(category));
+            ItemMeta categoryMeta = categoryInfo.getItemMeta();
+            categoryMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + displayName);
+            List<String> categoryLore = new ArrayList<>();
+            categoryLore.add("");
+            categoryLore.add(ChatColor.GRAY + "Category Tax: " + ChatColor.YELLOW + String.format("%.1f", plugin.getShopConfig().getTaxRate(category) * 100) + "%");
+            categoryLore.add(ChatColor.GRAY + "Total Items: " + ChatColor.YELLOW + sortedItems.size());
+            categoryMeta.setLore(categoryLore);
+            categoryInfo.setItemMeta(categoryMeta);
+            inv.setItem(46, categoryInfo);
 
             Bukkit.getScheduler().runTask(plugin, () -> player.openInventory(inv));
         });
@@ -158,6 +255,35 @@ public class GUIManager {
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
+            ItemStack glassFiller = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+            ItemMeta glassMeta = glassFiller.getItemMeta();
+            glassMeta.setDisplayName(" ");
+            glassFiller.setItemMeta(glassMeta);
+
+            for (int i = 0; i < 54; i++) {
+                inv.setItem(i, glassFiller);
+            }
+
+            ItemStack decorGlass = new ItemStack(isBuying ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE);
+            ItemMeta decorMeta = decorGlass.getItemMeta();
+            decorMeta.setDisplayName(" ");
+            decorGlass.setItemMeta(decorMeta);
+
+            inv.setItem(0, decorGlass);
+            inv.setItem(1, decorGlass);
+            inv.setItem(7, decorGlass);
+            inv.setItem(8, decorGlass);
+            inv.setItem(9, decorGlass);
+            inv.setItem(17, decorGlass);
+            inv.setItem(45, decorGlass);
+            inv.setItem(46, decorGlass);
+            inv.setItem(52, decorGlass);
+            inv.setItem(53, decorGlass);
+
+            for (int i = 10; i <= 16; i++) {
+                inv.setItem(i, decorGlass);
+            }
+
             if (item.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
                 if (!plugin.getRestockManager().isRestocking(material)) {
                     plugin.getRestockManager().startRestockTimer(material);
@@ -166,7 +292,7 @@ public class GUIManager {
 
             ItemStack displayItem = new ItemStack(material);
             ItemMeta displayMeta = displayItem.getItemMeta();
-            displayMeta.setDisplayName(ChatColor.YELLOW + formatMaterialName(material));
+            displayMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + formatMaterialName(material));
             List<String> displayLore = new ArrayList<>();
 
             if (plugin.getShopConfig().showStock()) {
@@ -219,17 +345,29 @@ public class GUIManager {
 
             ItemStack toggleButton = new ItemStack(Material.HOPPER);
             ItemMeta toggleMeta = toggleButton.getItemMeta();
-            toggleMeta.setDisplayName(isBuying ? ChatColor.GOLD + "Switch to Sell" : ChatColor.GOLD + "Switch to Buy");
+            toggleMeta.setDisplayName(isBuying ? ChatColor.GOLD + "" + ChatColor.BOLD + "» Switch to Sell" : ChatColor.GOLD + "" + ChatColor.BOLD + "» Switch to Buy");
+            List<String> toggleLore = new ArrayList<>();
+            toggleLore.add("");
+            toggleLore.add(ChatColor.GRAY + "Click to " + (isBuying ? "sell" : "buy") + " instead");
+            toggleMeta.setLore(toggleLore);
             toggleButton.setItemMeta(toggleMeta);
             inv.setItem(22, toggleButton);
 
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
-            backMeta.setDisplayName(ChatColor.RED + "Back");
+            backMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "« Back");
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
-            fillBorders(inv);
+            ItemStack balanceInfo = new ItemStack(Material.EMERALD);
+            ItemMeta balanceMeta = balanceInfo.getItemMeta();
+            balanceMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Your Balance");
+            List<String> balanceLore = new ArrayList<>();
+            balanceLore.add("");
+            balanceLore.add(ChatColor.GRAY + "Current: " + ChatColor.GREEN + "$" + String.format("%.2f", plugin.getEconomy().getBalance(player)));
+            balanceMeta.setLore(balanceLore);
+            balanceInfo.setItemMeta(balanceMeta);
+            inv.setItem(4, balanceInfo);
 
             Bukkit.getScheduler().runTask(plugin, () -> player.openInventory(inv));
         });

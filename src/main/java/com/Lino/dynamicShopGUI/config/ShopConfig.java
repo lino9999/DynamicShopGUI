@@ -41,11 +41,17 @@ public class ShopConfig {
     }
 
     public String getCategoryDisplayName(String category) {
+        if (category == null) {
+            return "Unknown";
+        }
         CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
         return categoryConfig != null ? categoryConfig.getDisplayName() : category;
     }
 
     public Material getCategoryIcon(String category) {
+        if (category == null) {
+            return Material.CHEST;
+        }
         CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
         return categoryConfig != null ? categoryConfig.getIcon() : Material.CHEST;
     }
@@ -55,6 +61,9 @@ public class ShopConfig {
     }
 
     public int getInitialStock(String category, Material material) {
+        if (category == null) {
+            return getInitialStock();
+        }
         CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
         if (categoryConfig != null) {
             CategoryConfigLoader.ItemConfig itemConfig = categoryConfig.getItemConfig(material);
@@ -66,6 +75,9 @@ public class ShopConfig {
     }
 
     public int getMaxStock(String category, Material material) {
+        if (category == null) {
+            return 1000;
+        }
         CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
         if (categoryConfig != null) {
             CategoryConfigLoader.ItemConfig itemConfig = categoryConfig.getItemConfig(material);
@@ -91,6 +103,9 @@ public class ShopConfig {
     }
 
     public double getTaxRate(String category) {
+        if (category == null) {
+            return getTaxRate();
+        }
         CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
         if (categoryConfig != null) {
             return categoryConfig.getTaxRate() / 100.0;
@@ -227,6 +242,5 @@ public class ShopConfig {
     }
 
     public void save() {
-        // This method is no longer needed as categories are saved in separate files
     }
 }
