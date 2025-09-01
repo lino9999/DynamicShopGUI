@@ -1,0 +1,138 @@
+# DynamicShopGUI Messages Configuration
+# Gradient Support: <gradient:#startColor:#endColor>text</gradient>
+# Hex Colors: #RRGGBB
+# Variables: %amount%, %item%, %price%, %tax%, %stock%, %max%, %time%, %percent%, %balance%
+
+# General prefix
+prefix: "<gradient:#00ff00:#00ffff>[DynamicShop]</gradient> &7"
+
+# Transaction messages
+transaction:
+  buy-success: "<gradient:#00ff00:#88ff00>Successfully purchased %amount%x %item% for $%price%</gradient>"
+  sell-success: "<gradient:#00ff00:#88ff00>Successfully sold %amount%x %item% for $%price%</gradient>"
+  sell-success-with-tax: "<gradient:#00ff00:#88ff00>Successfully sold %amount%x %item% for $%price%</gradient> &7(Tax: $%tax%)"
+
+# Error messages
+errors:
+  insufficient-funds: "<gradient:#ff0000:#ff8800>Insufficient funds! You need $%price%</gradient>"
+  insufficient-items: "<gradient:#ff0000:#ff8800>You don't have enough items to sell!</gradient>"
+  out-of-stock: "<gradient:#ff0000:#ff8800>This item is currently out of stock!</gradient>"
+  shop-full: "<gradient:#ff0000:#ff8800>The shop is full of this item!</gradient>"
+  item-not-found: "<gradient:#ff0000:#ff8800>Item not found in shop!</gradient>"
+  inventory-full: "<gradient:#ff0000:#ff8800>Inventory is full! Transaction cancelled and refunded.</gradient>"
+  transaction-failed: "<gradient:#ff0000:#ff8800>Failed to process payment</gradient>"
+  transaction-error: "<gradient:#ff0000:#ff8800>An error occurred during the transaction</gradient>"
+  no-item-selected: "<gradient:#ff0000:#ff8800>Error: No item selected. Please close and reopen the shop.</gradient>"
+  cannot-sell: "<gradient:#ff0000:#ff8800>This item cannot be sold</gradient>"
+  amount-error: "<gradient:#ff0000:#ff8800>Error: Could not determine amount to trade</gradient>"
+  item-error: "<gradient:#ff0000:#ff8800>Error: Could not determine the item. Please try reopening the shop.</gradient>"
+
+# Restock messages
+restock:
+  countdown: "<gradient:#ffff00:#ff8800>Restocking in: %time%</gradient>"
+  restocked: "<gradient:#00ff00:#00ffff>This item has been restocked!</gradient>"
+  restocking: "<gradient:#ffff00:#ff8800>Restocking...</gradient>"
+  out-of-stock: "<gradient:#ff0000:#ff8800>Out of Stock!</gradient>"
+  out-of-stock-purchase: "<gradient:#ff0000:#ff8800>Out of Stock for Purchase!</gradient>"
+  can-still-sell: "&7You can still sell this item to the shop"
+
+# Price alert messages
+price-alerts:
+  increase: "<gradient:#ff0000:#ff00ff>[PRICE SURGE]</gradient> <gradient:#ffff00:#ff8800>%item% price increased by %percent%%! New price: $%price%</gradient>"
+  decrease: "<gradient:#00ff00:#00ffff>[PRICE DROP]</gradient> <gradient:#00ff00:#88ff00>%item% price decreased by %percent%%! New price: $%price%</gradient>"
+
+  # Title alerts
+  title-increase: "<gradient:#ff0000:#ff00ff>PRICE SURGE!</gradient>"
+  title-decrease: "<gradient:#00ff00:#00ffff>PRICE DROP!</gradient>"
+  subtitle-increase: "<gradient:#ffff00:#ff8800>%item% +%percent%%</gradient>"
+  subtitle-decrease: "<gradient:#00ff00:#88ff00>%item% %percent%%</gradient>"
+
+# Command messages
+commands:
+  no-permission: "<gradient:#ff0000:#ff8800>You don't have permission to use this command!</gradient>"
+  no-permission-reload: "<gradient:#ff0000:#ff8800>You don't have permission to reload the shop!</gradient>"
+  reload-success: "<gradient:#00ff00:#00ffff>Shop configuration reloaded!</gradient>"
+  players-only: "<gradient:#ff0000:#ff8800>This command can only be used by players!</gradient>"
+
+# GUI messages
+gui:
+  # Main menu
+  main-title: "<gradient:#00ff00:#00ffff>Dynamic Shop</gradient>"
+  main-header: "<gradient:#ffd700:#ffaa00>DYNAMIC SHOP</gradient>"
+  welcome: "&7Welcome to the Dynamic Shop!"
+  price-info: "&7Prices change based on supply & demand"
+  categories-label: "<gradient:#ffff00:#ff8800>Categories: %amount%</gradient>"
+  tax-enabled-label: "<gradient:#ffff00:#ff8800>Tax Enabled: %status%</gradient>"
+  happy-shopping: "&8Happy shopping!"
+
+  # Category menu
+  category-title: "<gradient:#00ff00:#00ffff>Shop - %category%</gradient>"
+  click-to-browse: "&7Click to browse items"
+  items-label: "&8Items: &7%amount%"
+  tax-rate-label: "&8Tax Rate: &7%rate%%"
+  click-to-open: "<gradient:#00ff00:#00ffff>» Click to open</gradient>"
+
+  # Navigation
+  back-to-categories: "<gradient:#ff0000:#ff8800>Back to Categories</gradient>"
+  previous-page: "<gradient:#ffff00:#ff8800>« Previous Page</gradient>"
+  next-page: "<gradient:#ffff00:#ff8800>Next Page »</gradient>"
+  page-info: "<gradient:#ffd700:#ffaa00>Page %current%/%total%</gradient>"
+  page-label: "&7Page %current%/%total%"
+  total-items: "&7Total items: %amount%"
+  items-per-page: "&7Items per page: %amount%"
+
+  # Transaction menu
+  buy-title: "<gradient:#00ff00:#88ff00>Buy %item%</gradient>"
+  sell-title: "<gradient:#ff0000:#ff8800>Sell %item%</gradient>"
+  switch-to-sell: "<gradient:#ffd700:#ffaa00>» Switch to Sell</gradient>"
+  switch-to-buy: "<gradient:#ffd700:#ffaa00>» Switch to Buy</gradient>"
+  click-to-switch: "&7Click to %action% instead"
+  back: "<gradient:#ff0000:#ff8800>« Back</gradient>"
+  close: "<gradient:#ff0000:#ff8800>Close</gradient>"
+
+  # Balance
+  balance-label: "<gradient:#00ff00:#88ff00>Your Balance</gradient>"
+  balance-current: "&7Current: <gradient:#00ff00:#88ff00>$%balance%</gradient>"
+  balance-display: "<gradient:#00ff00:#88ff00>Balance: $%balance%</gradient>"
+
+  # Item display
+  item-name: "<gradient:#ffff00:#ff8800>%item%</gradient>"
+  stock-display: "&7Stock: <gradient:#00ff00:#00ffff>%stock%/%max%</gradient>"
+  buy-price: "&7Buy Price: <gradient:#00ff00:#88ff00>$%price%</gradient>"
+  sell-price: "&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient>"
+  sell-price-with-tax: "&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient> &8(Net: $%net%)"
+  tax-rate: "&8Tax Rate: <gradient:#ff0000:#ff8800>%rate%%</gradient>"
+  tax-exempt: "&8Tax: <gradient:#00ff00:#88ff00>Exempt</gradient>"
+
+  # Price trends
+  price-increase: "<gradient:#00ff00:#88ff00>▲ %percent%% Price Increase</gradient>"
+  price-decrease: "<gradient:#ff0000:#ff8800>▼ %percent%% Price Decrease</gradient>"
+  price-stable: "&7● Price Stable"
+
+  # Actions
+  left-click-buy: "<gradient:#00ff00:#88ff00>Left Click to Buy</gradient>"
+  right-click-sell: "<gradient:#ffff00:#ff8800>Right Click to Sell</gradient>"
+  sell-all: "&7Sell all items in inventory"
+
+  # Transaction buttons
+  buy-amount: "<gradient:#00ff00:#88ff00>Buy %amount%</gradient>"
+  sell-amount: "<gradient:#00ff00:#88ff00>Sell %amount%</gradient>"
+  total-cost: "&7Total cost: <gradient:#00ff00:#88ff00>$%cost%</gradient>"
+  total-earnings: "&7Total earnings: <gradient:#00ff00:#88ff00>$%earn%</gradient>"
+  tax-deduction: "&8Tax: <gradient:#ff0000:#ff8800>-$%tax%</gradient>"
+  net-earnings: "&7Net earnings: <gradient:#00ff00:#88ff00>$%net%</gradient>"
+
+  # Shop guide
+  shop-guide-title: "<gradient:#ff00ff:#8800ff>Shop Guide</gradient>"
+  guide-buy: "&7• Left click to buy items"
+  guide-sell: "&7• Right click to sell items"
+  guide-dynamic: "&7• Prices change dynamically"
+  guide-low-stock: "&7• Low stock = Higher prices"
+  guide-high-stock: "&7• High stock = Lower prices"
+
+  # Player info
+  player-name: "<gradient:#00ffff:#0088ff>%name%</gradient>"
+
+  # Category info
+  category-tax: "&7Category Tax: <gradient:#ffff00:#ff8800>%tax%%</gradient>"
+  category-items: "&7Total Items: <gradient:#ffff00:#ff8800>%items%</gradient>"

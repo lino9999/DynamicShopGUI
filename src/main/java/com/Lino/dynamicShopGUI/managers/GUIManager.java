@@ -3,7 +3,6 @@ package com.Lino.dynamicShopGUI.managers;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.models.ShopItem;
-import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -27,7 +26,7 @@ public class GUIManager {
     public void openMainMenu(Player player) {
         Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
 
-        Inventory inv = Bukkit.createInventory(null, 54, GradientColor.apply("<gradient:#00ff00:#00ffff>Dynamic Shop</gradient>"));
+        Inventory inv = Bukkit.createInventory(null, 54, plugin.getShopConfig().getMessage("gui.main-title"));
 
         ItemStack glassFiller = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassFiller.getItemMeta();
@@ -55,14 +54,14 @@ public class GUIManager {
 
         ItemStack centerDecor = new ItemStack(Material.EMERALD_BLOCK);
         ItemMeta centerMeta = centerDecor.getItemMeta();
-        centerMeta.setDisplayName(GradientColor.apply("<gradient:#ffd700:#ffaa00>DYNAMIC SHOP</gradient>"));
+        centerMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.main-header"));
         List<String> centerLore = new ArrayList<>();
         centerLore.add("");
-        centerLore.add(GradientColor.apply("&7Welcome to the Dynamic Shop!"));
-        centerLore.add(GradientColor.apply("&7Prices change based on supply & demand"));
+        centerLore.add(plugin.getShopConfig().getMessage("gui.welcome"));
+        centerLore.add(plugin.getShopConfig().getMessage("gui.price-info"));
         centerLore.add("");
-        centerLore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Categories: " + categories.size() + "</gradient>"));
-        centerLore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Tax Enabled: " + (plugin.getShopConfig().isTaxEnabled() ? "Yes" : "No") + "</gradient>"));
+        centerLore.add(plugin.getShopConfig().getMessage("gui.categories-label", "%amount%", String.valueOf(categories.size())));
+        centerLore.add(plugin.getShopConfig().getMessage("gui.tax-enabled-label", "%status%", plugin.getShopConfig().isTaxEnabled() ? "Yes" : "No"));
         centerMeta.setLore(centerLore);
         centerDecor.setItemMeta(centerMeta);
         inv.setItem(4, centerDecor);
@@ -80,16 +79,16 @@ public class GUIManager {
 
             ItemStack categoryItem = new ItemStack(category.getIcon());
             ItemMeta meta = categoryItem.getItemMeta();
-            meta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>" + category.getDisplayName() + "</gradient>"));
+            meta.setDisplayName(plugin.getShopConfig().getMessage("gui.item-name", "%item%", category.getDisplayName()));
 
             List<String> lore = new ArrayList<>();
             lore.add("");
-            lore.add(GradientColor.apply("&7Click to browse items"));
+            lore.add(plugin.getShopConfig().getMessage("gui.click-to-browse"));
             lore.add("");
-            lore.add(GradientColor.apply("&8Items: &7" + category.getItems().size()));
-            lore.add(GradientColor.apply("&8Tax Rate: &7" + category.getTaxRate() + "%"));
+            lore.add(plugin.getShopConfig().getMessage("gui.items-label", "%amount%", String.valueOf(category.getItems().size())));
+            lore.add(plugin.getShopConfig().getMessage("gui.tax-rate-label", "%rate%", String.valueOf(category.getTaxRate())));
             lore.add("");
-            lore.add(GradientColor.apply("<gradient:#00ff00:#00ffff>» Click to open</gradient>"));
+            lore.add(plugin.getShopConfig().getMessage("gui.click-to-open"));
 
             meta.setLore(lore);
             categoryItem.setItemMeta(meta);
@@ -101,33 +100,32 @@ public class GUIManager {
         double balance = plugin.getEconomy().getBalance(player);
         ItemStack playerInfo = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta playerMeta = playerInfo.getItemMeta();
-        playerMeta.setDisplayName(GradientColor.apply("<gradient:#00ffff:#0088ff>" + player.getName() + "</gradient>"));
+        playerMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.player-name", "%name%", player.getName()));
         List<String> playerLore = new ArrayList<>();
         playerLore.add("");
-        playerLore.add(GradientColor.applyWithVariables("<gradient:#00ff00:#88ff00>Balance: $%balance%</gradient>",
-                "%balance%", String.format("%.2f", balance)));
+        playerLore.add(plugin.getShopConfig().getMessage("gui.balance-display", "%balance%", String.format("%.2f", balance)));
         playerLore.add("");
-        playerLore.add(GradientColor.apply("&8Happy shopping!"));
+        playerLore.add(plugin.getShopConfig().getMessage("gui.happy-shopping"));
         playerMeta.setLore(playerLore);
         playerInfo.setItemMeta(playerMeta);
         inv.setItem(49, playerInfo);
 
         ItemStack closeButton = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeButton.getItemMeta();
-        closeMeta.setDisplayName(GradientColor.apply("<gradient:#ff0000:#ff8800>Close</gradient>"));
+        closeMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.close"));
         closeButton.setItemMeta(closeMeta);
         inv.setItem(50, closeButton);
 
         ItemStack infoBook = new ItemStack(Material.BOOK);
         ItemMeta bookMeta = infoBook.getItemMeta();
-        bookMeta.setDisplayName(GradientColor.apply("<gradient:#ff00ff:#8800ff>Shop Guide</gradient>"));
+        bookMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.shop-guide-title"));
         List<String> bookLore = new ArrayList<>();
         bookLore.add("");
-        bookLore.add(GradientColor.apply("&7• Left click to buy items"));
-        bookLore.add(GradientColor.apply("&7• Right click to sell items"));
-        bookLore.add(GradientColor.apply("&7• Prices change dynamically"));
-        bookLore.add(GradientColor.apply("&7• Low stock = Higher prices"));
-        bookLore.add(GradientColor.apply("&7• High stock = Lower prices"));
+        bookLore.add(plugin.getShopConfig().getMessage("gui.guide-buy"));
+        bookLore.add(plugin.getShopConfig().getMessage("gui.guide-sell"));
+        bookLore.add(plugin.getShopConfig().getMessage("gui.guide-dynamic"));
+        bookLore.add(plugin.getShopConfig().getMessage("gui.guide-low-stock"));
+        bookLore.add(plugin.getShopConfig().getMessage("gui.guide-high-stock"));
         bookMeta.setLore(bookLore);
         infoBook.setItemMeta(bookMeta);
         inv.setItem(48, infoBook);
@@ -140,7 +138,7 @@ public class GUIManager {
         playerPage.put(player.getUniqueId(), page);
 
         String displayName = plugin.getShopConfig().getCategoryDisplayName(category.toLowerCase());
-        String title = GradientColor.apply("<gradient:#00ff00:#00ffff>Shop - " + displayName + "</gradient>");
+        String title = plugin.getShopConfig().getMessage("gui.category-title", "%category%", displayName);
         Inventory inv = Bukkit.createInventory(null, 54, title);
 
         ItemStack glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
@@ -189,9 +187,11 @@ public class GUIManager {
             if (finalPage > 0) {
                 ItemStack prevPage = new ItemStack(Material.ARROW);
                 ItemMeta prevMeta = prevPage.getItemMeta();
-                prevMeta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>« Previous Page</gradient>"));
+                prevMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.previous-page"));
                 List<String> prevLore = new ArrayList<>();
-                prevLore.add(GradientColor.apply("&7Page " + finalPage + "/" + totalPages));
+                prevLore.add(plugin.getShopConfig().getMessage("gui.page-label",
+                        "%current%", String.valueOf(finalPage),
+                        "%total%", String.valueOf(totalPages)));
                 prevMeta.setLore(prevLore);
                 prevPage.setItemMeta(prevMeta);
                 inv.setItem(48, prevPage);
@@ -199,16 +199,18 @@ public class GUIManager {
 
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
-            backMeta.setDisplayName(GradientColor.apply("<gradient:#ff0000:#ff8800>Back to Categories</gradient>"));
+            backMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.back-to-categories"));
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
             if (finalPage < totalPages - 1) {
                 ItemStack nextPage = new ItemStack(Material.ARROW);
                 ItemMeta nextMeta = nextPage.getItemMeta();
-                nextMeta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>Next Page »</gradient>"));
+                nextMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.next-page"));
                 List<String> nextLore = new ArrayList<>();
-                nextLore.add(GradientColor.apply("&7Page " + (finalPage + 2) + "/" + totalPages));
+                nextLore.add(plugin.getShopConfig().getMessage("gui.page-label",
+                        "%current%", String.valueOf(finalPage + 2),
+                        "%total%", String.valueOf(totalPages)));
                 nextMeta.setLore(nextLore);
                 nextPage.setItemMeta(nextMeta);
                 inv.setItem(50, nextPage);
@@ -217,10 +219,12 @@ public class GUIManager {
             if (totalPages > 1) {
                 ItemStack pageInfo = new ItemStack(Material.PAPER);
                 ItemMeta pageMeta = pageInfo.getItemMeta();
-                pageMeta.setDisplayName(GradientColor.apply("<gradient:#ffd700:#ffaa00>Page " + (finalPage + 1) + "/" + totalPages + "</gradient>"));
+                pageMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.page-info",
+                        "%current%", String.valueOf(finalPage + 1),
+                        "%total%", String.valueOf(totalPages)));
                 List<String> pageLore = new ArrayList<>();
-                pageLore.add(GradientColor.apply("&7Total items: " + sortedItems.size()));
-                pageLore.add(GradientColor.apply("&7Items per page: " + itemsPerPage));
+                pageLore.add(plugin.getShopConfig().getMessage("gui.total-items", "%amount%", String.valueOf(sortedItems.size())));
+                pageLore.add(plugin.getShopConfig().getMessage("gui.items-per-page", "%amount%", String.valueOf(itemsPerPage)));
                 pageMeta.setLore(pageLore);
                 pageInfo.setItemMeta(pageMeta);
                 inv.setItem(52, pageInfo);
@@ -229,13 +233,11 @@ public class GUIManager {
             double taxRate = plugin.getShopConfig().getTaxRate(category) * 100;
             ItemStack categoryInfo = new ItemStack(plugin.getShopConfig().getCategoryIcon(category));
             ItemMeta categoryMeta = categoryInfo.getItemMeta();
-            categoryMeta.setDisplayName(GradientColor.apply("<gradient:#00ffff:#0088ff>" + displayName + "</gradient>"));
+            categoryMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.player-name", "%name%", displayName));
             List<String> categoryLore = new ArrayList<>();
             categoryLore.add("");
-            categoryLore.add(GradientColor.applyWithVariables("&7Category Tax: <gradient:#ffff00:#ff8800>%tax%%</gradient>",
-                    "%tax%", String.format("%.1f", taxRate)));
-            categoryLore.add(GradientColor.applyWithVariables("&7Total Items: <gradient:#ffff00:#ff8800>%items%</gradient>",
-                    "%items%", String.valueOf(sortedItems.size())));
+            categoryLore.add(plugin.getShopConfig().getMessage("gui.category-tax", "%tax%", String.format("%.1f", taxRate)));
+            categoryLore.add(plugin.getShopConfig().getMessage("gui.category-items", "%items%", String.valueOf(sortedItems.size())));
             categoryMeta.setLore(categoryLore);
             categoryInfo.setItemMeta(categoryMeta);
             inv.setItem(46, categoryInfo);
@@ -250,14 +252,14 @@ public class GUIManager {
         plugin.getDatabaseManager().getShopItem(material).thenAccept(item -> {
             if (item == null) {
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>This item is not available in the shop!</gradient>"));
+                    player.sendMessage(plugin.getShopConfig().getMessage("errors.item-not-found"));
                 });
                 return;
             }
 
             String title = isBuying ?
-                    GradientColor.apply("<gradient:#00ff00:#88ff00>Buy " + formatMaterialName(material) + "</gradient>") :
-                    GradientColor.apply("<gradient:#ff0000:#ff8800>Sell " + formatMaterialName(material) + "</gradient>");
+                    plugin.getShopConfig().getMessage("gui.buy-title", "%item%", formatMaterialName(material)) :
+                    plugin.getShopConfig().getMessage("gui.sell-title", "%item%", formatMaterialName(material));
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
@@ -298,27 +300,27 @@ public class GUIManager {
 
             ItemStack displayItem = new ItemStack(material);
             ItemMeta displayMeta = displayItem.getItemMeta();
-            displayMeta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>" + formatMaterialName(material) + "</gradient>"));
+            displayMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.item-name", "%item%", formatMaterialName(material)));
             List<String> displayLore = new ArrayList<>();
 
             if (plugin.getShopConfig().showStock()) {
-                displayLore.add(GradientColor.applyWithVariables("&7Stock: <gradient:#00ff00:#00ffff>%stock%/%max%</gradient>",
+                displayLore.add(plugin.getShopConfig().getMessage("gui.stock-display",
                         "%stock%", String.valueOf(item.getStock()),
                         "%max%", String.valueOf(item.getMaxStock())));
             }
 
-            displayLore.add(GradientColor.applyWithVariables("&7Buy Price: <gradient:#00ff00:#88ff00>$%price%</gradient>",
+            displayLore.add(plugin.getShopConfig().getMessage("gui.buy-price",
                     "%price%", String.format("%.2f", item.getBuyPrice())));
-            displayLore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient>",
+            displayLore.add(plugin.getShopConfig().getMessage("gui.sell-price",
                     "%price%", String.format("%.2f", item.getSellPrice())));
 
             if (!isBuying && plugin.getShopConfig().showTaxInfo() && plugin.getShopConfig().isTaxEnabled()) {
                 if (!plugin.getShopConfig().isTaxExempt(material)) {
                     double taxRate = plugin.getShopConfig().getTaxRate(item.getCategory()) * 100;
-                    displayLore.add(GradientColor.applyWithVariables("&8Tax Rate: <gradient:#ff0000:#ff8800>%tax%%</gradient>",
-                            "%tax%", String.format("%.1f", taxRate)));
+                    displayLore.add(plugin.getShopConfig().getMessage("gui.tax-rate",
+                            "%rate%", String.format("%.1f", taxRate)));
                 } else {
-                    displayLore.add(GradientColor.apply("&8Tax: <gradient:#00ff00:#88ff00>Exempt</gradient>"));
+                    displayLore.add(plugin.getShopConfig().getMessage("gui.tax-exempt"));
                 }
             }
 
@@ -331,9 +333,8 @@ public class GUIManager {
                 String countdown = plugin.getRestockManager().getRestockCountdown(material);
                 if (countdown != null) {
                     displayLore.add("");
-                    displayLore.add(GradientColor.apply("<gradient:#ff0000:#ff8800>Out of Stock!</gradient>"));
-                    displayLore.add(GradientColor.applyWithVariables("<gradient:#ffff00:#ff8800>Restocking in: %time%</gradient>",
-                            "%time%", countdown));
+                    displayLore.add(plugin.getShopConfig().getMessage("restock.out-of-stock"));
+                    displayLore.add(plugin.getShopConfig().getMessage("restock.countdown", "%time%", countdown));
                 }
             }
 
@@ -358,29 +359,28 @@ public class GUIManager {
             ItemStack toggleButton = new ItemStack(Material.HOPPER);
             ItemMeta toggleMeta = toggleButton.getItemMeta();
             toggleMeta.setDisplayName(isBuying ?
-                    GradientColor.apply("<gradient:#ffd700:#ffaa00>» Switch to Sell</gradient>") :
-                    GradientColor.apply("<gradient:#ffd700:#ffaa00>» Switch to Buy</gradient>"));
+                    plugin.getShopConfig().getMessage("gui.switch-to-sell") :
+                    plugin.getShopConfig().getMessage("gui.switch-to-buy"));
             List<String> toggleLore = new ArrayList<>();
             toggleLore.add("");
-            toggleLore.add(GradientColor.apply("&7Click to " + (isBuying ? "sell" : "buy") + " instead"));
+            toggleLore.add(plugin.getShopConfig().getMessage("gui.click-to-switch", "%action%", isBuying ? "sell" : "buy"));
             toggleMeta.setLore(toggleLore);
             toggleButton.setItemMeta(toggleMeta);
             inv.setItem(22, toggleButton);
 
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
-            backMeta.setDisplayName(GradientColor.apply("<gradient:#ff0000:#ff8800>« Back</gradient>"));
+            backMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.back"));
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
             double balance = plugin.getEconomy().getBalance(player);
             ItemStack balanceInfo = new ItemStack(Material.EMERALD);
             ItemMeta balanceMeta = balanceInfo.getItemMeta();
-            balanceMeta.setDisplayName(GradientColor.apply("<gradient:#00ff00:#88ff00>Your Balance</gradient>"));
+            balanceMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.balance-label"));
             List<String> balanceLore = new ArrayList<>();
             balanceLore.add("");
-            balanceLore.add(GradientColor.applyWithVariables("&7Current: <gradient:#00ff00:#88ff00>$%balance%</gradient>",
-                    "%balance%", String.format("%.2f", balance)));
+            balanceLore.add(plugin.getShopConfig().getMessage("gui.balance-current", "%balance%", String.format("%.2f", balance)));
             balanceMeta.setLore(balanceLore);
             balanceInfo.setItemMeta(balanceMeta);
             inv.setItem(4, balanceInfo);
@@ -393,18 +393,18 @@ public class GUIManager {
         ItemStack display = new ItemStack(item.getMaterial());
         ItemMeta meta = display.getItemMeta();
 
-        meta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>" + formatMaterialName(item.getMaterial()) + "</gradient>"));
+        meta.setDisplayName(plugin.getShopConfig().getMessage("gui.item-name", "%item%", formatMaterialName(item.getMaterial())));
 
         List<String> lore = new ArrayList<>();
 
         if (plugin.getShopConfig().showStock()) {
-            lore.add(GradientColor.applyWithVariables("&7Stock: <gradient:#00ff00:#00ffff>%stock%/%max%</gradient>",
+            lore.add(plugin.getShopConfig().getMessage("gui.stock-display",
                     "%stock%", String.valueOf(item.getStock()),
                     "%max%", String.valueOf(item.getMaxStock())));
         }
 
         lore.add("");
-        lore.add(GradientColor.applyWithVariables("&7Buy Price: <gradient:#00ff00:#88ff00>$%price%</gradient>",
+        lore.add(plugin.getShopConfig().getMessage("gui.buy-price",
                 "%price%", String.format("%.2f", item.getBuyPrice())));
 
         double sellPrice = item.getSellPrice();
@@ -413,15 +413,16 @@ public class GUIManager {
             double netPrice = sellPrice - tax;
 
             if (tax > 0) {
-                lore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient> &8(Net: $%net%)",
+                lore.add(plugin.getShopConfig().getMessage("gui.sell-price-with-tax",
                         "%price%", String.format("%.2f", sellPrice),
                         "%net%", String.format("%.2f", netPrice)));
             } else {
-                lore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient> <gradient:#00ff00:#88ff00>(Tax Exempt)</gradient>",
-                        "%price%", String.format("%.2f", sellPrice)));
+                lore.add(plugin.getShopConfig().getMessage("gui.sell-price",
+                        "%price%", String.format("%.2f", sellPrice)) + " " +
+                        plugin.getShopConfig().getMessage("gui.tax-exempt"));
             }
         } else {
-            lore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient>",
+            lore.add(plugin.getShopConfig().getMessage("gui.sell-price",
                     "%price%", String.format("%.2f", sellPrice)));
         }
 
@@ -434,22 +435,21 @@ public class GUIManager {
             String countdown = plugin.getRestockManager().getRestockCountdown(item.getMaterial());
             if (countdown != null) {
                 lore.add("");
-                lore.add(GradientColor.apply("<gradient:#ff0000:#ff8800>Out of Stock for Purchase!</gradient>"));
-                lore.add(GradientColor.applyWithVariables("<gradient:#ffff00:#ff8800>Restocking in: %time%</gradient>",
-                        "%time%", countdown));
+                lore.add(plugin.getShopConfig().getMessage("restock.out-of-stock-purchase"));
+                lore.add(plugin.getShopConfig().getMessage("restock.countdown", "%time%", countdown));
                 lore.add("");
-                lore.add(GradientColor.apply("&7You can still sell this item to the shop"));
-                lore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Right Click to Sell</gradient>"));
+                lore.add(plugin.getShopConfig().getMessage("restock.can-still-sell"));
+                lore.add(plugin.getShopConfig().getMessage("gui.right-click-sell"));
             }
         } else if (item.getStock() == 0) {
             lore.add("");
-            lore.add(GradientColor.apply("<gradient:#ff0000:#ff8800>Out of Stock for Purchase!</gradient>"));
-            lore.add(GradientColor.apply("&7You can still sell this item to the shop"));
-            lore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Right Click to Sell</gradient>"));
+            lore.add(plugin.getShopConfig().getMessage("restock.out-of-stock-purchase"));
+            lore.add(plugin.getShopConfig().getMessage("restock.can-still-sell"));
+            lore.add(plugin.getShopConfig().getMessage("gui.right-click-sell"));
         } else {
             lore.add("");
-            lore.add(GradientColor.apply("<gradient:#00ff00:#88ff00>Left Click to Buy</gradient>"));
-            lore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Right Click to Sell</gradient>"));
+            lore.add(plugin.getShopConfig().getMessage("gui.left-click-buy"));
+            lore.add(plugin.getShopConfig().getMessage("gui.right-click-sell"));
         }
 
         meta.setLore(lore);
@@ -465,27 +465,24 @@ public class GUIManager {
         String action = isBuying ? "Buy" : "Sell";
         String amountText = amount == -1 ? "All" : String.valueOf(amount);
 
-        meta.setDisplayName(GradientColor.apply("<gradient:#00ff00:#88ff00>" + action + " " + amountText + "</gradient>"));
+        meta.setDisplayName(plugin.getShopConfig().getMessage(isBuying ? "gui.buy-amount" : "gui.sell-amount",
+                "%amount%", amountText));
 
         List<String> lore = new ArrayList<>();
         if (amount == -1) {
-            lore.add(GradientColor.apply("&7Sell all items in inventory"));
+            lore.add(plugin.getShopConfig().getMessage("gui.sell-all"));
         } else if (isBuying) {
             double totalCost = item.getBuyPrice() * amount;
-            lore.add(GradientColor.applyWithVariables("&7Total cost: <gradient:#00ff00:#88ff00>$%cost%</gradient>",
-                    "%cost%", String.format("%.2f", totalCost)));
+            lore.add(plugin.getShopConfig().getMessage("gui.total-cost", "%cost%", String.format("%.2f", totalCost)));
         } else {
             double totalEarn = item.getSellPrice() * amount;
             double tax = plugin.getShopConfig().calculateTax(item.getMaterial(), item.getCategory(), totalEarn);
             double netEarn = totalEarn - tax;
 
-            lore.add(GradientColor.applyWithVariables("&7Total earnings: <gradient:#00ff00:#88ff00>$%earn%</gradient>",
-                    "%earn%", String.format("%.2f", totalEarn)));
+            lore.add(plugin.getShopConfig().getMessage("gui.total-earnings", "%earn%", String.format("%.2f", totalEarn)));
             if (tax > 0) {
-                lore.add(GradientColor.applyWithVariables("&8Tax: <gradient:#ff0000:#ff8800>-$%tax%</gradient>",
-                        "%tax%", String.format("%.2f", tax)));
-                lore.add(GradientColor.applyWithVariables("&7Net earnings: <gradient:#00ff00:#88ff00>$%net%</gradient>",
-                        "%net%", String.format("%.2f", netEarn)));
+                lore.add(plugin.getShopConfig().getMessage("gui.tax-deduction", "%tax%", String.format("%.2f", tax)));
+                lore.add(plugin.getShopConfig().getMessage("gui.net-earnings", "%net%", String.format("%.2f", netEarn)));
             }
         }
 
@@ -525,13 +522,13 @@ public class GUIManager {
 
     private String formatPriceChange(double percent) {
         if (percent > 0) {
-            return GradientColor.applyWithVariables("<gradient:#00ff00:#88ff00>▲ %percent%% Price Increase</gradient>",
+            return plugin.getShopConfig().getMessage("gui.price-increase",
                     "%percent%", String.format("%.1f", percent));
         } else if (percent < 0) {
-            return GradientColor.applyWithVariables("<gradient:#ff0000:#ff8800>▼ %percent%% Price Decrease</gradient>",
+            return plugin.getShopConfig().getMessage("gui.price-decrease",
                     "%percent%", String.format("%.1f", Math.abs(percent)));
         } else {
-            return GradientColor.apply("&7● Price Stable");
+            return plugin.getShopConfig().getMessage("gui.price-stable");
         }
     }
 

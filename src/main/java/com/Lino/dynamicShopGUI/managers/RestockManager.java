@@ -2,7 +2,6 @@ package com.Lino.dynamicShopGUI.managers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.models.ShopItem;
-import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 import java.util.HashMap;
@@ -123,7 +122,7 @@ public class RestockManager {
 
                         int restockPercentage = plugin.getShopConfig().getRestockPercentage();
                         int maxStock = item.getMaxStock();
-                        int restockAmount = (maxStock / 2 * restockPercentage) / 100;
+                        int restockAmount = (maxStock * restockPercentage) / 100;
 
                         item.setStock(restockAmount);
 
@@ -209,7 +208,7 @@ public class RestockManager {
 
             if (priceChangePercent <= plugin.getShopConfig().getPriceDecreaseThreshold()) {
                 String itemName = formatMaterialName(item.getMaterial());
-                String message = plugin.getShopConfig().getMessage("price-decrease-alert",
+                String message = plugin.getShopConfig().getMessage("price-alerts.decrease",
                         "%item%", itemName,
                         "%percent%", String.format("%.0f", Math.abs(priceChangePercent)),
                         "%price%", String.format("%.2f", newPrice));
@@ -232,8 +231,8 @@ public class RestockManager {
                     }
 
                     if (plugin.getShopConfig().showTitle()) {
-                        String title = GradientColor.apply("<gradient:#00ff00:#00ffff>PRICE DROP!</gradient>");
-                        String subtitle = GradientColor.applyWithVariables("<gradient:#00ff00:#88ff00>%item% %percent%%</gradient>",
+                        String title = plugin.getShopConfig().getMessage("price-alerts.title-decrease");
+                        String subtitle = plugin.getShopConfig().getMessage("price-alerts.subtitle-decrease",
                                 "%item%", itemName,
                                 "%percent%", String.format("%.0f", priceChangePercent));
 

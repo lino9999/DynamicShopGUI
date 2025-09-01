@@ -3,7 +3,6 @@ package com.Lino.dynamicShopGUI.listeners;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.managers.ShopManager;
-import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -85,24 +84,26 @@ public class ShopListener implements Listener {
 
     private void handleCategoryMenuClick(Player player, ItemStack clicked, ClickType clickType, String title) {
         if (clicked.getType() == Material.ARROW) {
-            String displayName = clicked.getItemMeta().getDisplayName();
+            String displayName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
             if (displayName.contains("Back to Categories")) {
                 plugin.getGUIManager().openMainMenu(player);
+                return;
             } else if (displayName.contains("Previous Page")) {
                 String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
                 if (category != null) {
                     int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
                     plugin.getGUIManager().openCategoryMenu(player, category, currentPage - 1);
                 }
+                return;
             } else if (displayName.contains("Next Page")) {
                 String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
                 if (category != null) {
                     int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
                     plugin.getGUIManager().openCategoryMenu(player, category, currentPage + 1);
                 }
+                return;
             }
-            return;
         }
 
         if (clicked.getType() == Material.GRAY_STAINED_GLASS_PANE ||
@@ -126,7 +127,7 @@ public class ShopListener implements Listener {
         if (isBuying && clicked.getItemMeta() != null && clicked.getItemMeta().getLore() != null) {
             for (String loreLine : clicked.getItemMeta().getLore()) {
                 if (ChatColor.stripColor(loreLine).contains("Out of Stock")) {
-                    player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>This item is out of stock for purchase!</gradient>"));
+                    player.sendMessage(plugin.getShopConfig().getMessage("errors.out-of-stock"));
                     if (plugin.getShopConfig().isSoundEnabled()) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                     }
@@ -166,7 +167,7 @@ public class ShopListener implements Listener {
             if (selectedItem != null) {
                 plugin.getGUIManager().openTransactionMenu(player, selectedItem, !currentlyBuying);
             } else {
-                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>Error: No item selected. Please close and reopen the shop.</gradient>"));
+                player.sendMessage(plugin.getShopConfig().getMessage("errors.no-item-selected"));
             }
             return;
         }
@@ -185,7 +186,7 @@ public class ShopListener implements Listener {
             String name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
             if (selectedItem == null) {
-                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>Error: Could not determine the item. Please try reopening the shop.</gradient>"));
+                player.sendMessage(plugin.getShopConfig().getMessage("errors.item-error"));
                 return;
             }
 
@@ -223,7 +224,7 @@ public class ShopListener implements Listener {
                     processSellTransaction(player, selectedItem, amount);
                 }
             } else {
-                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>Error: Could not determine amount to trade</gradient>"));
+                player.sendMessage(plugin.getShopConfig().getMessage("errors.amount-error"));
             }
         }
     }
@@ -283,7 +284,7 @@ public class ShopListener implements Listener {
             throwable.printStackTrace();
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>An error occurred during the transaction</gradient>"));
+                player.sendMessage(plugin.getShopConfig().getMessage("errors.transaction-error"));
                 plugin.getGUIManager().openTransactionMenu(player, material, true);
             });
 
@@ -312,7 +313,7 @@ public class ShopListener implements Listener {
             throwable.printStackTrace();
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>An error occurred during the transaction</gradient>"));
+                player.sendMessage(plugin.getShopConfig().getMessage("errors.transaction-error"));
                 plugin.getGUIManager().openTransactionMenu(player, material, false);
             });
 

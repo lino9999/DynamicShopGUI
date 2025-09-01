@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.config;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.managers.MessageManager;
 import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,14 +13,17 @@ public class ShopConfig {
 
     private final DynamicShopGUI plugin;
     private final CategoryConfigLoader categoryLoader;
+    private final MessageManager messageManager;
 
     public ShopConfig(DynamicShopGUI plugin) {
         this.plugin = plugin;
+        this.messageManager = new MessageManager(plugin);
         this.categoryLoader = new CategoryConfigLoader(plugin);
     }
 
     public void reload() {
         plugin.reloadConfig();
+        messageManager.reload();
         categoryLoader.reload();
     }
 
@@ -59,7 +63,7 @@ public class ShopConfig {
 
     public int getInitialStock(String category, Material material) {
         if (category == null) {
-            return getMaxStock(category, material) / 2;
+            return getMaxStock(category, material);
         }
         CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
         if (categoryConfig != null) {
@@ -68,7 +72,7 @@ public class ShopConfig {
                 return itemConfig.getInitialStock();
             }
         }
-        return getMaxStock(category, material) / 2;
+        return getMaxStock(category, material);
     }
 
     public int getMaxStock(String category, Material material) {
@@ -169,18 +173,19 @@ public class ShopConfig {
     }
 
     public String getMessage(String key) {
-        String message = plugin.getConfig().getString("messages." + key, key);
-        return GradientColor.apply(message);
+        return messageManager.getMessage(key);
     }
 
     public String getMessage(String key, Object... replacements) {
-        String message = plugin.getConfig().getString("messages." + key, key);
-        return GradientColor.applyWithVariables(message, replacements);
+        return messageManager.getMessage(key, replacements);
     }
 
     public String getPrefix() {
-        String prefix = plugin.getConfig().getString("messages.prefix", "<gradient:#00ff00:#00ffff>[DynamicShop]</gradient> &7");
-        return GradientColor.apply(prefix);
+        return messageManager.getPrefix();
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 
     public double getPriceIncreaseFactor() {

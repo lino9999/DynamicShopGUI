@@ -2,7 +2,6 @@ package com.Lino.dynamicShopGUI.managers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.models.ShopItem;
-import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -36,14 +35,35 @@ public class ShopManager {
 
             if (item.getStock() < amount) {
                 return CompletableFuture.completedFuture(new TransactionResult(false,
-                        plugin.getShopConfig().getMessage("out-of-stock")));
+                        plugin.getShopConfig().getMessage("errors.out-of-stock")));
             }
 
-            double totalCost = item.getBuyPrice() * amount;
+            double totalCost = 0;
+            int tempStock = item.getStock();
+            double tempPrice = item.getCurrentPrice();
+
+            for (int i = 0; i < amount; i++) {
+                totalCost += tempPrice;
+                tempStock--;
+
+                ShopItem tempItem = new ShopItem(
+                        item.getMaterial(),
+                        item.getCategory(),
+                        item.getBasePrice(),
+                        tempPrice,
+                        tempStock,
+                        item.getMaxStock(),
+                        item.getTransactionsBuy(),
+                        item.getTransactionsSell(),
+                        0
+                );
+
+                tempPrice = calculateNewPrice(tempItem);
+            }
 
             if (!plugin.getEconomy().has(player, totalCost)) {
                 return CompletableFuture.completedFuture(new TransactionResult(false,
-                        plugin.getShopConfig().getMessage("insufficient-funds",
+                        plugin.getShopConfig().getMessage("errors.insufficient-funds",
                                 "%price%", String.format("%.2f", totalCost))));
             }
 
@@ -77,12 +97,12 @@ public class ShopManager {
 
             plugin.getDatabaseManager().updateShopItem(item);
             plugin.getDatabaseManager().logTransaction(player.getUniqueId().toString(),
-                    material, "BUY", amount, item.getBuyPrice(), totalCost);
+                    material, "BUY", amount, totalCost / amount, totalCost);
 
             checkPriceAlert(item, oldPrice, newPrice);
 
             return CompletableFuture.completedFuture(new TransactionResult(true,
-                    plugin.getShopConfig().getMessage("buy-success",
+                    plugin.getShopConfig().getMessage("transaction.buy-success",
                             "%amount%", String.valueOf(amount),
                             "%item%", formatMaterialName(material),
                             "%price%", String.format("%.2f", totalCost))));
@@ -101,29 +121,61 @@ public class ShopManager {
 
             if (item.getStock() >= item.getMaxStock()) {
                 return CompletableFuture.completedFuture(new TransactionResult(false,
-                        plugin.getShopConfig().getMessage("shop-full")));
+                        plugin.getShopConfig().getMessage("errors.shop-full")));
             }
 
             if (!hasItem(player, material, amount)) {
                 return CompletableFuture.completedFuture(new TransactionResult(false,
-                        plugin.getShopConfig().getMessage("insufficient-items")));
+                        plugin.getShopConfig().getMessage("errors.insufficient-items")));
             }
 
             int canAccept = Math.min(amount, item.getMaxStock() - item.getStock());
 
             removeItem(player, material, canAccept);
 
-            double totalEarnings = item.getSellPrice() * canAccept;
+            double totalEarnings = 0;
+            double totalTax = 0;
+            int tempStock = item.getStock();
+            double tempPrice = item.getCurrentPrice();
+            double oldPrice = tempPrice;
 
-            double taxAmount = plugin.getShopConfig().calculateTax(material, item.getCategory(), totalEarnings);
-            double netEarnings = totalEarnings - taxAmount;
+            int batchSize = Math.max(1, canAccept / 10);
+            int processed = 0;
+
+            while (processed < canAccept) {
+                int currentBatch = Math.min(batchSize, canAccept - processed);
+
+                double batchEarnings = tempPrice * currentBatch * 0.7;
+                double batchTax = plugin.getShopConfig().calculateTax(material, item.getCategory(), batchEarnings);
+
+                totalEarnings += batchEarnings;
+                totalTax += batchTax;
+
+                tempStock += currentBatch;
+                processed += currentBatch;
+
+                ShopItem tempItem = new ShopItem(
+                        item.getMaterial(),
+                        item.getCategory(),
+                        item.getBasePrice(),
+                        tempPrice,
+                        tempStock,
+                        item.getMaxStock(),
+                        item.getTransactionsBuy(),
+                        item.getTransactionsSell(),
+                        0
+                );
+
+                tempPrice = calculateNewPrice(tempItem);
+            }
+
+            double netEarnings = totalEarnings - totalTax;
 
             plugin.getEconomy().depositPlayer(player, netEarnings);
 
             item.setStock(item.getStock() + canAccept);
             item.incrementTransactionsSell();
 
-            double oldPrice = item.getCurrentPrice();
             double newPrice = calculateNewPrice(item);
             item.setCurrentPrice(newPrice);
 
@@ -132,19 +184,19 @@ public class ShopManager {
 
             plugin.getDatabaseManager().updateShopItem(item);
             plugin.getDatabaseManager().logTransaction(player.getUniqueId().toString(),
-                    material, "SELL", canAccept, item.getSellPrice(), netEarnings);
+                    material, "SELL", canAccept, totalEarnings / canAccept, netEarnings);
 
             checkPriceAlert(item, oldPrice, newPrice);
 
             String message;
-            if (taxAmount > 0) {
-                message = plugin.getShopConfig().getMessage("sell-success-with-tax",
+            if (totalTax > 0) {
+                message = plugin.getShopConfig().getMessage("transaction.sell-success-with-tax",
                         "%amount%", String.valueOf(canAccept),
                         "%item%", formatMaterialName(material),
                         "%price%", String.format("%.2f", netEarnings),
-                        "%tax%", String.format("%.2f", taxAmount));
+                        "%tax%", String.format("%.2f", totalTax));
             } else {
-                message = plugin.getShopConfig().getMessage("sell-success",
+                message = plugin.getShopConfig().getMessage("transaction.sell-success",
                         "%amount%", String.valueOf(canAccept),
                         "%item%", formatMaterialName(material),
                         "%price%", String.format("%.2f", netEarnings));
@@ -292,7 +344,7 @@ public class ShopManager {
                 Sound alertSound = null;
 
                 if (isIncrease) {
-                    message = plugin.getShopConfig().getMessage("price-increase-alert",
+                    message = plugin.getShopConfig().getMessage("price-alerts.increase",
                             "%item%", itemName,
                             "%percent%", String.format("%.0f", Math.abs(priceChangePercent)),
                             "%price%", String.format("%.2f", newPrice));
@@ -304,7 +356,7 @@ public class ShopManager {
                         } catch (IllegalArgumentException ignored) {}
                     }
                 } else {
-                    message = plugin.getShopConfig().getMessage("price-decrease-alert",
+                    message = plugin.getShopConfig().getMessage("price-alerts.decrease",
                             "%item%", itemName,
                             "%percent%", String.format("%.0f", Math.abs(priceChangePercent)),
                             "%price%", String.format("%.2f", newPrice));
@@ -331,13 +383,13 @@ public class ShopManager {
                         String subtitle;
 
                         if (isIncrease) {
-                            title = GradientColor.apply("<gradient:#ff0000:#ff00ff>PRICE SURGE!</gradient>");
-                            subtitle = GradientColor.applyWithVariables("<gradient:#ffff00:#ff8800>%item% +%percent%%</gradient>",
+                            title = plugin.getShopConfig().getMessage("price-alerts.title-increase");
+                            subtitle = plugin.getShopConfig().getMessage("price-alerts.subtitle-increase",
                                     "%item%", itemName,
                                     "%percent%", String.format("%.0f", priceChangePercent));
                         } else {
-                            title = GradientColor.apply("<gradient:#00ff00:#00ffff>PRICE DROP!</gradient>");
-                            subtitle = GradientColor.applyWithVariables("<gradient:#00ff00:#88ff00>%item% %percent%%</gradient>",
+                            title = plugin.getShopConfig().getMessage("price-alerts.title-decrease");
+                            subtitle = plugin.getShopConfig().getMessage("price-alerts.subtitle-decrease",
                                     "%item%", itemName,
                                     "%percent%", String.format("%.0f", priceChangePercent));
                         }
