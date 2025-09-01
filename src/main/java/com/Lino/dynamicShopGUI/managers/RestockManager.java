@@ -2,6 +2,7 @@ package com.Lino.dynamicShopGUI.managers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.models.ShopItem;
+import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 import java.util.HashMap;
@@ -28,18 +29,17 @@ public class RestockManager {
     public void startRestockTimer(Material material) {
         if (!plugin.getShopConfig().isRestockEnabled()) return;
 
-        // Cancel any existing task
         if (restockTasks.containsKey(material)) {
             restockTasks.get(material).cancel();
             restockTasks.remove(material);
         }
 
-        long restockTime = plugin.getShopConfig().getRestockTime() * 60L * 20L; // Convert minutes to ticks
-        long endTime = System.currentTimeMillis() + (restockTime * 50); // Convert ticks to milliseconds
+        long restockTime = plugin.getShopConfig().getRestockTime() * 60L * 20L;
+        long endTime = System.currentTimeMillis() + (restockTime * 50);
         restockTimers.put(material, endTime);
 
         RestockTask task = new RestockTask(material);
-        task.runTaskTimer(plugin, 20L, 20L); // Run every second
+        task.runTaskTimer(plugin, 20L, 20L);
         restockTasks.put(material, task);
     }
 
@@ -117,19 +117,16 @@ public class RestockManager {
             }
 
             if (System.currentTimeMillis() >= endTime) {
-                // Perform restock
                 plugin.getDatabaseManager().getShopItem(material).thenAccept(item -> {
                     if (item != null) {
-                        // Save old price for comparison
                         double oldPrice = item.getCurrentPrice();
 
                         int restockPercentage = plugin.getShopConfig().getRestockPercentage();
-                        int initialStock = plugin.getShopConfig().getInitialStock();
-                        int restockAmount = (initialStock * restockPercentage) / 100;
+                        int maxStock = item.getMaxStock();
+                        int restockAmount = (maxStock / 2 * restockPercentage) / 100;
 
                         item.setStock(restockAmount);
 
-                        // Calculate new price based on new stock level
                         double newPrice = calculateNewPrice(item);
                         item.setCurrentPrice(newPrice);
 
@@ -139,15 +136,12 @@ public class RestockManager {
                         plugin.getDatabaseManager().updateShopItem(item);
 
                         plugin.getServer().getScheduler().runTask(plugin, () -> {
-                            // Check for price alert when restocking
                             checkRestockPriceAlert(item, oldPrice, newPrice);
 
-                            // Update any open GUIs
                             plugin.getServer().getOnlinePlayers().forEach(player -> {
                                 if (player.getOpenInventory() != null) {
-                                    String title = player.getOpenInventory().getTitle();
+                                    String title = ChatColor.stripColor(player.getOpenInventory().getTitle());
                                     if (title.contains("Shop") || title.contains("Buy") || title.contains("Sell")) {
-                                        // Refresh the GUI
                                         Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
                                         if (selectedItem == material) {
                                             boolean isBuying = title.contains("Buy");
@@ -166,7 +160,6 @@ public class RestockManager {
                     }
                 });
 
-                // Remove from tracking
                 restockTimers.remove(material);
                 restockTasks.remove(material);
                 cancel();
@@ -214,13 +207,12 @@ public class RestockManager {
 
             double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
 
-            // For restocks, usually prices drop significantly because stock goes from 0 to restockAmount
             if (priceChangePercent <= plugin.getShopConfig().getPriceDecreaseThreshold()) {
                 String itemName = formatMaterialName(item.getMaterial());
-                String message = plugin.getShopConfig().getMessage("price-decrease-alert")
-                        .replace("%item%", itemName)
-                        .replace("%percent%", String.format("%.0f", Math.abs(priceChangePercent)))
-                        .replace("%price%", String.format("%.2f", newPrice));
+                String message = plugin.getShopConfig().getMessage("price-decrease-alert",
+                        "%item%", itemName,
+                        "%percent%", String.format("%.0f", Math.abs(priceChangePercent)),
+                        "%price%", String.format("%.2f", newPrice));
 
                 Sound alertSound = null;
                 String soundName = plugin.getShopConfig().getPriceDecreaseSound();
@@ -230,21 +222,20 @@ public class RestockManager {
                     } catch (IllegalArgumentException ignored) {}
                 }
 
-                // Broadcast message to all players
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                    onlinePlayer.sendMessage(plugin.getShopConfig().getPrefix() + message);
 
-                    // Play sound if configured
                     if (alertSound != null) {
                         onlinePlayer.playSound(onlinePlayer.getLocation(), alertSound,
                                 plugin.getShopConfig().getSoundVolume(),
                                 plugin.getShopConfig().getSoundPitch());
                     }
 
-                    // Show title if configured
                     if (plugin.getShopConfig().showTitle()) {
-                        String title = ChatColor.GREEN + "" + ChatColor.BOLD + "PRICE DROP!";
-                        String subtitle = ChatColor.YELLOW + itemName + " " + String.format("%.0f%%", priceChangePercent);
+                        String title = GradientColor.apply("<gradient:#00ff00:#00ffff>PRICE DROP!</gradient>");
+                        String subtitle = GradientColor.applyWithVariables("<gradient:#00ff00:#88ff00>%item% %percent%%</gradient>",
+                                "%item%", itemName,
+                                "%percent%", String.format("%.0f", priceChangePercent));
 
                         int duration = plugin.getShopConfig().getTitleDuration();
                         onlinePlayer.sendTitle(title, subtitle, 10, duration, 20);
@@ -255,7 +246,6 @@ public class RestockManager {
     }
 
     public void shutdown() {
-        // Cancel all tasks when plugin disables
         for (RestockTask task : restockTasks.values()) {
             task.cancel();
         }

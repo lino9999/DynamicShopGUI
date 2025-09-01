@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.commands;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,24 +20,24 @@ public class ShopCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("dynamicshop.admin")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to reload the shop!");
+                sender.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>You don't have permission to reload the shop!</gradient>"));
                 return true;
             }
 
             plugin.getShopConfig().reload();
-            sender.sendMessage(ChatColor.GREEN + "Shop configuration reloaded!");
+            sender.sendMessage(GradientColor.apply("<gradient:#00ff00:#00ffff>Shop configuration reloaded!</gradient>"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
+            sender.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>This command can only be used by players!</gradient>"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("dynamicshop.use")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to use the shop!");
+            player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>You don't have permission to use the shop!</gradient>"));
             return true;
         }
 

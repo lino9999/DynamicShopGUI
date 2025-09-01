@@ -100,12 +100,13 @@ public class CategoryConfigLoader {
                         Material material = Material.valueOf(itemKey.toUpperCase());
                         double price = itemsSection.getDouble(itemKey);
 
-                        int initialStock = plugin.getConfig().getInt("stock.initial-stock", 100);
                         int maxStock = plugin.getConfig().getInt("stock.max-stock." + categoryKey.toLowerCase(), 1000);
 
                         if (plugin.getConfig().contains("stock.special-items." + itemKey)) {
                             maxStock = plugin.getConfig().getInt("stock.special-items." + itemKey);
                         }
+
+                        int initialStock = maxStock / 2;
 
                         ItemConfig itemConfig = new ItemConfig(price, initialStock, maxStock);
                         category.addItem(material, itemConfig);

@@ -3,6 +3,7 @@ package com.Lino.dynamicShopGUI.managers;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.models.ShopItem;
+import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -26,7 +27,7 @@ public class GUIManager {
     public void openMainMenu(Player player) {
         Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
 
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_GREEN + "Dynamic Shop");
+        Inventory inv = Bukkit.createInventory(null, 54, GradientColor.apply("<gradient:#00ff00:#00ffff>Dynamic Shop</gradient>"));
 
         ItemStack glassFiller = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassFiller.getItemMeta();
@@ -54,14 +55,14 @@ public class GUIManager {
 
         ItemStack centerDecor = new ItemStack(Material.EMERALD_BLOCK);
         ItemMeta centerMeta = centerDecor.getItemMeta();
-        centerMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "DYNAMIC SHOP");
+        centerMeta.setDisplayName(GradientColor.apply("<gradient:#ffd700:#ffaa00>DYNAMIC SHOP</gradient>"));
         List<String> centerLore = new ArrayList<>();
         centerLore.add("");
-        centerLore.add(ChatColor.GRAY + "Welcome to the Dynamic Shop!");
-        centerLore.add(ChatColor.GRAY + "Prices change based on supply & demand");
+        centerLore.add(GradientColor.apply("&7Welcome to the Dynamic Shop!"));
+        centerLore.add(GradientColor.apply("&7Prices change based on supply & demand"));
         centerLore.add("");
-        centerLore.add(ChatColor.YELLOW + "Categories: " + ChatColor.WHITE + categories.size());
-        centerLore.add(ChatColor.YELLOW + "Tax Enabled: " + ChatColor.WHITE + (plugin.getShopConfig().isTaxEnabled() ? "Yes" : "No"));
+        centerLore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Categories: " + categories.size() + "</gradient>"));
+        centerLore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Tax Enabled: " + (plugin.getShopConfig().isTaxEnabled() ? "Yes" : "No") + "</gradient>"));
         centerMeta.setLore(centerLore);
         centerDecor.setItemMeta(centerMeta);
         inv.setItem(4, centerDecor);
@@ -79,16 +80,16 @@ public class GUIManager {
 
             ItemStack categoryItem = new ItemStack(category.getIcon());
             ItemMeta meta = categoryItem.getItemMeta();
-            meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + category.getDisplayName());
+            meta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>" + category.getDisplayName() + "</gradient>"));
 
             List<String> lore = new ArrayList<>();
             lore.add("");
-            lore.add(ChatColor.GRAY + "Click to browse items");
+            lore.add(GradientColor.apply("&7Click to browse items"));
             lore.add("");
-            lore.add(ChatColor.DARK_GRAY + "Items: " + ChatColor.GRAY + category.getItems().size());
-            lore.add(ChatColor.DARK_GRAY + "Tax Rate: " + ChatColor.GRAY + category.getTaxRate() + "%");
+            lore.add(GradientColor.apply("&8Items: &7" + category.getItems().size()));
+            lore.add(GradientColor.apply("&8Tax Rate: &7" + category.getTaxRate() + "%"));
             lore.add("");
-            lore.add(ChatColor.YELLOW + "» Click to open");
+            lore.add(GradientColor.apply("<gradient:#00ff00:#00ffff>» Click to open</gradient>"));
 
             meta.setLore(lore);
             categoryItem.setItemMeta(meta);
@@ -97,34 +98,36 @@ public class GUIManager {
             slotIndex++;
         }
 
+        double balance = plugin.getEconomy().getBalance(player);
         ItemStack playerInfo = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta playerMeta = playerInfo.getItemMeta();
-        playerMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + player.getName());
+        playerMeta.setDisplayName(GradientColor.apply("<gradient:#00ffff:#0088ff>" + player.getName() + "</gradient>"));
         List<String> playerLore = new ArrayList<>();
         playerLore.add("");
-        playerLore.add(ChatColor.GRAY + "Balance: " + ChatColor.GREEN + "$" + String.format("%.2f", plugin.getEconomy().getBalance(player)));
+        playerLore.add(GradientColor.applyWithVariables("<gradient:#00ff00:#88ff00>Balance: $%balance%</gradient>",
+                "%balance%", String.format("%.2f", balance)));
         playerLore.add("");
-        playerLore.add(ChatColor.DARK_GRAY + "Happy shopping!");
+        playerLore.add(GradientColor.apply("&8Happy shopping!"));
         playerMeta.setLore(playerLore);
         playerInfo.setItemMeta(playerMeta);
         inv.setItem(49, playerInfo);
 
         ItemStack closeButton = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeButton.getItemMeta();
-        closeMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Close");
+        closeMeta.setDisplayName(GradientColor.apply("<gradient:#ff0000:#ff8800>Close</gradient>"));
         closeButton.setItemMeta(closeMeta);
         inv.setItem(50, closeButton);
 
         ItemStack infoBook = new ItemStack(Material.BOOK);
         ItemMeta bookMeta = infoBook.getItemMeta();
-        bookMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Shop Guide");
+        bookMeta.setDisplayName(GradientColor.apply("<gradient:#ff00ff:#8800ff>Shop Guide</gradient>"));
         List<String> bookLore = new ArrayList<>();
         bookLore.add("");
-        bookLore.add(ChatColor.GRAY + "• Left click to buy items");
-        bookLore.add(ChatColor.GRAY + "• Right click to sell items");
-        bookLore.add(ChatColor.GRAY + "• Prices change dynamically");
-        bookLore.add(ChatColor.GRAY + "• Low stock = Higher prices");
-        bookLore.add(ChatColor.GRAY + "• High stock = Lower prices");
+        bookLore.add(GradientColor.apply("&7• Left click to buy items"));
+        bookLore.add(GradientColor.apply("&7• Right click to sell items"));
+        bookLore.add(GradientColor.apply("&7• Prices change dynamically"));
+        bookLore.add(GradientColor.apply("&7• Low stock = Higher prices"));
+        bookLore.add(GradientColor.apply("&7• High stock = Lower prices"));
         bookMeta.setLore(bookLore);
         infoBook.setItemMeta(bookMeta);
         inv.setItem(48, infoBook);
@@ -137,7 +140,7 @@ public class GUIManager {
         playerPage.put(player.getUniqueId(), page);
 
         String displayName = plugin.getShopConfig().getCategoryDisplayName(category.toLowerCase());
-        String title = ChatColor.DARK_GREEN + "Shop - " + displayName;
+        String title = GradientColor.apply("<gradient:#00ff00:#00ffff>Shop - " + displayName + "</gradient>");
         Inventory inv = Bukkit.createInventory(null, 54, title);
 
         ItemStack glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
@@ -186,9 +189,9 @@ public class GUIManager {
             if (finalPage > 0) {
                 ItemStack prevPage = new ItemStack(Material.ARROW);
                 ItemMeta prevMeta = prevPage.getItemMeta();
-                prevMeta.setDisplayName(ChatColor.YELLOW + "« Previous Page");
+                prevMeta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>« Previous Page</gradient>"));
                 List<String> prevLore = new ArrayList<>();
-                prevLore.add(ChatColor.GRAY + "Page " + finalPage + "/" + totalPages);
+                prevLore.add(GradientColor.apply("&7Page " + finalPage + "/" + totalPages));
                 prevMeta.setLore(prevLore);
                 prevPage.setItemMeta(prevMeta);
                 inv.setItem(48, prevPage);
@@ -196,16 +199,16 @@ public class GUIManager {
 
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
-            backMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Back to Categories");
+            backMeta.setDisplayName(GradientColor.apply("<gradient:#ff0000:#ff8800>Back to Categories</gradient>"));
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
             if (finalPage < totalPages - 1) {
                 ItemStack nextPage = new ItemStack(Material.ARROW);
                 ItemMeta nextMeta = nextPage.getItemMeta();
-                nextMeta.setDisplayName(ChatColor.YELLOW + "Next Page »");
+                nextMeta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>Next Page »</gradient>"));
                 List<String> nextLore = new ArrayList<>();
-                nextLore.add(ChatColor.GRAY + "Page " + (finalPage + 2) + "/" + totalPages);
+                nextLore.add(GradientColor.apply("&7Page " + (finalPage + 2) + "/" + totalPages));
                 nextMeta.setLore(nextLore);
                 nextPage.setItemMeta(nextMeta);
                 inv.setItem(50, nextPage);
@@ -214,22 +217,25 @@ public class GUIManager {
             if (totalPages > 1) {
                 ItemStack pageInfo = new ItemStack(Material.PAPER);
                 ItemMeta pageMeta = pageInfo.getItemMeta();
-                pageMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Page " + (finalPage + 1) + "/" + totalPages);
+                pageMeta.setDisplayName(GradientColor.apply("<gradient:#ffd700:#ffaa00>Page " + (finalPage + 1) + "/" + totalPages + "</gradient>"));
                 List<String> pageLore = new ArrayList<>();
-                pageLore.add(ChatColor.GRAY + "Total items: " + sortedItems.size());
-                pageLore.add(ChatColor.GRAY + "Items per page: " + itemsPerPage);
+                pageLore.add(GradientColor.apply("&7Total items: " + sortedItems.size()));
+                pageLore.add(GradientColor.apply("&7Items per page: " + itemsPerPage));
                 pageMeta.setLore(pageLore);
                 pageInfo.setItemMeta(pageMeta);
                 inv.setItem(52, pageInfo);
             }
 
+            double taxRate = plugin.getShopConfig().getTaxRate(category) * 100;
             ItemStack categoryInfo = new ItemStack(plugin.getShopConfig().getCategoryIcon(category));
             ItemMeta categoryMeta = categoryInfo.getItemMeta();
-            categoryMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + displayName);
+            categoryMeta.setDisplayName(GradientColor.apply("<gradient:#00ffff:#0088ff>" + displayName + "</gradient>"));
             List<String> categoryLore = new ArrayList<>();
             categoryLore.add("");
-            categoryLore.add(ChatColor.GRAY + "Category Tax: " + ChatColor.YELLOW + String.format("%.1f", plugin.getShopConfig().getTaxRate(category) * 100) + "%");
-            categoryLore.add(ChatColor.GRAY + "Total Items: " + ChatColor.YELLOW + sortedItems.size());
+            categoryLore.add(GradientColor.applyWithVariables("&7Category Tax: <gradient:#ffff00:#ff8800>%tax%%</gradient>",
+                    "%tax%", String.format("%.1f", taxRate)));
+            categoryLore.add(GradientColor.applyWithVariables("&7Total Items: <gradient:#ffff00:#ff8800>%items%</gradient>",
+                    "%items%", String.valueOf(sortedItems.size())));
             categoryMeta.setLore(categoryLore);
             categoryInfo.setItemMeta(categoryMeta);
             inv.setItem(46, categoryInfo);
@@ -244,14 +250,14 @@ public class GUIManager {
         plugin.getDatabaseManager().getShopItem(material).thenAccept(item -> {
             if (item == null) {
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    player.sendMessage(ChatColor.RED + "This item is not available in the shop!");
+                    player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>This item is not available in the shop!</gradient>"));
                 });
                 return;
             }
 
             String title = isBuying ?
-                    ChatColor.DARK_GREEN + "Buy " + formatMaterialName(material) :
-                    ChatColor.DARK_RED + "Sell " + formatMaterialName(material);
+                    GradientColor.apply("<gradient:#00ff00:#88ff00>Buy " + formatMaterialName(material) + "</gradient>") :
+                    GradientColor.apply("<gradient:#ff0000:#ff8800>Sell " + formatMaterialName(material) + "</gradient>");
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
@@ -292,22 +298,27 @@ public class GUIManager {
 
             ItemStack displayItem = new ItemStack(material);
             ItemMeta displayMeta = displayItem.getItemMeta();
-            displayMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + formatMaterialName(material));
+            displayMeta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>" + formatMaterialName(material) + "</gradient>"));
             List<String> displayLore = new ArrayList<>();
 
             if (plugin.getShopConfig().showStock()) {
-                displayLore.add(ChatColor.GRAY + "Stock: " + ChatColor.WHITE + item.getStock() + "/" + item.getMaxStock());
+                displayLore.add(GradientColor.applyWithVariables("&7Stock: <gradient:#00ff00:#00ffff>%stock%/%max%</gradient>",
+                        "%stock%", String.valueOf(item.getStock()),
+                        "%max%", String.valueOf(item.getMaxStock())));
             }
 
-            displayLore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
-            displayLore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", item.getSellPrice()));
+            displayLore.add(GradientColor.applyWithVariables("&7Buy Price: <gradient:#00ff00:#88ff00>$%price%</gradient>",
+                    "%price%", String.format("%.2f", item.getBuyPrice())));
+            displayLore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient>",
+                    "%price%", String.format("%.2f", item.getSellPrice())));
 
             if (!isBuying && plugin.getShopConfig().showTaxInfo() && plugin.getShopConfig().isTaxEnabled()) {
                 if (!plugin.getShopConfig().isTaxExempt(material)) {
                     double taxRate = plugin.getShopConfig().getTaxRate(item.getCategory()) * 100;
-                    displayLore.add(ChatColor.DARK_GRAY + "Tax Rate: " + ChatColor.GRAY + String.format("%.1f%%", taxRate));
+                    displayLore.add(GradientColor.applyWithVariables("&8Tax Rate: <gradient:#ff0000:#ff8800>%tax%%</gradient>",
+                            "%tax%", String.format("%.1f", taxRate)));
                 } else {
-                    displayLore.add(ChatColor.DARK_GRAY + "Tax: " + ChatColor.GREEN + "Exempt");
+                    displayLore.add(GradientColor.apply("&8Tax: <gradient:#00ff00:#88ff00>Exempt</gradient>"));
                 }
             }
 
@@ -320,8 +331,9 @@ public class GUIManager {
                 String countdown = plugin.getRestockManager().getRestockCountdown(material);
                 if (countdown != null) {
                     displayLore.add("");
-                    displayLore.add(ChatColor.RED + "Out of Stock!");
-                    displayLore.add(ChatColor.YELLOW + "Restocking in: " + ChatColor.GOLD + countdown);
+                    displayLore.add(GradientColor.apply("<gradient:#ff0000:#ff8800>Out of Stock!</gradient>"));
+                    displayLore.add(GradientColor.applyWithVariables("<gradient:#ffff00:#ff8800>Restocking in: %time%</gradient>",
+                            "%time%", countdown));
                 }
             }
 
@@ -345,26 +357,30 @@ public class GUIManager {
 
             ItemStack toggleButton = new ItemStack(Material.HOPPER);
             ItemMeta toggleMeta = toggleButton.getItemMeta();
-            toggleMeta.setDisplayName(isBuying ? ChatColor.GOLD + "" + ChatColor.BOLD + "» Switch to Sell" : ChatColor.GOLD + "" + ChatColor.BOLD + "» Switch to Buy");
+            toggleMeta.setDisplayName(isBuying ?
+                    GradientColor.apply("<gradient:#ffd700:#ffaa00>» Switch to Sell</gradient>") :
+                    GradientColor.apply("<gradient:#ffd700:#ffaa00>» Switch to Buy</gradient>"));
             List<String> toggleLore = new ArrayList<>();
             toggleLore.add("");
-            toggleLore.add(ChatColor.GRAY + "Click to " + (isBuying ? "sell" : "buy") + " instead");
+            toggleLore.add(GradientColor.apply("&7Click to " + (isBuying ? "sell" : "buy") + " instead"));
             toggleMeta.setLore(toggleLore);
             toggleButton.setItemMeta(toggleMeta);
             inv.setItem(22, toggleButton);
 
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
-            backMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "« Back");
+            backMeta.setDisplayName(GradientColor.apply("<gradient:#ff0000:#ff8800>« Back</gradient>"));
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
+            double balance = plugin.getEconomy().getBalance(player);
             ItemStack balanceInfo = new ItemStack(Material.EMERALD);
             ItemMeta balanceMeta = balanceInfo.getItemMeta();
-            balanceMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Your Balance");
+            balanceMeta.setDisplayName(GradientColor.apply("<gradient:#00ff00:#88ff00>Your Balance</gradient>"));
             List<String> balanceLore = new ArrayList<>();
             balanceLore.add("");
-            balanceLore.add(ChatColor.GRAY + "Current: " + ChatColor.GREEN + "$" + String.format("%.2f", plugin.getEconomy().getBalance(player)));
+            balanceLore.add(GradientColor.applyWithVariables("&7Current: <gradient:#00ff00:#88ff00>$%balance%</gradient>",
+                    "%balance%", String.format("%.2f", balance)));
             balanceMeta.setLore(balanceLore);
             balanceInfo.setItemMeta(balanceMeta);
             inv.setItem(4, balanceInfo);
@@ -377,16 +393,19 @@ public class GUIManager {
         ItemStack display = new ItemStack(item.getMaterial());
         ItemMeta meta = display.getItemMeta();
 
-        meta.setDisplayName(ChatColor.YELLOW + formatMaterialName(item.getMaterial()));
+        meta.setDisplayName(GradientColor.apply("<gradient:#ffff00:#ff8800>" + formatMaterialName(item.getMaterial()) + "</gradient>"));
 
         List<String> lore = new ArrayList<>();
 
         if (plugin.getShopConfig().showStock()) {
-            lore.add(ChatColor.GRAY + "Stock: " + ChatColor.WHITE + item.getStock() + "/" + item.getMaxStock());
+            lore.add(GradientColor.applyWithVariables("&7Stock: <gradient:#00ff00:#00ffff>%stock%/%max%</gradient>",
+                    "%stock%", String.valueOf(item.getStock()),
+                    "%max%", String.valueOf(item.getMaxStock())));
         }
 
         lore.add("");
-        lore.add(ChatColor.GRAY + "Buy Price: " + ChatColor.GREEN + "$" + String.format("%.2f", item.getBuyPrice()));
+        lore.add(GradientColor.applyWithVariables("&7Buy Price: <gradient:#00ff00:#88ff00>$%price%</gradient>",
+                "%price%", String.format("%.2f", item.getBuyPrice())));
 
         double sellPrice = item.getSellPrice();
         if (plugin.getShopConfig().showTaxInfo() && plugin.getShopConfig().isTaxEnabled()) {
@@ -394,14 +413,16 @@ public class GUIManager {
             double netPrice = sellPrice - tax;
 
             if (tax > 0) {
-                lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", sellPrice) +
-                        ChatColor.DARK_GRAY + " (Net: $" + String.format("%.2f", netPrice) + ")");
+                lore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient> &8(Net: $%net%)",
+                        "%price%", String.format("%.2f", sellPrice),
+                        "%net%", String.format("%.2f", netPrice)));
             } else {
-                lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", sellPrice) +
-                        ChatColor.GREEN + " (Tax Exempt)");
+                lore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient> <gradient:#00ff00:#88ff00>(Tax Exempt)</gradient>",
+                        "%price%", String.format("%.2f", sellPrice)));
             }
         } else {
-            lore.add(ChatColor.GRAY + "Sell Price: " + ChatColor.RED + "$" + String.format("%.2f", sellPrice));
+            lore.add(GradientColor.applyWithVariables("&7Sell Price: <gradient:#ff0000:#ff8800>$%price%</gradient>",
+                    "%price%", String.format("%.2f", sellPrice)));
         }
 
         if (plugin.getShopConfig().showPriceTrends()) {
@@ -413,21 +434,22 @@ public class GUIManager {
             String countdown = plugin.getRestockManager().getRestockCountdown(item.getMaterial());
             if (countdown != null) {
                 lore.add("");
-                lore.add(ChatColor.RED + "Out of Stock for Purchase!");
-                lore.add(ChatColor.YELLOW + "Restocking in: " + ChatColor.GOLD + countdown);
+                lore.add(GradientColor.apply("<gradient:#ff0000:#ff8800>Out of Stock for Purchase!</gradient>"));
+                lore.add(GradientColor.applyWithVariables("<gradient:#ffff00:#ff8800>Restocking in: %time%</gradient>",
+                        "%time%", countdown));
                 lore.add("");
-                lore.add(ChatColor.GRAY + "You can still sell this item to the shop");
-                lore.add(ChatColor.YELLOW + "Right Click to Sell");
+                lore.add(GradientColor.apply("&7You can still sell this item to the shop"));
+                lore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Right Click to Sell</gradient>"));
             }
         } else if (item.getStock() == 0) {
             lore.add("");
-            lore.add(ChatColor.RED + "Out of Stock for Purchase!");
-            lore.add(ChatColor.GRAY + "You can still sell this item to the shop");
-            lore.add(ChatColor.YELLOW + "Right Click to Sell");
+            lore.add(GradientColor.apply("<gradient:#ff0000:#ff8800>Out of Stock for Purchase!</gradient>"));
+            lore.add(GradientColor.apply("&7You can still sell this item to the shop"));
+            lore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Right Click to Sell</gradient>"));
         } else {
             lore.add("");
-            lore.add(ChatColor.YELLOW + "Left Click to Buy");
-            lore.add(ChatColor.YELLOW + "Right Click to Sell");
+            lore.add(GradientColor.apply("<gradient:#00ff00:#88ff00>Left Click to Buy</gradient>"));
+            lore.add(GradientColor.apply("<gradient:#ffff00:#ff8800>Right Click to Sell</gradient>"));
         }
 
         meta.setLore(lore);
@@ -443,23 +465,27 @@ public class GUIManager {
         String action = isBuying ? "Buy" : "Sell";
         String amountText = amount == -1 ? "All" : String.valueOf(amount);
 
-        meta.setDisplayName(ChatColor.GREEN + action + " " + amountText);
+        meta.setDisplayName(GradientColor.apply("<gradient:#00ff00:#88ff00>" + action + " " + amountText + "</gradient>"));
 
         List<String> lore = new ArrayList<>();
         if (amount == -1) {
-            lore.add(ChatColor.GRAY + "Sell all items in inventory");
+            lore.add(GradientColor.apply("&7Sell all items in inventory"));
         } else if (isBuying) {
             double totalCost = item.getBuyPrice() * amount;
-            lore.add(ChatColor.GRAY + "Total cost: " + ChatColor.GREEN + "$" + String.format("%.2f", totalCost));
+            lore.add(GradientColor.applyWithVariables("&7Total cost: <gradient:#00ff00:#88ff00>$%cost%</gradient>",
+                    "%cost%", String.format("%.2f", totalCost)));
         } else {
             double totalEarn = item.getSellPrice() * amount;
             double tax = plugin.getShopConfig().calculateTax(item.getMaterial(), item.getCategory(), totalEarn);
             double netEarn = totalEarn - tax;
 
-            lore.add(ChatColor.GRAY + "Total earnings: " + ChatColor.GREEN + "$" + String.format("%.2f", totalEarn));
+            lore.add(GradientColor.applyWithVariables("&7Total earnings: <gradient:#00ff00:#88ff00>$%earn%</gradient>",
+                    "%earn%", String.format("%.2f", totalEarn)));
             if (tax > 0) {
-                lore.add(ChatColor.DARK_GRAY + "Tax: " + ChatColor.RED + "-$" + String.format("%.2f", tax));
-                lore.add(ChatColor.GRAY + "Net earnings: " + ChatColor.GREEN + "$" + String.format("%.2f", netEarn));
+                lore.add(GradientColor.applyWithVariables("&8Tax: <gradient:#ff0000:#ff8800>-$%tax%</gradient>",
+                        "%tax%", String.format("%.2f", tax)));
+                lore.add(GradientColor.applyWithVariables("&7Net earnings: <gradient:#00ff00:#88ff00>$%net%</gradient>",
+                        "%net%", String.format("%.2f", netEarn)));
             }
         }
 
@@ -499,11 +525,13 @@ public class GUIManager {
 
     private String formatPriceChange(double percent) {
         if (percent > 0) {
-            return ChatColor.GREEN + "▲ " + String.format("%.1f%%", percent) + " Price Increase";
+            return GradientColor.applyWithVariables("<gradient:#00ff00:#88ff00>▲ %percent%% Price Increase</gradient>",
+                    "%percent%", String.format("%.1f", percent));
         } else if (percent < 0) {
-            return ChatColor.RED + "▼ " + String.format("%.1f%%", Math.abs(percent)) + " Price Decrease";
+            return GradientColor.applyWithVariables("<gradient:#ff0000:#ff8800>▼ %percent%% Price Decrease</gradient>",
+                    "%percent%", String.format("%.1f", Math.abs(percent)));
         } else {
-            return ChatColor.GRAY + "● Price Stable";
+            return GradientColor.apply("&7● Price Stable");
         }
     }
 

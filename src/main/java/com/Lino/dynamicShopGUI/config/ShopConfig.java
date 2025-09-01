@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.config;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import java.util.HashMap;
@@ -56,13 +57,9 @@ public class ShopConfig {
         return categoryConfig != null ? categoryConfig.getIcon() : Material.CHEST;
     }
 
-    public int getInitialStock() {
-        return plugin.getConfig().getInt("stock.initial-stock", 100);
-    }
-
     public int getInitialStock(String category, Material material) {
         if (category == null) {
-            return getInitialStock();
+            return getMaxStock(category, material) / 2;
         }
         CategoryConfigLoader.CategoryConfig categoryConfig = categoryLoader.getCategory(category);
         if (categoryConfig != null) {
@@ -71,7 +68,7 @@ public class ShopConfig {
                 return itemConfig.getInitialStock();
             }
         }
-        return getInitialStock();
+        return getMaxStock(category, material) / 2;
     }
 
     public int getMaxStock(String category, Material material) {
@@ -148,7 +145,7 @@ public class ShopConfig {
     }
 
     public int getRestockPercentage() {
-        return plugin.getConfig().getInt("restock.restock-percentage", 100);
+        return plugin.getConfig().getInt("restock.restock-percentage", 50);
     }
 
     public boolean isSoundEnabled() {
@@ -173,12 +170,17 @@ public class ShopConfig {
 
     public String getMessage(String key) {
         String message = plugin.getConfig().getString("messages." + key, key);
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return GradientColor.apply(message);
+    }
+
+    public String getMessage(String key, Object... replacements) {
+        String message = plugin.getConfig().getString("messages." + key, key);
+        return GradientColor.applyWithVariables(message, replacements);
     }
 
     public String getPrefix() {
-        String prefix = plugin.getConfig().getString("messages.prefix", "&8[&aDynamicShop&8] &7");
-        return ChatColor.translateAlternateColorCodes('&', prefix);
+        String prefix = plugin.getConfig().getString("messages.prefix", "<gradient:#00ff00:#00ffff>[DynamicShop]</gradient> &7");
+        return GradientColor.apply(prefix);
     }
 
     public double getPriceIncreaseFactor() {

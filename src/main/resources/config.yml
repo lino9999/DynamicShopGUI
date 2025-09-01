@@ -52,10 +52,7 @@ tax:
 
 # Stock settings
 stock:
-  # Initial stock for all items (can be overridden per category)
-  initial-stock: 100
-
-  # Maximum stock per category
+  # Maximum stock per category (initial stock will be calculated as max-stock / 2)
   max-stock:
     building: 10000
     ores: 1000
@@ -91,8 +88,8 @@ restock:
   # Time in minutes before items restock when out of stock
   restock-time: 60
 
-  # Amount to restock (percentage of initial stock)
-  restock-percentage: 100
+  # Amount to restock (percentage of max stock / 2)
+  restock-percentage: 50
 
 # GUI settings
 gui:
@@ -111,29 +108,31 @@ gui:
   # Show tax information in item lore
   show-tax-info: true
 
-# Messages
+# Messages with gradient support
+# Use <gradient:#startColor:#endColor>text</gradient> for gradients
+# Use #RRGGBB for hex colors
 messages:
   # Prefix for all shop messages
-  prefix: "&8[&aDynamicShop&8] &7"
+  prefix: "<gradient:#00ff00:#00ffff>[DynamicShop]</gradient> &7"
 
   # Transaction messages
-  buy-success: "&aSuccessfully purchased %amount%x %item% for $%price%"
-  sell-success: "&aSuccessfully sold %amount%x %item% for $%price%"
-  sell-success-with-tax: "&aSuccessfully sold %amount%x %item% for $%price% &7(Tax: $%tax%)"
+  buy-success: "<gradient:#00ff00:#88ff00>Successfully purchased %amount%x %item% for $%price%</gradient>"
+  sell-success: "<gradient:#00ff00:#88ff00>Successfully sold %amount%x %item% for $%price%</gradient>"
+  sell-success-with-tax: "<gradient:#00ff00:#88ff00>Successfully sold %amount%x %item% for $%price%</gradient> &7(Tax: $%tax%)"
 
   # Error messages
-  insufficient-funds: "&cInsufficient funds! You need $%price%"
-  insufficient-items: "&cYou don't have enough items to sell!"
-  out-of-stock: "&cThis item is currently out of stock!"
-  shop-full: "&cThe shop is full of this item!"
+  insufficient-funds: "<gradient:#ff0000:#ff8800>Insufficient funds! You need $%price%</gradient>"
+  insufficient-items: "<gradient:#ff0000:#ff8800>You don't have enough items to sell!</gradient>"
+  out-of-stock: "<gradient:#ff0000:#ff8800>This item is currently out of stock!</gradient>"
+  shop-full: "<gradient:#ff0000:#ff8800>The shop is full of this item!</gradient>"
 
   # Restock messages
-  restock-countdown: "&eRestocking in: &6%time%"
-  item-restocked: "&aThis item has been restocked!"
+  restock-countdown: "<gradient:#ffff00:#ff8800>Restocking in: %time%</gradient>"
+  item-restocked: "<gradient:#00ff00:#00ffff>This item has been restocked!</gradient>"
 
   # Price alert messages
-  price-increase-alert: "&c&l[PRICE SURGE] &e%item% &7price increased by &c%percent%%&7! New price: &a$%price%"
-  price-decrease-alert: "&a&l[PRICE DROP] &e%item% &7price decreased by &a%percent%%&7! New price: &e$%price%"
+  price-increase-alert: "<gradient:#ff0000:#ff00ff>[PRICE SURGE]</gradient> <gradient:#ffff00:#ff8800>%item% price increased by %percent%%! New price: $%price%</gradient>"
+  price-decrease-alert: "<gradient:#00ff00:#00ffff>[PRICE DROP]</gradient> <gradient:#00ff00:#88ff00>%item% price decreased by %percent%%! New price: $%price%</gradient>"
 
 # Price alert settings
 price-alerts:

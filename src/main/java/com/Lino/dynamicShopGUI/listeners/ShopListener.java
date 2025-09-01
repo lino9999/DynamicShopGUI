@@ -3,6 +3,7 @@ package com.Lino.dynamicShopGUI.listeners;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.managers.ShopManager;
+import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -30,7 +31,7 @@ public class ShopListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
 
         Player player = (Player) event.getWhoClicked();
-        String title = event.getView().getTitle();
+        String title = ChatColor.stripColor(event.getView().getTitle());
 
         if (!title.contains("Dynamic Shop") && !title.contains("Shop -") &&
                 !title.contains("Buy ") && !title.contains("Sell ")) {
@@ -46,13 +47,13 @@ public class ShopListener implements Listener {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
         }
 
-        if (title.equals(ChatColor.DARK_GREEN + "Dynamic Shop")) {
+        if (title.equals("Dynamic Shop")) {
             handleMainMenuClick(player, clicked);
-        } else if (title.startsWith(ChatColor.DARK_GREEN + "Shop -")) {
+        } else if (title.startsWith("Shop -")) {
             handleCategoryMenuClick(player, clicked, event.getClick(), title);
-        } else if (title.startsWith(ChatColor.DARK_GREEN + "Buy ") ||
-                title.startsWith(ChatColor.DARK_RED + "Sell ")) {
-            handleTransactionMenuClick(player, clicked, title.startsWith(ChatColor.DARK_GREEN + "Buy "));
+        } else if (title.startsWith("Buy ") ||
+                title.startsWith("Sell ")) {
+            handleTransactionMenuClick(player, clicked, title.startsWith("Buy "));
         }
     }
 
@@ -124,8 +125,8 @@ public class ShopListener implements Listener {
 
         if (isBuying && clicked.getItemMeta() != null && clicked.getItemMeta().getLore() != null) {
             for (String loreLine : clicked.getItemMeta().getLore()) {
-                if (loreLine.contains("Out of Stock")) {
-                    player.sendMessage(ChatColor.RED + "This item is out of stock for purchase!");
+                if (ChatColor.stripColor(loreLine).contains("Out of Stock")) {
+                    player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>This item is out of stock for purchase!</gradient>"));
                     if (plugin.getShopConfig().isSoundEnabled()) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                     }
@@ -165,7 +166,7 @@ public class ShopListener implements Listener {
             if (selectedItem != null) {
                 plugin.getGUIManager().openTransactionMenu(player, selectedItem, !currentlyBuying);
             } else {
-                player.sendMessage(ChatColor.RED + "Error: No item selected. Please close and reopen the shop.");
+                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>Error: No item selected. Please close and reopen the shop.</gradient>"));
             }
             return;
         }
@@ -184,7 +185,7 @@ public class ShopListener implements Listener {
             String name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
             if (selectedItem == null) {
-                player.sendMessage(ChatColor.RED + "Error: Could not determine the item. Please try reopening the shop.");
+                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>Error: Could not determine the item. Please try reopening the shop.</gradient>"));
                 return;
             }
 
@@ -222,14 +223,14 @@ public class ShopListener implements Listener {
                     processSellTransaction(player, selectedItem, amount);
                 }
             } else {
-                player.sendMessage(ChatColor.RED + "Error: Could not determine amount to trade");
+                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>Error: Could not determine amount to trade</gradient>"));
             }
         }
     }
 
     private Material extractMaterialFromGUI(Player player) {
-        String title = player.getOpenInventory().getTitle();
-        String cleanTitle = ChatColor.stripColor(title);
+        String title = ChatColor.stripColor(player.getOpenInventory().getTitle());
+        String cleanTitle = title;
 
         Material material = null;
 
@@ -265,12 +266,12 @@ public class ShopListener implements Listener {
         plugin.getShopManager().buyItem(player, material, amount).thenAccept(result -> {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (result.isSuccess()) {
-                    player.sendMessage(ChatColor.GREEN + result.getMessage());
+                    player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.2f);
                     }
                 } else {
-                    player.sendMessage(ChatColor.RED + result.getMessage());
+                    player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                     }
@@ -282,7 +283,7 @@ public class ShopListener implements Listener {
             throwable.printStackTrace();
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                player.sendMessage(ChatColor.RED + "An error occurred during the transaction");
+                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>An error occurred during the transaction</gradient>"));
                 plugin.getGUIManager().openTransactionMenu(player, material, true);
             });
 
@@ -294,12 +295,12 @@ public class ShopListener implements Listener {
         plugin.getShopManager().sellItem(player, material, amount).thenAccept(result -> {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (result.isSuccess()) {
-                    player.sendMessage(ChatColor.GREEN + result.getMessage());
+                    player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
                         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.0f);
                     }
                 } else {
-                    player.sendMessage(ChatColor.RED + result.getMessage());
+                    player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                     }
@@ -311,7 +312,7 @@ public class ShopListener implements Listener {
             throwable.printStackTrace();
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                player.sendMessage(ChatColor.RED + "An error occurred during the transaction");
+                player.sendMessage(GradientColor.apply("<gradient:#ff0000:#ff8800>An error occurred during the transaction</gradient>"));
                 plugin.getGUIManager().openTransactionMenu(player, material, false);
             });
 
