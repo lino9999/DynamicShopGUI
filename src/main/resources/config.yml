@@ -110,6 +110,30 @@ gui:
 
 
 
+# Item worth display settings
+item-worth:
+  # Enable showing item worth in player inventories
+  enabled: true
+
+  # Update interval in seconds
+  update-interval: 5
+
+  # Maximum players to update per cycle
+  max-players-per-update: 5
+
+  # Show worth per item or total worth for stack
+  # Options: "total", "each", "both"
+  display-mode: "both"
+
+  # Items to exclude from worth display
+  excluded-items:
+    - AIR
+    - BEDROCK
+    - COMMAND_BLOCK
+    - BARRIER
+    - STRUCTURE_BLOCK
+    - STRUCTURE_VOID
+
 # Price alert settings
 price-alerts:
   # Enable global price alerts

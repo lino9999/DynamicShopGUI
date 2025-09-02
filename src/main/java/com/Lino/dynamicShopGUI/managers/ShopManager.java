@@ -99,6 +99,8 @@ public class ShopManager {
             plugin.getDatabaseManager().logTransaction(player.getUniqueId().toString(),
                     material, "BUY", amount, totalCost / amount, totalCost);
 
+            plugin.getItemWorthManager().clearCache();
+
             checkPriceAlert(item, oldPrice, newPrice);
 
             return CompletableFuture.completedFuture(new TransactionResult(true,
@@ -185,6 +187,8 @@ public class ShopManager {
             plugin.getDatabaseManager().updateShopItem(item);
             plugin.getDatabaseManager().logTransaction(player.getUniqueId().toString(),
                     material, "SELL", canAccept, totalEarnings / canAccept, netEarnings);
+
+            plugin.getItemWorthManager().clearCache();
 
             checkPriceAlert(item, oldPrice, newPrice);
 
@@ -352,8 +356,13 @@ public class ShopManager {
                     String soundName = plugin.getShopConfig().getPriceIncreaseSound();
                     if (!soundName.equalsIgnoreCase("none")) {
                         try {
-                            alertSound = Sound.valueOf(soundName);
-                        } catch (IllegalArgumentException ignored) {}
+                            for (Sound sound : Sound.values()) {
+                                if (sound.name().equals(soundName)) {
+                                    alertSound = sound;
+                                    break;
+                                }
+                            }
+                        } catch (Exception ignored) {}
                     }
                 } else {
                     message = plugin.getShopConfig().getMessage("price-alerts.decrease",
@@ -364,8 +373,13 @@ public class ShopManager {
                     String soundName = plugin.getShopConfig().getPriceDecreaseSound();
                     if (!soundName.equalsIgnoreCase("none")) {
                         try {
-                            alertSound = Sound.valueOf(soundName);
-                        } catch (IllegalArgumentException ignored) {}
+                            for (Sound sound : Sound.values()) {
+                                if (sound.name().equals(soundName)) {
+                                    alertSound = sound;
+                                    break;
+                                }
+                            }
+                        } catch (Exception ignored) {}
                     }
                 }
 

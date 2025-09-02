@@ -135,6 +135,10 @@ public class RestockManager {
                         plugin.getDatabaseManager().updateShopItem(item);
 
                         plugin.getServer().getScheduler().runTask(plugin, () -> {
+                            if (plugin.getItemWorthManager() != null) {
+                                plugin.getItemWorthManager().clearCache();
+                            }
+
                             checkRestockPriceAlert(item, oldPrice, newPrice);
 
                             plugin.getServer().getOnlinePlayers().forEach(player -> {
@@ -217,8 +221,13 @@ public class RestockManager {
                 String soundName = plugin.getShopConfig().getPriceDecreaseSound();
                 if (!soundName.equalsIgnoreCase("none")) {
                     try {
-                        alertSound = Sound.valueOf(soundName);
-                    } catch (IllegalArgumentException ignored) {}
+                        for (Sound sound : Sound.values()) {
+                            if (sound.name().equals(soundName)) {
+                                alertSound = sound;
+                                break;
+                            }
+                        }
+                    } catch (Exception ignored) {}
                 }
 
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

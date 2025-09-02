@@ -25,6 +25,12 @@ public class ShopConfig {
         plugin.reloadConfig();
         messageManager.reload();
         categoryLoader.reload();
+
+        if (plugin.getItemWorthManager() != null) {
+            plugin.getItemWorthManager().stop();
+            plugin.getItemWorthManager().start();
+            plugin.getItemWorthManager().clearCache();
+        }
     }
 
     public Map<String, Map<String, Double>> getShopItems() {

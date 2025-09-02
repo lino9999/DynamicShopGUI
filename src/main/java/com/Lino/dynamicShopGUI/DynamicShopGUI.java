@@ -1,5 +1,6 @@
 package com.Lino.dynamicShopGUI;
 
+import com.Lino.dynamicShopGUI.managers.ItemWorthManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -110,5 +111,9 @@ public class DynamicShopGUI extends JavaPlugin {
 
     public RestockManager getRestockManager() {
         return restockManager;
+    }
+
+    public ItemWorthManager getItemWorthManager() {
+        return itemWorthManager;
     }
 }
