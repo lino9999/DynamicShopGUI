@@ -6,8 +6,6 @@
 # Item worth display
 item-worth:
   worth-prefix: "Worth: "
-  worth-format: "<gradient:#00ff00:#88ff00>Worth: $%amount%</gradient> &7($%each% each)"
-  worth-total: "<gradient:#00ff00:#88ff00>Worth: $%amount%</gradient>"
   worth-each: "<gradient:#00ff00:#88ff00>Worth: $%each% each</gradient>"
   not-sellable: "<gradient:#ff0000:#ff8800>Not Sellable</gradient>"
 

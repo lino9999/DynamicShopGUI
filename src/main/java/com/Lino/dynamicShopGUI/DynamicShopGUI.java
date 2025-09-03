@@ -11,6 +11,7 @@ import com.Lino.dynamicShopGUI.managers.RestockManager;
 import com.Lino.dynamicShopGUI.commands.ShopCommand;
 import com.Lino.dynamicShopGUI.listeners.ShopListener;
 import com.Lino.dynamicShopGUI.listeners.ItemWorthListener;
+import com.Lino.dynamicShopGUI.listeners.ItemStackFixListener;
 import com.Lino.dynamicShopGUI.config.ShopConfig;
 
 public class DynamicShopGUI extends JavaPlugin {
@@ -23,6 +24,7 @@ public class DynamicShopGUI extends JavaPlugin {
     private ShopConfig shopConfig;
     private RestockManager restockManager;
     private ItemWorthManager itemWorthManager;
+    private ItemStackFixListener itemStackFixListener;
 
     @Override
     public void onEnable() {
@@ -48,6 +50,7 @@ public class DynamicShopGUI extends JavaPlugin {
         shopManager = new ShopManager(this);
         guiManager = new GUIManager(this);
         itemWorthManager = new ItemWorthManager(this);
+        itemStackFixListener = new ItemStackFixListener(this);
 
         itemWorthManager.start();
 
@@ -93,6 +96,7 @@ public class DynamicShopGUI extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
         getServer().getPluginManager().registerEvents(new ItemWorthListener(this), this);
+        getServer().getPluginManager().registerEvents(itemStackFixListener, this);
     }
 
     public static DynamicShopGUI getInstance() {
@@ -125,5 +129,9 @@ public class DynamicShopGUI extends JavaPlugin {
 
     public ItemWorthManager getItemWorthManager() {
         return itemWorthManager;
+    }
+
+    public ItemStackFixListener getItemStackFixListener() {
+        return itemStackFixListener;
     }
 }

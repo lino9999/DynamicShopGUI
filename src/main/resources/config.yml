@@ -109,7 +109,6 @@ gui:
   show-tax-info: true
 
 
-
 # Item worth display settings
 item-worth:
   # Enable showing item worth in player inventories
@@ -121,9 +120,8 @@ item-worth:
   # Maximum players to update per cycle
   max-players-per-update: 5
 
-  # Show worth per item or total worth for stack
-  # Options: "total", "each", "both"
-  display-mode: "both"
+  # Skip items with custom names or enchantments
+  skip-custom-items: true
 
   # Items to exclude from worth display
   excluded-items:

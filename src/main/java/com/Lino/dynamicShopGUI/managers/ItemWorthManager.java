@@ -79,6 +79,11 @@ public class ItemWorthManager {
     }
 
     private void updatePlayerInventory(Player player) {
+        if (plugin.getItemStackFixListener() != null &&
+                plugin.getItemStackFixListener().isProcessingInventory(player.getUniqueId())) {
+            return;
+        }
+
         ItemStack[] contents = player.getInventory().getContents();
         boolean updated = false;
 
@@ -98,11 +103,55 @@ public class ItemWorthManager {
         }
     }
 
+    private boolean isCustomItem(ItemStack item) {
+        if (!plugin.getConfig().getBoolean("item-worth.skip-custom-items", true)) {
+            return false;
+        }
+
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return false;
+        }
+
+        if (meta.hasDisplayName()) {
+            String displayName = org.bukkit.ChatColor.stripColor(meta.getDisplayName());
+            String defaultName = formatMaterialName(item.getType());
+
+            if (!displayName.equalsIgnoreCase(defaultName)) {
+                return true;
+            }
+        }
+
+        if (meta.hasEnchants() && !meta.getEnchants().isEmpty()) {
+            return true;
+        }
+
+        if (meta.hasLore() && meta.getLore() != null && !meta.getLore().isEmpty()) {
+            List<String> lore = meta.getLore();
+            for (String line : lore) {
+                String stripped = org.bukkit.ChatColor.stripColor(line);
+                if (!stripped.startsWith("Worth:") && !stripped.contains("Not Sellable")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private boolean updateItemLore(ItemStack item) {
         Material material = item.getType();
 
         List<String> excludedItems = plugin.getConfig().getStringList("item-worth.excluded-items");
         if (excludedItems.contains(material.name())) {
+            return false;
+        }
+
+        if (isCustomItem(item)) {
             return false;
         }
 
@@ -151,22 +200,9 @@ public class ItemWorthManager {
         } else {
             Double price = priceCache.get(material);
             if (price != null) {
-                String displayMode = plugin.getConfig().getString("item-worth.display-mode", "both");
-
-                if (displayMode.equalsIgnoreCase("total")) {
-                    String worthLine = plugin.getShopConfig().getMessage("item-worth.worth-total",
-                            "%amount%", String.format("%.2f", price * item.getAmount()));
-                    lore.add(worthLine);
-                } else if (displayMode.equalsIgnoreCase("each")) {
-                    String worthLine = plugin.getShopConfig().getMessage("item-worth.worth-each",
-                            "%each%", String.format("%.2f", price));
-                    lore.add(worthLine);
-                } else {
-                    String worthLine = plugin.getShopConfig().getMessage("item-worth.worth-format",
-                            "%amount%", String.format("%.2f", price * item.getAmount()),
-                            "%each%", String.format("%.2f", price));
-                    lore.add(worthLine);
-                }
+                String worthLine = plugin.getShopConfig().getMessage("item-worth.worth-each",
+                        "%each%", String.format("%.2f", price));
+                lore.add(worthLine);
             }
         }
 
@@ -176,8 +212,37 @@ public class ItemWorthManager {
         return true;
     }
 
+    private String formatMaterialName(Material material) {
+        String name = material.name().toLowerCase().replace('_', ' ');
+        StringBuilder formatted = new StringBuilder();
+        boolean capitalizeNext = true;
+
+        for (char c : name.toCharArray()) {
+            if (c == ' ') {
+                formatted.append(c);
+                capitalizeNext = true;
+            } else if (capitalizeNext) {
+                formatted.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+            } else {
+                formatted.append(c);
+            }
+        }
+
+        return formatted.toString();
+    }
+
     public void updateSingleItem(ItemStack item) {
         if (item != null && item.getType() != Material.AIR) {
+            updateItemLore(item);
+        }
+    }
+
+    public void updateSingleItem(ItemStack item, Player owner) {
+        if (item != null && item.getType() != Material.AIR) {
+            if (owner != null && owner.getGameMode() == org.bukkit.GameMode.CREATIVE) {
+                return;
+            }
             updateItemLore(item);
         }
     }
