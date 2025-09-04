@@ -41,7 +41,8 @@ public class ItemWorthListener implements Listener {
             @Override
             public void run() {
                 if (player.isOnline() && player.getGameMode() != GameMode.CREATIVE) {
-                    for (ItemStack item : player.getInventory().getContents()) {
+                    for (int i = 0; i < player.getInventory().getSize(); i++) {
+                        ItemStack item = player.getInventory().getItem(i);
                         if (item != null) {
                             plugin.getItemWorthManager().updateSingleItem(item);
                         }
@@ -70,11 +71,18 @@ public class ItemWorthListener implements Listener {
                 @Override
                 public void run() {
                     if (player.isOnline()) {
-                        for (ItemStack item : player.getInventory().getContents()) {
+                        for (int i = 0; i < player.getInventory().getSize(); i++) {
+                            ItemStack item = player.getInventory().getItem(i);
                             if (item != null) {
                                 removeWorthFromItem(item);
                             }
                         }
+
+                        ItemStack cursor = player.getItemOnCursor();
+                        if (cursor != null && cursor.getType() != org.bukkit.Material.AIR) {
+                            removeWorthFromItem(cursor);
+                        }
+
                         player.updateInventory();
                     }
                 }
@@ -84,7 +92,8 @@ public class ItemWorthListener implements Listener {
                 @Override
                 public void run() {
                     if (player.isOnline() && player.getGameMode() != GameMode.CREATIVE) {
-                        for (ItemStack item : player.getInventory().getContents()) {
+                        for (int i = 0; i < player.getInventory().getSize(); i++) {
+                            ItemStack item = player.getInventory().getItem(i);
                             if (item != null) {
                                 plugin.getItemWorthManager().updateSingleItem(item);
                             }

@@ -79,16 +79,20 @@ public class ItemWorthManager {
     }
 
     private void updatePlayerInventory(Player player) {
+        if (plugin.getConfig().getBoolean("item-worth.disable-in-creative", true) &&
+                player.getGameMode() == org.bukkit.GameMode.CREATIVE) {
+            return;
+        }
+
         if (plugin.getItemStackFixListener() != null &&
                 plugin.getItemStackFixListener().isProcessingInventory(player.getUniqueId())) {
             return;
         }
 
-        ItemStack[] contents = player.getInventory().getContents();
         boolean updated = false;
 
-        for (int i = 0; i < contents.length; i++) {
-            ItemStack item = contents[i];
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 continue;
             }
@@ -234,15 +238,6 @@ public class ItemWorthManager {
 
     public void updateSingleItem(ItemStack item) {
         if (item != null && item.getType() != Material.AIR) {
-            updateItemLore(item);
-        }
-    }
-
-    public void updateSingleItem(ItemStack item, Player owner) {
-        if (item != null && item.getType() != Material.AIR) {
-            if (owner != null && owner.getGameMode() == org.bukkit.GameMode.CREATIVE) {
-                return;
-            }
             updateItemLore(item);
         }
     }

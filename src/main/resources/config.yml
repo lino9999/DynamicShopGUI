@@ -123,6 +123,9 @@ item-worth:
   # Skip items with custom names or enchantments
   skip-custom-items: true
 
+  # Disable completely in creative mode
+  disable-in-creative: true
+
   # Items to exclude from worth display
   excluded-items:
     - AIR

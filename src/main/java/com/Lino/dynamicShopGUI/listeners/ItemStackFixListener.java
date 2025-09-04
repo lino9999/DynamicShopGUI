@@ -8,10 +8,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -26,6 +27,85 @@ public class ItemStackFixListener implements Listener {
 
     public ItemStackFixListener(DynamicShopGUI plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!plugin.getConfig().getBoolean("item-worth.enabled", true)) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item != null && item.getType() != Material.AIR) {
+                removeWorthFromItem(item);
+            }
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (player.isOnline() && player.getGameMode() != GameMode.CREATIVE) {
+                    for (int i = 0; i < player.getInventory().getSize(); i++) {
+                        ItemStack item = player.getInventory().getItem(i);
+                        if (item != null && item.getType() != Material.AIR) {
+                            plugin.getItemWorthManager().updateSingleItem(item);
+                        }
+                    }
+                    player.updateInventory();
+                }
+            }
+        }.runTaskLater(plugin, 2L);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onItemPickup(EntityPickupItemEvent event) {
+        if (!plugin.getConfig().getBoolean("item-worth.enabled", true)) {
+            return;
+        }
+
+        if (!(event.getEntity() instanceof Player)) {
+            return;
+        }
+
+        Player player = (Player) event.getEntity();
+
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+
+        ItemStack pickedUp = event.getItem().getItemStack();
+        Material pickedMaterial = pickedUp.getType();
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack invItem = player.getInventory().getItem(i);
+            if (invItem != null && invItem.getType() == pickedMaterial) {
+                removeWorthFromItem(invItem);
+            }
+        }
+
+        removeWorthFromItem(pickedUp);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (player.isOnline() && player.getGameMode() != GameMode.CREATIVE) {
+                    for (int i = 0; i < player.getInventory().getSize(); i++) {
+                        ItemStack item = player.getInventory().getItem(i);
+                        if (item != null && item.getType() == pickedMaterial) {
+                            plugin.getItemWorthManager().updateSingleItem(item);
+                        }
+                    }
+                    player.updateInventory();
+                }
+            }
+        }.runTaskLater(plugin, 2L);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -67,103 +147,56 @@ public class ItemStackFixListener implements Listener {
             needsProcessing = true;
         }
 
-        if (event.getClick() == ClickType.DOUBLE_CLICK && cursor != null && cursor.getType() != Material.AIR) {
-            needsProcessing = true;
-        }
-
         if (event.isShiftClick() && clicked != null && clicked.getType() != Material.AIR) {
-            needsProcessing = true;
-        }
-
-        if (event.getClick() == ClickType.RIGHT || event.getClick() == ClickType.SHIFT_RIGHT) {
             needsProcessing = true;
         }
 
         if (needsProcessing) {
             processingInventory.add(player.getUniqueId());
 
-            cleanInventoryForStacking(player);
+            removeWorthFromInventorySlots(player);
 
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (player.isOnline()) {
+                    if (player.isOnline() && player.getGameMode() != GameMode.CREATIVE) {
                         processingInventory.remove(player.getUniqueId());
-                        reapplyWorthToInventory(player);
+                        reapplyWorthToInventorySlots(player);
                     }
                 }
             }.runTaskLater(plugin, 1L);
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onInventoryDrag(InventoryDragEvent event) {
-        if (!plugin.getConfig().getBoolean("item-worth.enabled", true)) {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player)) {
             return;
         }
 
-        if (!(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-
-        Player player = (Player) event.getWhoClicked();
+        Player player = (Player) event.getPlayer();
 
         if (player.getGameMode() == GameMode.CREATIVE) {
             return;
         }
 
-        String title = event.getView().getTitle();
-        if (title.contains("Shop") || title.contains("Buy") || title.contains("Sell")) {
-            return;
+        ItemStack cursor = player.getItemOnCursor();
+        if (cursor != null && cursor.getType() != Material.AIR) {
+            removeWorthFromItem(cursor);
         }
 
-        processingInventory.add(player.getUniqueId());
+        if (processingInventory.contains(player.getUniqueId())) {
+            processingInventory.remove(player.getUniqueId());
 
-        cleanInventoryForStacking(player);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (player.isOnline()) {
-                    processingInventory.remove(player.getUniqueId());
-                    reapplyWorthToInventory(player);
-                }
-            }
-        }.runTaskLater(plugin, 1L);
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onItemPickup(EntityPickupItemEvent event) {
-        if (!plugin.getConfig().getBoolean("item-worth.enabled", true)) {
-            return;
-        }
-
-        if (!(event.getEntity() instanceof Player)) {
-            return;
-        }
-
-        Player player = (Player) event.getEntity();
-
-        if (player.getGameMode() == GameMode.CREATIVE) {
-            return;
-        }
-
-        ItemStack item = event.getItem().getItemStack();
-        removeWorthFromItem(item);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (player.isOnline()) {
-                    for (ItemStack invItem : player.getInventory().getContents()) {
-                        if (invItem != null && invItem.getType() == item.getType()) {
-                            plugin.getItemWorthManager().updateSingleItem(invItem);
-                        }
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (player.isOnline() && player.getGameMode() != GameMode.CREATIVE) {
+                        reapplyWorthToInventorySlots(player);
                     }
-                    player.updateInventory();
                 }
-            }
-        }.runTaskLater(plugin, 3L);
+            }.runTaskLater(plugin, 1L);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -182,31 +215,26 @@ public class ItemStackFixListener implements Listener {
         removeWorthFromItem(item);
     }
 
-    private void cleanInventoryForStacking(Player player) {
-        for (ItemStack item : player.getInventory().getContents()) {
+    private void removeWorthFromInventorySlots(Player player) {
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
             if (item != null && item.getType() != Material.AIR) {
                 removeWorthFromItem(item);
             }
         }
-
-        ItemStack cursor = player.getOpenInventory().getCursor();
-        if (cursor != null && cursor.getType() != Material.AIR) {
-            removeWorthFromItem(cursor);
-        }
     }
 
-    private void reapplyWorthToInventory(Player player) {
-        for (ItemStack item : player.getInventory().getContents()) {
+    private void reapplyWorthToInventorySlots(Player player) {
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
             if (item != null && item.getType() != Material.AIR) {
                 plugin.getItemWorthManager().updateSingleItem(item);
             }
         }
-
-        ItemStack cursor = player.getOpenInventory().getCursor();
-        if (cursor != null && cursor.getType() != Material.AIR) {
-            plugin.getItemWorthManager().updateSingleItem(cursor);
-        }
-
         player.updateInventory();
     }
 
