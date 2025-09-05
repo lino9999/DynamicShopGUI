@@ -104,16 +104,20 @@ public class DatabaseManager {
                 pstmt.setString(1, material.name());
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
+                        double basePrice = rs.getDouble("base_price");
+                        double currentPrice = rs.getDouble("current_price");
+                        double priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
+
                         return new ShopItem(
                                 Material.valueOf(rs.getString("material")),
                                 rs.getString("category"),
-                                rs.getDouble("base_price"),
-                                rs.getDouble("current_price"),
+                                basePrice,
+                                currentPrice,
                                 rs.getInt("stock"),
                                 rs.getInt("max_stock"),
                                 rs.getInt("transactions_buy"),
                                 rs.getInt("transactions_sell"),
-                                rs.getDouble("price_change_percent")
+                                priceChangePercent
                         );
                     }
                 }
@@ -133,16 +137,20 @@ public class DatabaseManager {
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         Material material = Material.valueOf(rs.getString("material"));
+                        double basePrice = rs.getDouble("base_price");
+                        double currentPrice = rs.getDouble("current_price");
+                        double priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
+
                         ShopItem item = new ShopItem(
                                 material,
                                 rs.getString("category"),
-                                rs.getDouble("base_price"),
-                                rs.getDouble("current_price"),
+                                basePrice,
+                                currentPrice,
                                 rs.getInt("stock"),
                                 rs.getInt("max_stock"),
                                 rs.getInt("transactions_buy"),
                                 rs.getInt("transactions_sell"),
-                                rs.getDouble("price_change_percent")
+                                priceChangePercent
                         );
                         items.put(material, item);
                     }
