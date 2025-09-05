@@ -172,34 +172,41 @@ public class RestockManager {
 
         private double calculateNewPrice(ShopItem item) {
             double stockRatio = (double) item.getStock() / item.getMaxStock();
+            int maxStock = item.getMaxStock();
 
-            double priceFactor;
+            double basePriceFactor;
+            double smoothingFactor = Math.min(1.0, 100.0 / maxStock);
 
-            if (stockRatio <= 0.05) {
-                priceFactor = 2.5;
-            } else if (stockRatio <= 0.1) {
-                priceFactor = 2.0;
-            } else if (stockRatio <= 0.2) {
-                priceFactor = 1.7;
-            } else if (stockRatio <= 0.3) {
-                priceFactor = 1.5;
-            } else if (stockRatio <= 0.4) {
-                priceFactor = 1.3;
-            } else if (stockRatio <= 0.5) {
-                priceFactor = 1.15;
-            } else if (stockRatio <= 0.6) {
-                priceFactor = 1.0;
-            } else if (stockRatio <= 0.7) {
-                priceFactor = 0.9;
-            } else if (stockRatio <= 0.8) {
-                priceFactor = 0.8;
-            } else if (stockRatio <= 0.9) {
-                priceFactor = 0.7;
+            if (stockRatio < 0.1) {
+                basePriceFactor = 2.5 - (stockRatio * 5.0);
+            } else if (stockRatio < 0.5) {
+                double t = (stockRatio - 0.1) / 0.4;
+                basePriceFactor = 2.0 - (t * 0.85);
+            } else if (stockRatio < 0.9) {
+                double t = (stockRatio - 0.5) / 0.4;
+                basePriceFactor = 1.15 - (t * 0.35);
             } else {
-                priceFactor = 0.6;
+                double t = (stockRatio - 0.9) / 0.1;
+                double targetFactor = 0.6 + (0.2 * smoothingFactor);
+                basePriceFactor = 0.8 - (t * (0.8 - targetFactor));
+            }
+
+            double priceFactor = basePriceFactor;
+
+            if (maxStock > 1000) {
+                double scaleFactor = Math.log10(maxStock / 1000.0) + 1.0;
+                priceFactor = 1.0 + (basePriceFactor - 1.0) / scaleFactor;
+            }
+
+            int recentActivity = item.getTransactionsBuy() + item.getTransactionsSell();
+            if (recentActivity > 0) {
+                double buyRatio = (double) item.getTransactionsBuy() / recentActivity;
+                double momentumFactor = 1.0 + ((buyRatio - 0.5) * 0.1 * smoothingFactor);
+                priceFactor *= momentumFactor;
             }
 
             double newPrice = item.getBasePrice() * priceFactor;
+
             double minPrice = item.getBasePrice() * plugin.getShopConfig().getMinPriceMultiplier();
             double maxPrice = item.getBasePrice() * plugin.getShopConfig().getMaxPriceMultiplier();
 

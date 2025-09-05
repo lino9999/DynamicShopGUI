@@ -1,23 +1,22 @@
 # DynamicShopGUI Configuration
 
 # Dynamic Pricing System:
-# Prices change automatically based on stock levels:
-# - 0-5% stock: 2.5x base price
-# - 5-10% stock: 2.0x base price
-# - 10-20% stock: 1.7x base price
-# - 20-30% stock: 1.5x base price
-# - 30-40% stock: 1.3x base price
-# - 40-50% stock: 1.15x base price
-# - 50-60% stock: 1.0x base price (normal)
-# - 60-70% stock: 0.9x base price
-# - 70-80% stock: 0.8x base price
-# - 80-90% stock: 0.7x base price
-# - 90-100% stock: 0.6x base price
+# Prices now change smoothly based on stock levels using a continuous formula.
+# The system automatically adjusts for items with high max stock to prevent
+# drastic price changes from small transactions.
+#
+# General price behavior:
+# - Very low stock (0-10%): Prices increase significantly (up to 2.5x base price)
+# - Low stock (10-50%): Prices gradually decrease from 2.0x to 1.15x
+# - Medium stock (50-90%): Prices continue decreasing from 1.15x to 0.8x
+# - High stock (90-100%): Prices reach minimum levels (down to 0.6x base price)
+#
+# For items with high max stock (>1000), price changes are automatically
+# smoothed to prevent large jumps from single transactions.
 
-# Price factors - how much prices change with transactions
+# Price factors - momentum-based adjustments
 price-factors:
-  # These factors are now used for momentum-based adjustments
-  # The main price changes are based on stock levels
+  # These factors affect price momentum when items are bought/sold frequently
   increase: 0.05  # Additional price momentum when items are bought frequently
   decrease: 0.03  # Additional price momentum when items are sold frequently
 
