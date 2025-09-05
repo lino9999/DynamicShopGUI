@@ -283,6 +283,8 @@ public class GUIManager {
             inv.setItem(8, decorGlass);
             inv.setItem(9, decorGlass);
             inv.setItem(17, decorGlass);
+            inv.setItem(36, decorGlass);
+            inv.setItem(44, decorGlass);
             inv.setItem(45, decorGlass);
             inv.setItem(46, decorGlass);
             inv.setItem(52, decorGlass);
@@ -291,6 +293,18 @@ public class GUIManager {
             for (int i = 10; i <= 16; i++) {
                 inv.setItem(i, decorGlass);
             }
+
+            inv.setItem(19, decorGlass);
+            inv.setItem(25, decorGlass);
+            inv.setItem(28, decorGlass);
+            inv.setItem(34, decorGlass);
+
+            ItemStack sparkleDecor = new ItemStack(Material.END_ROD);
+            ItemMeta sparkleMeta = sparkleDecor.getItemMeta();
+            sparkleMeta.setDisplayName(" ");
+            sparkleDecor.setItemMeta(sparkleMeta);
+            inv.setItem(12, sparkleDecor);
+            inv.setItem(14, sparkleDecor);
 
             if (item.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
                 if (!plugin.getRestockManager().isRestocking(material)) {

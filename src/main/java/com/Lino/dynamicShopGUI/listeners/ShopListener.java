@@ -49,7 +49,7 @@ public class ShopListener implements Listener {
         if (title.equals("Dynamic Shop")) {
             handleMainMenuClick(player, clicked);
         } else if (title.startsWith("Shop -")) {
-            handleCategoryMenuClick(player, clicked, event.getClick(), title);
+            handleCategoryMenuClick(player, clicked, event.getClick(), title, event.getSlot());
         } else if (title.startsWith("Buy ") ||
                 title.startsWith("Sell ")) {
             handleTransactionMenuClick(player, clicked, title.startsWith("Buy "));
@@ -82,7 +82,11 @@ public class ShopListener implements Listener {
         }
     }
 
-    private void handleCategoryMenuClick(Player player, ItemStack clicked, ClickType clickType, String title) {
+    private void handleCategoryMenuClick(Player player, ItemStack clicked, ClickType clickType, String title, int slot) {
+        if (slot == 46) {
+            return;
+        }
+
         if (clicked.getType() == Material.ARROW) {
             String displayName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
 
@@ -108,17 +112,27 @@ public class ShopListener implements Listener {
 
         if (clicked.getType() == Material.GRAY_STAINED_GLASS_PANE ||
                 clicked.getType() == Material.LIME_STAINED_GLASS_PANE ||
-                clicked.getType() == Material.PAPER ||
-                clicked.getItemMeta().getDisplayName().contains("Page")) {
+                clicked.getType() == Material.PAPER) {
             return;
+        }
+
+        if (clicked.getItemMeta() != null && clicked.getItemMeta().getDisplayName() != null) {
+            String displayName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
+            if (displayName.contains("Page")) {
+                return;
+            }
         }
 
         String categoryName = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
         if (categoryName != null) {
             Material categoryIcon = plugin.getShopConfig().getCategoryIcon(categoryName);
-            if (clicked.getType() == categoryIcon) {
+            if (clicked.getType() == categoryIcon && slot >= 45) {
                 return;
             }
+        }
+
+        if (slot >= 45) {
+            return;
         }
 
         Material material = clicked.getType();
@@ -173,6 +187,7 @@ public class ShopListener implements Listener {
         }
 
         if (type == Material.BLACK_STAINED_GLASS_PANE || type == Material.EMERALD ||
+                type == Material.GOLD_BLOCK || type == Material.DIAMOND || type == Material.EMERALD_BLOCK ||
                 (currentlyBuying && type == Material.RED_STAINED_GLASS_PANE) ||
                 (!currentlyBuying && type == Material.LIME_STAINED_GLASS_PANE)) {
             return;
