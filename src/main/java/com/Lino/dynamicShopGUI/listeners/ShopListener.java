@@ -4,6 +4,7 @@ import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.handlers.MainMenuHandler;
 import com.Lino.dynamicShopGUI.handlers.CategoryMenuHandler;
 import com.Lino.dynamicShopGUI.handlers.TransactionMenuHandler;
+import com.Lino.dynamicShopGUI.managers.GUIManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -33,12 +34,9 @@ public class ShopListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
 
         Player player = (Player) event.getWhoClicked();
-        String title = ChatColor.stripColor(event.getView().getTitle());
+        GUIManager.GUIType guiType = plugin.getGUIManager().getPlayerGUIType(player.getUniqueId());
 
-        if (!title.contains("Dynamic Shop") && !title.contains("Shop -") &&
-                !title.contains("Buy ") && !title.contains("Sell ")) {
-            return;
-        }
+        if (guiType == null) return;
 
         event.setCancelled(true);
 
@@ -49,12 +47,21 @@ public class ShopListener implements Listener {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
         }
 
-        if (title.equals("Dynamic Shop")) {
-            mainMenuHandler.handleClick(player, clicked);
-        } else if (title.startsWith("Shop -")) {
-            categoryMenuHandler.handleClick(player, clicked, event.getClick(), title, event.getSlot());
-        } else if (title.startsWith("Buy ") || title.startsWith("Sell ")) {
-            transactionMenuHandler.handleClick(player, clicked, title.startsWith("Buy "));
+        String title = ChatColor.stripColor(event.getView().getTitle());
+
+        switch (guiType) {
+            case MAIN_MENU:
+                mainMenuHandler.handleClick(player, clicked, event.getSlot());
+                break;
+            case CATEGORY_MENU:
+                categoryMenuHandler.handleClick(player, clicked, event.getClick(), title, event.getSlot());
+                break;
+            case TRANSACTION_BUY:
+                transactionMenuHandler.handleClick(player, clicked, true);
+                break;
+            case TRANSACTION_SELL:
+                transactionMenuHandler.handleClick(player, clicked, false);
+                break;
         }
     }
 
@@ -62,7 +69,13 @@ public class ShopListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (event.getPlayer() instanceof Player) {
             Player player = (Player) event.getPlayer();
-            plugin.getGUIManager().clearPlayerData(player.getUniqueId());
+
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (player.getOpenInventory().getTopInventory() == null ||
+                        player.getOpenInventory().getTopInventory().getSize() == 0) {
+                    plugin.getGUIManager().clearPlayerData(player.getUniqueId());
+                }
+            }, 2L);
         }
     }
 }

@@ -240,31 +240,49 @@ public class ShopManager {
         double basePriceFactor;
         double smoothingFactor = Math.min(1.0, 100.0 / maxStock);
 
-        if (stockRatio < 0.1) {
-            basePriceFactor = 2.5 - (stockRatio * 5.0);
+        if (stockRatio < 0.01) {
+            basePriceFactor = 2.5;
+        } else if (stockRatio < 0.05) {
+            double t = (stockRatio - 0.01) / 0.04;
+            basePriceFactor = 2.5 - (t * 0.3);
+        } else if (stockRatio < 0.1) {
+            double t = (stockRatio - 0.05) / 0.05;
+            basePriceFactor = 2.2 - (t * 0.2);
+        } else if (stockRatio < 0.3) {
+            double t = (stockRatio - 0.1) / 0.2;
+            basePriceFactor = 2.0 - (t * 0.5);
         } else if (stockRatio < 0.5) {
-            double t = (stockRatio - 0.1) / 0.4;
-            basePriceFactor = 2.0 - (t * 0.85);
+            double t = (stockRatio - 0.3) / 0.2;
+            basePriceFactor = 1.5 - (t * 0.3);
+        } else if (stockRatio < 0.7) {
+            double t = (stockRatio - 0.5) / 0.2;
+            basePriceFactor = 1.2 - (t * 0.1);
         } else if (stockRatio < 0.9) {
-            double t = (stockRatio - 0.5) / 0.4;
-            basePriceFactor = 1.15 - (t * 0.35);
+            double t = (stockRatio - 0.7) / 0.2;
+            basePriceFactor = 1.1 - (t * 0.05);
+        } else if (stockRatio < 0.95) {
+            double t = (stockRatio - 0.9) / 0.05;
+            basePriceFactor = 1.05 - (t * 0.03);
+        } else if (stockRatio < 0.99) {
+            double t = (stockRatio - 0.95) / 0.04;
+            basePriceFactor = 1.02 - (t * 0.015);
         } else {
-            double t = (stockRatio - 0.9) / 0.1;
-            double targetFactor = 0.6 + (0.2 * smoothingFactor);
-            basePriceFactor = 0.8 - (t * (0.8 - targetFactor));
+            double t = (stockRatio - 0.99) / 0.01;
+            basePriceFactor = 1.005 - (t * 0.005);
         }
 
         double priceFactor = basePriceFactor;
 
         if (maxStock > 1000) {
             double scaleFactor = Math.log10(maxStock / 1000.0) + 1.0;
-            priceFactor = 1.0 + (basePriceFactor - 1.0) / scaleFactor;
+            double adjustment = (basePriceFactor - 1.0) / scaleFactor;
+            priceFactor = 1.0 + adjustment;
         }
 
         int recentActivity = item.getTransactionsBuy() + item.getTransactionsSell();
         if (recentActivity > 0) {
             double buyRatio = (double) item.getTransactionsBuy() / recentActivity;
-            double momentumFactor = 1.0 + ((buyRatio - 0.5) * 0.1 * smoothingFactor);
+            double momentumFactor = 1.0 + ((buyRatio - 0.5) * 0.05 * smoothingFactor);
             priceFactor *= momentumFactor;
         }
 

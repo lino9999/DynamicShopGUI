@@ -14,10 +14,19 @@ public class GUIManager {
     private final Map<UUID, String> playerCategory = new HashMap<>();
     private final Map<UUID, Material> playerSelectedItem = new HashMap<>();
     private final Map<UUID, Integer> playerPage = new HashMap<>();
+    private final Map<UUID, GUIType> playerGUIType = new HashMap<>();
+    private final Map<UUID, Boolean> playerTransactionType = new HashMap<>();
 
     private final MainMenuGUI mainMenuGUI;
     private final CategoryMenuGUI categoryMenuGUI;
     private final TransactionMenuGUI transactionMenuGUI;
+
+    public enum GUIType {
+        MAIN_MENU,
+        CATEGORY_MENU,
+        TRANSACTION_BUY,
+        TRANSACTION_SELL
+    }
 
     public GUIManager(DynamicShopGUI plugin) {
         this.plugin = plugin;
@@ -27,17 +36,25 @@ public class GUIManager {
     }
 
     public void openMainMenu(Player player) {
+        playerGUIType.put(player.getUniqueId(), GUIType.MAIN_MENU);
         mainMenuGUI.open(player);
+    }
+
+    public void setPlayerMainMenu(UUID uuid) {
+        playerGUIType.put(uuid, GUIType.MAIN_MENU);
     }
 
     public void openCategoryMenu(Player player, String category, int page) {
         playerCategory.put(player.getUniqueId(), category);
         playerPage.put(player.getUniqueId(), page);
+        playerGUIType.put(player.getUniqueId(), GUIType.CATEGORY_MENU);
         categoryMenuGUI.open(player, category, page);
     }
 
     public void openTransactionMenu(Player player, Material material, boolean isBuying) {
         playerSelectedItem.put(player.getUniqueId(), material);
+        playerTransactionType.put(player.getUniqueId(), isBuying);
+        playerGUIType.put(player.getUniqueId(), isBuying ? GUIType.TRANSACTION_BUY : GUIType.TRANSACTION_SELL);
         transactionMenuGUI.open(player, material, isBuying);
     }
 
@@ -57,9 +74,19 @@ public class GUIManager {
         return playerPage.getOrDefault(uuid, 0);
     }
 
+    public GUIType getPlayerGUIType(UUID uuid) {
+        return playerGUIType.get(uuid);
+    }
+
+    public boolean getPlayerTransactionType(UUID uuid) {
+        return playerTransactionType.getOrDefault(uuid, true);
+    }
+
     public void clearPlayerData(UUID uuid) {
         playerCategory.remove(uuid);
         playerSelectedItem.remove(uuid);
         playerPage.remove(uuid);
+        playerGUIType.remove(uuid);
+        playerTransactionType.remove(uuid);
     }
 }

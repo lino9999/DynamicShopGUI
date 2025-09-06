@@ -16,7 +16,7 @@ public class MainMenuHandler {
         this.plugin = plugin;
     }
 
-    public void handleClick(Player player, ItemStack clicked) {
+    public void handleClick(Player player, ItemStack clicked, int slot) {
         if (clicked.getItemMeta() == null || clicked.getItemMeta().getDisplayName() == null) return;
 
         String clickedName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
