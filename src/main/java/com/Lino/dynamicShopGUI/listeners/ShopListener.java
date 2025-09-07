@@ -67,15 +67,37 @@ public class ShopListener implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getPlayer() instanceof Player) {
-            Player player = (Player) event.getPlayer();
+        if (!(event.getPlayer() instanceof Player)) {
+            return;
+        }
+        Player player = (Player) event.getPlayer();
 
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (player.getOpenInventory().getTopInventory() == null ||
-                        player.getOpenInventory().getTopInventory().getSize() == 0) {
-                    plugin.getGUIManager().clearPlayerData(player.getUniqueId());
+        // Eseguiamo la logica solo se il giocatore era effettivamente in una delle GUI dello shop. [cite: 397]
+        if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
+
+            // Scheduliamo un controllo per il prossimo tick del server.
+            // Questo ritardo è FONDAMENTALE per dare al server il tempo di aprire una nuova GUI
+            // nel caso in cui il giocatore stia navigando tra i menu.
+            new org.bukkit.scheduler.BukkitRunnable() {
+                @Override
+                public void run() {
+                    // Controlliamo che il giocatore sia ancora online.
+                    if (!player.isOnline()) {
+                        return;
+                    }
+
+                    // Verifichiamo il tipo di inventario superiore attualmente aperto dal giocatore.
+                    // Se è di tipo CRAFTING, significa che è tornato alla visuale standard
+                    // del suo inventario (con la griglia di crafting 2x2 in alto).
+                    if (player.getOpenInventory().getTopInventory().getType() == org.bukkit.event.inventory.InventoryType.CRAFTING) {
+
+                        // Dato che è uscito completamente dal sistema dello shop,
+                        // puliamo i suoi dati. Questo risolve il bug dell'inventario bloccato
+                        // e assicura che i click futuri non vengano più annullati.
+                        plugin.getGUIManager().clearPlayerData(player.getUniqueId());
+                    }
                 }
-            }, 2L);
+            }.runTaskLater(plugin, 1L); // Il ritardo di 1 tick è essenziale.
         }
     }
 }

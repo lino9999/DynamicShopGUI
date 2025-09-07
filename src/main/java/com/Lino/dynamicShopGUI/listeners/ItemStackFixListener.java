@@ -1,3 +1,4 @@
+
 package com.Lino.dynamicShopGUI.listeners;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
@@ -13,6 +14,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -125,9 +127,35 @@ public class ItemStackFixListener implements Listener {
         }
 
         String title = event.getView().getTitle();
-        if (title.contains("Shop") || title.contains("Buy") || title.contains("Sell")) {
-            return;
+
+        // --- INIZIO MODIFICA PER LO SHOP ---
+        if (title.contains("Shop") || title.contains("Buy") || title.contains("Sell") || title.contains("Dynamic")) {
+            // Questa logica serve per permettere di impilare gli oggetti comprati (senza lore)
+            // con quelli già presenti nell'inventario (con lore).
+
+            boolean isShiftClick = event.isShiftClick();
+            ItemStack cursorItem = event.getCursor();
+            Inventory clickedInventory = event.getClickedInventory();
+
+            // Caso 1: Shift-click per trasferire dallo shop all'inventario del giocatore
+            if (isShiftClick && clickedInventory != null && !clickedInventory.equals(player.getInventory())) {
+                // Dobbiamo pulire l'intero inventario per trovare uno stack compatibile.
+                removeWorthFromInventorySlots(player);
+                processingInventory.add(player.getUniqueId()); // Segna per la pulizia alla chiusura
+            }
+            // Caso 2: Click normale per posare un oggetto dal cursore nell'inventario del giocatore
+            else if (cursorItem != null && cursorItem.getType() != Material.AIR && player.getInventory().equals(clickedInventory)) {
+                // Puliamo solo lo slot di destinazione per essere meno invasivi.
+                ItemStack currentItem = event.getCurrentItem();
+                if (currentItem != null) {
+                    removeWorthFromItem(currentItem);
+                }
+                processingInventory.add(player.getUniqueId()); // Segna per la pulizia alla chiusura
+            }
+            return; // Fondamentale: usciamo per non eseguire la logica di stacking generica sottostante.
         }
+        // --- FINE MODIFICA PER LO SHOP ---
+
 
         if (event.getClick() == ClickType.NUMBER_KEY ||
                 event.getClick() == ClickType.DROP ||
@@ -180,14 +208,27 @@ public class ItemStackFixListener implements Listener {
             return;
         }
 
-        ItemStack cursor = player.getItemOnCursor();
-        if (cursor != null && cursor.getType() != Material.AIR) {
-            removeWorthFromItem(cursor);
-        }
+        // --- INIZIO MODIFICA ROBUSTA ---
+        String title = event.getView().getTitle();
+        boolean wasInShop = title.contains("Shop") || title.contains("Buy") || title.contains("Sell") || title.contains("Dynamic");
 
-        if (processingInventory.contains(player.getUniqueId())) {
-            processingInventory.remove(player.getUniqueId());
+        // Se il giocatore stava usando lo shop O il suo inventario è stato marcato per elaborazione,
+        // eseguiamo una risincronizzazione completa per evitare bug.
+        if (wasInShop || processingInventory.contains(player.getUniqueId())) {
 
+            if (processingInventory.contains(player.getUniqueId())) {
+                processingInventory.remove(player.getUniqueId());
+            }
+
+            // Puliamo anche l'oggetto sul cursore prima di chiudere.
+            ItemStack cursor = player.getItemOnCursor();
+            if (cursor != null && cursor.getType() != Material.AIR) {
+                removeWorthFromItem(cursor);
+            }
+
+            // Scheduliamo la riapplicazione della lore. Aumentiamo il ritardo a 2 tick (0.1s)
+            // per garantire che il server abbia completato tutte le altre operazioni di inventario,
+            // prevenendo problemi di desincronizzazione.
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -195,8 +236,9 @@ public class ItemStackFixListener implements Listener {
                         reapplyWorthToInventorySlots(player);
                     }
                 }
-            }.runTaskLater(plugin, 1L);
+            }.runTaskLater(plugin, 2L);
         }
+        // --- FINE MODIFICA ROBUSTA ---
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -273,3 +315,4 @@ public class ItemStackFixListener implements Listener {
         return processingInventory.contains(uuid);
     }
 }
+
