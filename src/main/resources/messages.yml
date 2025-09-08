@@ -42,6 +42,13 @@ restock:
   out-of-stock-purchase: "<gradient:#ff0000:#ff8800>Out of Stock for Purchase!</gradient>"
   can-still-sell: "&7You can still sell this item to the shop"
 
+
+# Out of stock alert messages
+out-of-stock:
+  alert: "<gradient:#ff0000:#ff00ff>[OUT OF STOCK]</gradient> <gradient:#ffff00:#ff8800>%item% is now OUT OF STOCK! Price: $%price%</gradient>"
+  title: "<gradient:#ff0000:#ff00ff>OUT OF STOCK!</gradient>"
+  subtitle: "<gradient:#ffff00:#ff8800>%item% is no longer available</gradient>"
+
 # Price alert messages
 price-alerts:
   increase: "<gradient:#ff0000:#ff00ff>[PRICE SURGE]</gradient> <gradient:#ffff00:#ff8800>%item% price increased by %percent%%! New price: $%price%</gradient>"

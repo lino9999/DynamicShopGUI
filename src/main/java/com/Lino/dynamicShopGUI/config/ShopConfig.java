@@ -210,40 +210,28 @@ public class ShopConfig {
         return plugin.getConfig().getDouble("price-limits.max-multiplier", 10.0);
     }
 
-    public boolean isPriceAlertsEnabled() {
-        return plugin.getConfig().getBoolean("price-alerts.enabled", true);
+    public boolean isOutOfStockAlertEnabled() {
+        return plugin.getConfig().getBoolean("out-of-stock-alerts.enabled", true);
     }
 
-    public double getPriceIncreaseThreshold() {
-        return plugin.getConfig().getDouble("price-alerts.increase-threshold", 70.0);
+    public String getOutOfStockSound() {
+        return plugin.getConfig().getString("out-of-stock-alerts.sound", "BLOCK_ANVIL_LAND");
     }
 
-    public double getPriceDecreaseThreshold() {
-        return plugin.getConfig().getDouble("price-alerts.decrease-threshold", -70.0);
+    public float getOutOfStockSoundVolume() {
+        return (float) plugin.getConfig().getDouble("out-of-stock-alerts.sound-volume", 0.8);
     }
 
-    public String getPriceIncreaseSound() {
-        return plugin.getConfig().getString("price-alerts.increase-sound", "ENTITY_ENDER_DRAGON_GROWL");
+    public float getOutOfStockSoundPitch() {
+        return (float) plugin.getConfig().getDouble("out-of-stock-alerts.sound-pitch", 1.0);
     }
 
-    public String getPriceDecreaseSound() {
-        return plugin.getConfig().getString("price-alerts.decrease-sound", "ENTITY_PLAYER_LEVELUP");
+    public boolean showOutOfStockTitle() {
+        return plugin.getConfig().getBoolean("out-of-stock-alerts.show-title", true);
     }
 
-    public float getSoundVolume() {
-        return (float) plugin.getConfig().getDouble("price-alerts.sound-volume", 0.5);
-    }
-
-    public float getSoundPitch() {
-        return (float) plugin.getConfig().getDouble("price-alerts.sound-pitch", 1.0);
-    }
-
-    public boolean showTitle() {
-        return plugin.getConfig().getBoolean("price-alerts.show-title", true);
-    }
-
-    public int getTitleDuration() {
-        return plugin.getConfig().getInt("price-alerts.title-duration", 60);
+    public int getOutOfStockTitleDuration() {
+        return plugin.getConfig().getInt("out-of-stock-alerts.title-duration", 60);
     }
 
     public CategoryConfigLoader getCategoryLoader() {

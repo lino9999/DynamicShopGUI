@@ -85,6 +85,7 @@ public class ShopManager {
                 player.getInventory().addItem(itemStack);
             }
 
+            int oldStock = item.getStock();
             item.setStock(item.getStock() - amount);
             item.incrementTransactionsBuy();
 
@@ -101,7 +102,9 @@ public class ShopManager {
 
             plugin.getItemWorthManager().clearCache();
 
-            checkPriceAlert(item, oldPrice, newPrice);
+            if (oldStock > 0 && item.getStock() == 0) {
+                checkOutOfStockAlert(item);
+            }
 
             return CompletableFuture.completedFuture(new TransactionResult(true,
                     plugin.getShopConfig().getMessage("transaction.buy-success",
@@ -189,8 +192,6 @@ public class ShopManager {
                     material, "SELL", canAccept, totalEarnings / canAccept, netEarnings);
 
             plugin.getItemWorthManager().clearCache();
-
-            checkPriceAlert(item, oldPrice, newPrice);
 
             String message;
             if (totalTax > 0) {
@@ -344,93 +345,42 @@ public class ShopManager {
         return formatted.toString();
     }
 
-    private void checkPriceAlert(ShopItem item, double oldPrice, double newPrice) {
-        if (!plugin.getShopConfig().isPriceAlertsEnabled()) return;
+    private void checkOutOfStockAlert(ShopItem item) {
+        if (!plugin.getShopConfig().isOutOfStockAlertEnabled()) return;
 
-        double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            String itemName = formatMaterialName(item.getMaterial());
+            String message = plugin.getShopConfig().getMessage("out-of-stock.alert",
+                    "%item%", itemName,
+                    "%price%", String.format("%.2f", item.getCurrentPrice()));
 
-        boolean shouldAlert = false;
-        boolean isIncrease = priceChangePercent > 0;
+            Sound alertSound = null;
+            String soundName = plugin.getShopConfig().getOutOfStockSound();
+            if (!soundName.equalsIgnoreCase("none")) {
+                try {
+                    alertSound = Sound.valueOf(soundName);
+                } catch (IllegalArgumentException ignored) {}
+            }
 
-        if (priceChangePercent >= plugin.getShopConfig().getPriceIncreaseThreshold()) {
-            shouldAlert = true;
-        } else if (priceChangePercent <= plugin.getShopConfig().getPriceDecreaseThreshold()) {
-            shouldAlert = true;
-        }
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                onlinePlayer.sendMessage(plugin.getShopConfig().getPrefix() + message);
 
-        if (shouldAlert) {
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                String itemName = formatMaterialName(item.getMaterial());
-                String message;
-                Sound alertSound = null;
-
-                if (isIncrease) {
-                    message = plugin.getShopConfig().getMessage("price-alerts.increase",
-                            "%item%", itemName,
-                            "%percent%", String.format("%.0f", Math.abs(priceChangePercent)),
-                            "%price%", String.format("%.2f", newPrice));
-
-                    String soundName = plugin.getShopConfig().getPriceIncreaseSound();
-                    if (!soundName.equalsIgnoreCase("none")) {
-                        try {
-                            for (Sound sound : Sound.values()) {
-                                if (sound.name().equals(soundName)) {
-                                    alertSound = sound;
-                                    break;
-                                }
-                            }
-                        } catch (Exception ignored) {}
-                    }
-                } else {
-                    message = plugin.getShopConfig().getMessage("price-alerts.decrease",
-                            "%item%", itemName,
-                            "%percent%", String.format("%.0f", Math.abs(priceChangePercent)),
-                            "%price%", String.format("%.2f", newPrice));
-
-                    String soundName = plugin.getShopConfig().getPriceDecreaseSound();
-                    if (!soundName.equalsIgnoreCase("none")) {
-                        try {
-                            for (Sound sound : Sound.values()) {
-                                if (sound.name().equals(soundName)) {
-                                    alertSound = sound;
-                                    break;
-                                }
-                            }
-                        } catch (Exception ignored) {}
-                    }
+                if (alertSound != null) {
+                    onlinePlayer.playSound(onlinePlayer.getLocation(), alertSound,
+                            plugin.getShopConfig().getOutOfStockSoundVolume(),
+                            plugin.getShopConfig().getOutOfStockSoundPitch());
                 }
 
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.sendMessage(plugin.getShopConfig().getPrefix() + message);
+                if (plugin.getShopConfig().showOutOfStockTitle()) {
+                    String title = plugin.getShopConfig().getMessage("out-of-stock.title");
+                    String subtitle = plugin.getShopConfig().getMessage("out-of-stock.subtitle",
+                            "%item%", itemName);
 
-                    if (alertSound != null) {
-                        onlinePlayer.playSound(onlinePlayer.getLocation(), alertSound,
-                                plugin.getShopConfig().getSoundVolume(),
-                                plugin.getShopConfig().getSoundPitch());
-                    }
-
-                    if (plugin.getShopConfig().showTitle()) {
-                        String title;
-                        String subtitle;
-
-                        if (isIncrease) {
-                            title = plugin.getShopConfig().getMessage("price-alerts.title-increase");
-                            subtitle = plugin.getShopConfig().getMessage("price-alerts.subtitle-increase",
-                                    "%item%", itemName,
-                                    "%percent%", String.format("%.0f", priceChangePercent));
-                        } else {
-                            title = plugin.getShopConfig().getMessage("price-alerts.title-decrease");
-                            subtitle = plugin.getShopConfig().getMessage("price-alerts.subtitle-decrease",
-                                    "%item%", itemName,
-                                    "%percent%", String.format("%.0f", priceChangePercent));
-                        }
-
-                        int duration = plugin.getShopConfig().getTitleDuration();
-                        onlinePlayer.sendTitle(title, subtitle, 10, duration, 20);
-                    }
+                    int duration = plugin.getShopConfig().getOutOfStockTitleDuration();
+                    onlinePlayer.sendTitle(title, subtitle, 10, duration, 20);
                 }
-            });
-        }
+            }
+        });
     }
 
     public static class TransactionResult {

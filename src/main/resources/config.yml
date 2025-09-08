@@ -134,25 +134,20 @@ item-worth:
     - STRUCTURE_BLOCK
     - STRUCTURE_VOID
 
-# Price alert settings
-price-alerts:
-  # Enable global price alerts
+
+# Out of stock alert settings
+out-of-stock-alerts:
+  # Enable global alerts when items go out of stock
   enabled: true
 
-  # Minimum percentage change to trigger an alert
-  # Positive for increases, negative for decreases
-  increase-threshold: 70  # Alert when price increases by 70% or more
-  decrease-threshold: -70 # Alert when price decreases by 70% or more
-
-  # Sound to play when alert is triggered
+  # Sound to play when item goes out of stock
   # Set to "none" to disable sound
-  increase-sound: "ENTITY_ENDER_DRAGON_GROWL"
-  decrease-sound: "ENTITY_PLAYER_LEVELUP"
+  sound: "BLOCK_ANVIL_LAND"
 
   # Sound volume and pitch
-  sound-volume: 0.5
+  sound-volume: 0.8
   sound-pitch: 1.0
 
-  # Title display for alerts (shows on screen)
+  # Title display for out of stock alerts (shows on screen)
   show-title: true
   title-duration: 60  # Duration in ticks (20 ticks = 1 second)

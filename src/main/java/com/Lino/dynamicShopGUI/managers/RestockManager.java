@@ -130,7 +130,6 @@ public class RestockManager {
                         item.setCurrentPrice(newPrice);
 
                         double priceChangePercent = ((newPrice - item.getBasePrice()) / item.getBasePrice()) * 100;
-                        double transactionPriceChange = ((newPrice - oldPrice) / oldPrice) * 100;
                         item.setPriceChangePercent(priceChangePercent);
 
                         plugin.getDatabaseManager().updateShopItem(item);
@@ -139,8 +138,6 @@ public class RestockManager {
                             if (plugin.getItemWorthManager() != null) {
                                 plugin.getItemWorthManager().clearCache();
                             }
-
-                            checkRestockPriceAlert(item, oldPrice, newPrice, transactionPriceChange);
 
                             plugin.getServer().getOnlinePlayers().forEach(player -> {
                                 if (player.getOpenInventory() != null) {
@@ -229,51 +226,6 @@ public class RestockManager {
             double maxPrice = item.getBasePrice() * plugin.getShopConfig().getMaxPriceMultiplier();
 
             return Math.max(minPrice, Math.min(maxPrice, newPrice));
-        }
-
-        private void checkRestockPriceAlert(ShopItem item, double oldPrice, double newPrice, double transactionPriceChange) {
-            if (!plugin.getShopConfig().isPriceAlertsEnabled()) return;
-
-            if (Math.abs(transactionPriceChange) >= plugin.getShopConfig().getPriceIncreaseThreshold()) {
-                String itemName = formatMaterialName(item.getMaterial());
-                String message = plugin.getShopConfig().getMessage("price-alerts.decrease",
-                        "%item%", itemName,
-                        "%percent%", String.format("%.0f", Math.abs(transactionPriceChange)),
-                        "%price%", String.format("%.2f", newPrice));
-
-                Sound alertSound = null;
-                String soundName = plugin.getShopConfig().getPriceDecreaseSound();
-                if (!soundName.equalsIgnoreCase("none")) {
-                    try {
-                        for (Sound sound : Sound.values()) {
-                            if (sound.name().equals(soundName)) {
-                                alertSound = sound;
-                                break;
-                            }
-                        }
-                    } catch (Exception ignored) {}
-                }
-
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.sendMessage(plugin.getShopConfig().getPrefix() + message);
-
-                    if (alertSound != null) {
-                        onlinePlayer.playSound(onlinePlayer.getLocation(), alertSound,
-                                plugin.getShopConfig().getSoundVolume(),
-                                plugin.getShopConfig().getSoundPitch());
-                    }
-
-                    if (plugin.getShopConfig().showTitle()) {
-                        String title = plugin.getShopConfig().getMessage("price-alerts.title-decrease");
-                        String subtitle = plugin.getShopConfig().getMessage("price-alerts.subtitle-decrease",
-                                "%item%", itemName,
-                                "%percent%", String.format("%.0f", transactionPriceChange));
-
-                        int duration = plugin.getShopConfig().getTitleDuration();
-                        onlinePlayer.sendTitle(title, subtitle, 10, duration, 20);
-                    }
-                }
-            }
         }
     }
 
