@@ -3,7 +3,6 @@ package com.Lino.dynamicShopGUI.handlers;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,7 +14,7 @@ public class TransactionMenuHandler {
         this.plugin = plugin;
     }
 
-    public void handleClick(Player player, ItemStack clicked, boolean currentlyBuying) {
+    public void handleClick(Player player, ItemStack clicked, boolean currentlyBuying, int slot) {
         Material type = clicked.getType();
 
         Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
@@ -27,7 +26,7 @@ public class TransactionMenuHandler {
             }
         }
 
-        if (type == Material.ARROW) {
+        if (slot == 49 && type == Material.ARROW) {
             String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
             if (category != null) {
                 int page = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
@@ -38,7 +37,7 @@ public class TransactionMenuHandler {
             return;
         }
 
-        if (type == Material.HOPPER) {
+        if (slot == 22 && type == Material.HOPPER) {
             if (selectedItem != null) {
                 plugin.getGUIManager().openTransactionMenu(player, selectedItem, !currentlyBuying);
             } else {
@@ -47,69 +46,72 @@ public class TransactionMenuHandler {
             return;
         }
 
-        if (type == Material.BLACK_STAINED_GLASS_PANE || type == Material.EMERALD ||
-                type == Material.GRAY_STAINED_GLASS_PANE || type == Material.WHITE_STAINED_GLASS_PANE ||
-                type == Material.IRON_BLOCK || type == Material.COAL_BLOCK ||
-                type == Material.EMERALD_BLOCK || type == Material.REDSTONE_BLOCK ||
-                type == Material.LAPIS_BLOCK || type == Material.LIME_STAINED_GLASS ||
-                type == Material.RED_STAINED_GLASS ||
-                (currentlyBuying && type == Material.RED_STAINED_GLASS_PANE) ||
-                (!currentlyBuying && type == Material.LIME_STAINED_GLASS_PANE)) {
+        if (slot == 13 || slot == 12 || slot == 14 || slot == 40 || slot >= 45) {
             return;
         }
 
-        if (type == Material.LIME_STAINED_GLASS_PANE || type == Material.RED_STAINED_GLASS_PANE) {
-            if (clicked.getItemMeta() == null || clicked.getItemMeta().getDisplayName() == null) {
-                return;
-            }
+        if (type == Material.BLACK_STAINED_GLASS_PANE || type == Material.GRAY_STAINED_GLASS_PANE ||
+                type == Material.IRON_BLOCK || type == Material.COAL_BLOCK ||
+                type == Material.EMERALD_BLOCK || type == Material.REDSTONE_BLOCK ||
+                type == Material.LAPIS_BLOCK || type == Material.LIME_STAINED_GLASS ||
+                type == Material.RED_STAINED_GLASS) {
+            return;
+        }
 
-            String name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
+        if (slot >= 29 && slot <= 33) {
+            boolean isValidButton = (currentlyBuying && type == Material.LIME_STAINED_GLASS_PANE) ||
+                    (!currentlyBuying && type == Material.RED_STAINED_GLASS_PANE);
 
-            if (selectedItem == null) {
-                player.sendMessage(plugin.getShopConfig().getMessage("errors.item-error"));
-                return;
-            }
-
-            int amount = extractAmount(name, currentlyBuying, player, selectedItem);
-
-            if (amount > 0) {
-                if (currentlyBuying) {
-                    processBuyTransaction(player, selectedItem, amount);
-                } else {
-                    processSellTransaction(player, selectedItem, amount);
+            if (isValidButton) {
+                if (clicked.getItemMeta() == null || clicked.getItemMeta().getDisplayName() == null) {
+                    return;
                 }
-            } else {
-                player.sendMessage(plugin.getShopConfig().getMessage("errors.amount-error"));
+
+                String name = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
+
+                if (selectedItem == null) {
+                    player.sendMessage(plugin.getShopConfig().getMessage("errors.item-error"));
+                    return;
+                }
+
+                int amount = extractAmount(name, currentlyBuying, player, selectedItem, slot);
+
+                if (amount > 0) {
+                    if (currentlyBuying) {
+                        processBuyTransaction(player, selectedItem, amount);
+                    } else {
+                        processSellTransaction(player, selectedItem, amount);
+                    }
+                } else {
+                    player.sendMessage(plugin.getShopConfig().getMessage("errors.amount-error"));
+                }
             }
         }
     }
 
-    private int extractAmount(String name, boolean currentlyBuying, Player player, Material material) {
+    private int extractAmount(String name, boolean currentlyBuying, Player player, Material material, int slot) {
         int amount = 0;
 
-        if (name.toLowerCase().contains("all")) {
-            if (!currentlyBuying) {
-                amount = countItemsInInventory(player, material);
-            } else {
-                return 0;
-            }
-        } else {
-            String[] parts = name.split(" ");
-            for (String part : parts) {
-                try {
-                    amount = Integer.parseInt(part);
-                    break;
-                } catch (NumberFormatException ignored) {}
-            }
-
-            if (amount == 0) {
-                String numberOnly = name.replaceAll("[^0-9]", "");
-                if (!numberOnly.isEmpty()) {
-                    try {
-                        amount = Integer.parseInt(numberOnly);
-                    } catch (NumberFormatException ignored) {}
+        switch (slot) {
+            case 29:
+                amount = 1;
+                break;
+            case 30:
+                amount = 10;
+                break;
+            case 31:
+                amount = 32;
+                break;
+            case 32:
+                amount = 64;
+                break;
+            case 33:
+                if (!currentlyBuying) {
+                    amount = countItemsInInventory(player, material);
+                } else {
+                    amount = 128;
                 }
-            }
+                break;
         }
 
         return amount;
@@ -155,12 +157,12 @@ public class TransactionMenuHandler {
                 if (result.isSuccess()) {
                     player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
-                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.2f);
+                        player.playSound(player.getLocation(), "entity.player.levelup", 0.7f, 1.2f);
                     }
                 } else {
                     player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
-                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+                        player.playSound(player.getLocation(), "entity.villager.no", 0.5f, 1.0f);
                     }
                 }
 
@@ -184,12 +186,12 @@ public class TransactionMenuHandler {
                 if (result.isSuccess()) {
                     player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
-                        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.0f);
+                        player.playSound(player.getLocation(), "entity.experience_orb.pickup", 0.7f, 1.0f);
                     }
                 } else {
                     player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
                     if (plugin.getShopConfig().isSoundEnabled()) {
-                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+                        player.playSound(player.getLocation(), "entity.villager.no", 0.5f, 1.0f);
                     }
                 }
 

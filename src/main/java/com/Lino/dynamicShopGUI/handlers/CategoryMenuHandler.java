@@ -3,7 +3,6 @@ package com.Lino.dynamicShopGUI.handlers;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -21,51 +20,41 @@ public class CategoryMenuHandler {
             return;
         }
 
-        if (clicked.getType() == Material.ARROW) {
-            String displayName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
-
-            if (displayName.contains("Back to Categories")) {
-                plugin.getGUIManager().openMainMenu(player);
-                return;
-            } else if (displayName.contains("Previous Page")) {
-                String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
-                if (category != null) {
-                    int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
-                    plugin.getGUIManager().openCategoryMenu(player, category, currentPage - 1);
-                }
-                return;
-            } else if (displayName.contains("Next Page")) {
-                String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
-                if (category != null) {
-                    int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
-                    plugin.getGUIManager().openCategoryMenu(player, category, currentPage + 1);
-                }
-                return;
-            }
-        }
-
-        if (clicked.getType() == Material.GRAY_STAINED_GLASS_PANE ||
-                clicked.getType() == Material.LIME_STAINED_GLASS_PANE ||
-                clicked.getType() == Material.PAPER) {
+        if (slot == 49) {
+            plugin.getGUIManager().openMainMenu(player);
             return;
         }
 
-        if (clicked.getItemMeta() != null && clicked.getItemMeta().getDisplayName() != null) {
-            String displayName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
-            if (displayName.contains("Page")) {
-                return;
+        if (slot == 48) {
+            String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
+            if (category != null) {
+                int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
+                if (currentPage > 0) {
+                    plugin.getGUIManager().openCategoryMenu(player, category, currentPage - 1);
+                }
             }
+            return;
         }
 
-        String categoryName = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
-        if (categoryName != null) {
-            Material categoryIcon = plugin.getShopConfig().getCategoryIcon(categoryName);
-            if (clicked.getType() == categoryIcon && slot >= 45) {
-                return;
+        if (slot == 50) {
+            String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
+            if (category != null) {
+                int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
+                plugin.getGUIManager().openCategoryMenu(player, category, currentPage + 1);
             }
+            return;
+        }
+
+        if (slot == 52) {
+            return;
         }
 
         if (slot >= 45) {
+            return;
+        }
+
+        if (clicked.getType() == Material.GRAY_STAINED_GLASS_PANE ||
+                clicked.getType() == Material.LIME_STAINED_GLASS_PANE) {
             return;
         }
 
@@ -77,7 +66,7 @@ public class CategoryMenuHandler {
                 if (ChatColor.stripColor(loreLine).contains("Out of Stock")) {
                     player.sendMessage(plugin.getShopConfig().getMessage("errors.out-of-stock"));
                     if (plugin.getShopConfig().isSoundEnabled()) {
-                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+                        player.playSound(player.getLocation(), "entity.villager.no", 0.5f, 1.0f);
                     }
                     return;
                 }

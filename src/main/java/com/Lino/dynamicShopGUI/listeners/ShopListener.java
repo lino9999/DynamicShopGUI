@@ -7,7 +7,6 @@ import com.Lino.dynamicShopGUI.handlers.TransactionMenuHandler;
 import com.Lino.dynamicShopGUI.managers.GUIManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -44,7 +43,7 @@ public class ShopListener implements Listener {
         if (clicked == null || clicked.getType() == Material.AIR) return;
 
         if (plugin.getShopConfig().isSoundEnabled()) {
-            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+            player.playSound(player.getLocation(), "ui.button.click", 0.5f, 1.0f);
         }
 
         String title = ChatColor.stripColor(event.getView().getTitle());
@@ -57,10 +56,10 @@ public class ShopListener implements Listener {
                 categoryMenuHandler.handleClick(player, clicked, event.getClick(), title, event.getSlot());
                 break;
             case TRANSACTION_BUY:
-                transactionMenuHandler.handleClick(player, clicked, true);
+                transactionMenuHandler.handleClick(player, clicked, true, event.getSlot());
                 break;
             case TRANSACTION_SELL:
-                transactionMenuHandler.handleClick(player, clicked, false);
+                transactionMenuHandler.handleClick(player, clicked, false, event.getSlot());
                 break;
         }
     }
@@ -72,32 +71,20 @@ public class ShopListener implements Listener {
         }
         Player player = (Player) event.getPlayer();
 
-        // Eseguiamo la logica solo se il giocatore era effettivamente in una delle GUI dello shop. [cite: 397]
         if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
 
-            // Scheduliamo un controllo per il prossimo tick del server.
-            // Questo ritardo è FONDAMENTALE per dare al server il tempo di aprire una nuova GUI
-            // nel caso in cui il giocatore stia navigando tra i menu.
             new org.bukkit.scheduler.BukkitRunnable() {
                 @Override
                 public void run() {
-                    // Controlliamo che il giocatore sia ancora online.
                     if (!player.isOnline()) {
                         return;
                     }
 
-                    // Verifichiamo il tipo di inventario superiore attualmente aperto dal giocatore.
-                    // Se è di tipo CRAFTING, significa che è tornato alla visuale standard
-                    // del suo inventario (con la griglia di crafting 2x2 in alto).
                     if (player.getOpenInventory().getTopInventory().getType() == org.bukkit.event.inventory.InventoryType.CRAFTING) {
-
-                        // Dato che è uscito completamente dal sistema dello shop,
-                        // puliamo i suoi dati. Questo risolve il bug dell'inventario bloccato
-                        // e assicura che i click futuri non vengano più annullati.
                         plugin.getGUIManager().clearPlayerData(player.getUniqueId());
                     }
                 }
-            }.runTaskLater(plugin, 1L); // Il ritardo di 1 tick è essenziale.
+            }.runTaskLater(plugin, 1L);
         }
     }
 }
