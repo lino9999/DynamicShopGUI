@@ -3,11 +3,14 @@ package com.Lino.dynamicShopGUI.database;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import com.Lino.dynamicShopGUI.models.ShopItem;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import java.sql.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DatabaseManager {
@@ -64,9 +67,19 @@ public class DatabaseManager {
                 "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ")";
 
+        String autoSellChestsTable = "CREATE TABLE IF NOT EXISTS autosell_chests (" +
+                "world VARCHAR(100) NOT NULL," +
+                "x INTEGER NOT NULL," +
+                "y INTEGER NOT NULL," +
+                "z INTEGER NOT NULL," +
+                "owner_uuid VARCHAR(36) NOT NULL," +
+                "PRIMARY KEY (world, x, y, z)" +
+                ")";
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(shopItemsTable);
             stmt.execute(transactionHistoryTable);
+            stmt.execute(autoSellChestsTable);
         }
     }
 
@@ -95,6 +108,59 @@ public class DatabaseManager {
             }
             pstmt.executeBatch();
         }
+    }
+
+    public CompletableFuture<Void> saveAutoSellChest(Location location, UUID owner) {
+        return CompletableFuture.runAsync(() -> {
+            String query = "INSERT OR REPLACE INTO autosell_chests (world, x, y, z, owner_uuid) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+                pstmt.setString(1, location.getWorld().getName());
+                pstmt.setInt(2, location.getBlockX());
+                pstmt.setInt(3, location.getBlockY());
+                pstmt.setInt(4, location.getBlockZ());
+                pstmt.setString(5, owner.toString());
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public CompletableFuture<Void> removeAutoSellChest(Location location) {
+        return CompletableFuture.runAsync(() -> {
+            String query = "DELETE FROM autosell_chests WHERE world = ? AND x = ? AND y = ? AND z = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+                pstmt.setString(1, location.getWorld().getName());
+                pstmt.setInt(2, location.getBlockX());
+                pstmt.setInt(3, location.getBlockY());
+                pstmt.setInt(4, location.getBlockZ());
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public CompletableFuture<Map<Location, UUID>> loadAutoSellChests() {
+        return CompletableFuture.supplyAsync(() -> {
+            Map<Location, UUID> chests = new HashMap<>();
+            String query = "SELECT * FROM autosell_chests";
+            try (Statement stmt = connection.createStatement();
+                 ResultSet rs = stmt.executeQuery(query)) {
+                while (rs.next()) {
+                    String worldName = rs.getString("world");
+                    int x = rs.getInt("x");
+                    int y = rs.getInt("y");
+                    int z = rs.getInt("z");
+                    UUID owner = UUID.fromString(rs.getString("owner_uuid"));
+                    Location loc = new Location(Bukkit.getWorld(worldName), x, y, z);
+                    chests.put(loc, owner);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return chests;
+        });
     }
 
     public CompletableFuture<ShopItem> getShopItem(Material material) {

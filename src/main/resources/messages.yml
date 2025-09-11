@@ -149,3 +149,17 @@ gui:
   # Category info
   category-tax: "&7Category Tax: <gradient:#ffff00:#ff8800>%tax%%</gradient>"
   category-items: "&7Total Items: <gradient:#ffff00:#ff8800>%items%</gradient>"
+
+autosell:
+  received: "&aHai ricevuto %amount% <gradient:#55FF55:#FFFF55>AutoSell Chest(s)</gradient>&a!"
+  placed: "&aHai piazzato una <gradient:#55FF55:#FFFF55>AutoSell Chest</gradient>&a. Venderà il suo contenuto tra 5 minuti."
+  broken: "&cHai rotto una <gradient:#FFAA00:#FF5555>AutoSell Chest</gradient>&c."
+  success: "&aLa tua AutoSell Chest ha venduto oggetti per un totale di &e$&f%value%&a!"
+  admin-give-success: "&aHai dato %amount% AutoSell chest(s) a %player%."
+
+  chest-name: "<gradient:#55FF55:#FFFF55>AutoSell Chest</gradient>"
+  chest-lore:
+    - "&7Piazza questa cassa per vendere"
+    - "&7automaticamente il suo contenuto"
+    - "&7ogni 5 minuti."
+    - "&8autosell-chest"

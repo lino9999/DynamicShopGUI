@@ -1,5 +1,7 @@
 package com.Lino.dynamicShopGUI;
 
+import com.Lino.dynamicShopGUI.listeners.AutoSellChestListener;
+import com.Lino.dynamicShopGUI.managers.AutoSellChestManager;
 import com.Lino.dynamicShopGUI.managers.ItemWorthManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.milkbowl.vault.economy.Economy;
@@ -25,6 +27,7 @@ public class DynamicShopGUI extends JavaPlugin {
     private RestockManager restockManager;
     private ItemWorthManager itemWorthManager;
     private ItemStackFixListener itemStackFixListener;
+    private AutoSellChestManager autoSellChestManager;
 
     @Override
     public void onEnable() {
@@ -51,6 +54,8 @@ public class DynamicShopGUI extends JavaPlugin {
         guiManager = new GUIManager(this);
         itemWorthManager = new ItemWorthManager(this);
         itemStackFixListener = new ItemStackFixListener(this);
+        autoSellChestManager = new AutoSellChestManager(this);
+
 
         itemWorthManager.start();
 
@@ -64,6 +69,10 @@ public class DynamicShopGUI extends JavaPlugin {
     public void onDisable() {
         if (itemWorthManager != null) {
             itemWorthManager.stop();
+        }
+
+        if (autoSellChestManager != null) {
+            autoSellChestManager.shutdown();
         }
 
         if (restockManager != null) {
@@ -97,6 +106,7 @@ public class DynamicShopGUI extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
         getServer().getPluginManager().registerEvents(new ItemWorthListener(this), this);
         getServer().getPluginManager().registerEvents(itemStackFixListener, this);
+        getServer().getPluginManager().registerEvents(new AutoSellChestListener(this), this);
     }
 
     public static DynamicShopGUI getInstance() {
@@ -133,5 +143,9 @@ public class DynamicShopGUI extends JavaPlugin {
 
     public ItemStackFixListener getItemStackFixListener() {
         return itemStackFixListener;
+    }
+
+    public AutoSellChestManager getAutoSellChestManager() {
+        return autoSellChestManager;
     }
 }
