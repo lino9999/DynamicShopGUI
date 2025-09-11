@@ -151,15 +151,15 @@ gui:
   category-items: "&7Total Items: <gradient:#ffff00:#ff8800>%items%</gradient>"
 
 autosell:
-  received: "&aHai ricevuto %amount% <gradient:#55FF55:#FFFF55>AutoSell Chest(s)</gradient>&a!"
-  placed: "&aHai piazzato una <gradient:#55FF55:#FFFF55>AutoSell Chest</gradient>&a. Venderà il suo contenuto tra 5 minuti."
-  broken: "&cHai rotto una <gradient:#FFAA00:#FF5555>AutoSell Chest</gradient>&c."
-  success: "&aLa tua AutoSell Chest ha venduto oggetti per un totale di &e$&f%value%&a!"
-  admin-give-success: "&aHai dato %amount% AutoSell chest(s) a %player%."
+  received: "&aYou have received %amount% <gradient:#55FF55:#FFFF55>AutoSell Chest(s)</gradient>&a!"
+  placed: "&aYou have placed an <gradient:#55FF55:#FFFF55>AutoSell Chest</gradient>&a. It will sell its contents in 5 minutes."
+  broken: "&cYou have broken an <gradient:#FFAA00:#FF5555>AutoSell Chest</gradient>&c."
+  success: "&aYour AutoSell Chest has sold items for a total of &e$&f%value%&a!"
+  admin-give-success: "&aYou have given %amount% AutoSell chest(s) to %player%."
 
   chest-name: "<gradient:#55FF55:#FFFF55>AutoSell Chest</gradient>"
   chest-lore:
-    - "&7Piazza questa cassa per vendere"
-    - "&7automaticamente il suo contenuto"
-    - "&7ogni 5 minuti."
+    - "&7Place this chest to sell"
+    - "&7its contents automatically"
+    - "&7every 5 minutes."
     - "&8autosell-chest"
