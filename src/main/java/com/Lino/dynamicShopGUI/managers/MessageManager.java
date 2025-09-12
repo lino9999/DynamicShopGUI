@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MessageManager {
 
@@ -51,6 +53,32 @@ public class MessageManager {
         return GradientColor.applyWithVariables(message, replacements);
     }
 
+    public List<String> getMessageList(String path) {
+        List<String> messages = messagesConfig.getStringList(path);
+        if (messages == null || messages.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> processedMessages = new ArrayList<>();
+        for (String message : messages) {
+            processedMessages.add(GradientColor.apply(message));
+        }
+        return processedMessages;
+    }
+
+    public List<String> getMessageList(String path, Object... replacements) {
+        List<String> messages = messagesConfig.getStringList(path);
+        if (messages == null || messages.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> processedMessages = new ArrayList<>();
+        for (String message : messages) {
+            processedMessages.add(GradientColor.applyWithVariables(message, replacements));
+        }
+        return processedMessages;
+    }
+
     public String getPrefix() {
         return getMessage("prefix");
     }
@@ -62,5 +90,9 @@ public class MessageManager {
             plugin.getLogger().severe("Could not save messages.yml!");
             e.printStackTrace();
         }
+    }
+
+    public FileConfiguration getConfig() {
+        return messagesConfig;
     }
 }

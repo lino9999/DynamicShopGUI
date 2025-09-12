@@ -55,13 +55,17 @@ public class SellChestCommand implements CommandExecutor {
 
         meta.setDisplayName(plugin.getShopConfig().getMessage("autosell.chest-name"));
 
-        List<String> lore = new ArrayList<>();
-        lore.add(plugin.getShopConfig().getMessage("autosell.chest-lore.0"));
-        lore.add(plugin.getShopConfig().getMessage("autosell.chest-lore.1"));
-        lore.add(plugin.getShopConfig().getMessage("autosell.chest-lore.2"));
-        lore.add(ChatColor.DARK_GRAY + "autosell-chest");
-        meta.setLore(lore);
+        List<String> lore = plugin.getShopConfig().getMessageList("autosell.chest-lore");
 
+        if (lore.isEmpty()) {
+            lore = new ArrayList<>();
+            lore.add(ChatColor.GRAY + "Place this chest to sell");
+            lore.add(ChatColor.GRAY + "its contents automatically");
+            lore.add(ChatColor.GRAY + "every 5 minutes.");
+            lore.add(ChatColor.DARK_GRAY + "autosell-chest");
+        }
+
+        meta.setLore(lore);
         sellChest.setItemMeta(meta);
 
         target.getInventory().addItem(sellChest);
@@ -71,4 +75,3 @@ public class SellChestCommand implements CommandExecutor {
         return true;
     }
 }
-

@@ -158,6 +158,8 @@ autosell:
   admin-give-success: "&aYou have given %amount% AutoSell chest(s) to %player%."
 
   chest-name: "<gradient:#55FF55:#FFFF55>AutoSell Chest</gradient>"
+
+  # Lore for the chest item
   chest-lore:
     - "&7Place this chest to sell"
     - "&7its contents automatically"

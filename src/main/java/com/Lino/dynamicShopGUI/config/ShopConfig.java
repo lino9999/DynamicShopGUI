@@ -186,6 +186,14 @@ public class ShopConfig {
         return messageManager.getMessage(key, replacements);
     }
 
+    public List<String> getMessageList(String key) {
+        return messageManager.getMessageList(key);
+    }
+
+    public List<String> getMessageList(String key, Object... replacements) {
+        return messageManager.getMessageList(key, replacements);
+    }
+
     public String getPrefix() {
         return messageManager.getPrefix();
     }
