@@ -32,6 +32,7 @@ errors:
   cannot-sell: "<gradient:#ff0000:#ff8800>This item cannot be sold</gradient>"
   amount-error: "<gradient:#ff0000:#ff8800>Error: Could not determine amount to trade</gradient>"
   item-error: "<gradient:#ff0000:#ff8800>Error: Could not determine the item. Please try reopening the shop.</gradient>"
+  player-not-found: "<gradient:#ff0000:#ff8800>Player not found!</gradient>"
 
 # Restock messages
 restock:
@@ -66,6 +67,16 @@ commands:
   no-permission-reload: "<gradient:#ff0000:#ff8800>You don't have permission to reload the shop!</gradient>"
   reload-success: "<gradient:#00ff00:#00ffff>Shop configuration reloaded!</gradient>"
   players-only: "<gradient:#ff0000:#ff8800>This command can only be used by players!</gradient>"
+
+  # Help command messages
+  help-header: "<gradient:#ffd700:#ffaa00>═══════ Dynamic Shop Help ═══════</gradient>"
+  help-shop: "<gradient:#00ff00:#00ffff>/shop</gradient> &7- Open the shop GUI"
+  help-help: "<gradient:#00ff00:#00ffff>/shop help</gradient> &7- Show this help message"
+  help-admin-header: "<gradient:#ff00ff:#ff66ff>Admin Commands:</gradient>"
+  help-reload: "<gradient:#ffaa00:#ffdd00>/shop reload</gradient> &7- Reload shop configuration"
+  help-give-sellchest: "<gradient:#ffaa00:#ffdd00>/shop give sellchest <player> [amount]</gradient> &7- Give AutoSell chest"
+  help-give-hoe: "<gradient:#ffaa00:#ffdd00>/shop give hoe <player> [amount]</gradient> &7- Give Auto Harvester hoe"
+  help-footer: "<gradient:#ffd700:#ffaa00>═════════════════════════════════</gradient>"
 
 # GUI messages
 gui:
@@ -150,6 +161,7 @@ gui:
   category-tax: "&7Category Tax: <gradient:#ffff00:#ff8800>%tax%%</gradient>"
   category-items: "&7Total Items: <gradient:#ffff00:#ff8800>%items%</gradient>"
 
+# AutoSell Chest messages
 autosell:
   received: "&aYou have received %amount% <gradient:#55FF55:#FFFF55>AutoSell Chest(s)</gradient>&a!"
   placed: "&aYou have placed an <gradient:#55FF55:#FFFF55>AutoSell Chest</gradient>&a. It will sell its contents in 5 minutes."
@@ -165,3 +177,31 @@ autosell:
     - "&7its contents automatically"
     - "&7every 5 minutes."
     - "&8autosell-chest"
+
+# Auto Harvester Hoe messages
+auto-harvester:
+  received: "&aYou have received %amount% <gradient:#00ff00:#ffff00>Auto Harvester Hoe(s)</gradient>&a!"
+  admin-give-success: "&aYou have given %amount% Auto Harvester hoe(s) to %player%."
+  harvest-success: "<gradient:#00ff00:#88ff00>+%amount% %item%</gradient> &7→ <gradient:#ffd700:#ffaa00>+$%earnings%</gradient>"
+  not-sellable: "&cCannot sell %item%, dropping items instead."
+  not-fully-grown: "<gradient:#ff0000:#ff8800>✖ Crop is not fully grown!</gradient>"
+
+  hoe-name: "<gradient:#00ff00:#ffff00>⚡ Auto Harvester Hoe ⚡</gradient>"
+
+  # Lore for the hoe item
+  hoe-lore:
+    - ""
+    - "<gradient:#88ff88:#aaffaa>▸ Automatic Harvesting</gradient>"
+    - "&7Instantly harvests fully grown crops"
+    - ""
+    - "<gradient:#ffaa00:#ffdd00>▸ Instant Selling</gradient>"
+    - "&7Sells crops at dynamic market prices"
+    - ""
+    - "<gradient:#00aaff:#55ddff>▸ Auto Replanting</gradient>"
+    - "&7Automatically replants seeds"
+    - ""
+    - "&8Supported crops: Wheat, Carrots,"
+    - "&8Potatoes, Beetroots, Nether Wart"
+    - ""
+    - "<gradient:#ff00ff:#ff88ff>★ Special Tool ★</gradient>"
+    - "&8auto-harvester-hoe"

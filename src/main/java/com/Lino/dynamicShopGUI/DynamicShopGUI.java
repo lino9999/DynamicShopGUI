@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI;
 
 import com.Lino.dynamicShopGUI.listeners.AutoSellChestListener;
+import com.Lino.dynamicShopGUI.listeners.AutoHarvesterListener;
 import com.Lino.dynamicShopGUI.managers.AutoSellChestManager;
 import com.Lino.dynamicShopGUI.managers.ItemWorthManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -56,7 +57,6 @@ public class DynamicShopGUI extends JavaPlugin {
         itemStackFixListener = new ItemStackFixListener(this);
         autoSellChestManager = new AutoSellChestManager(this);
 
-
         itemWorthManager.start();
 
         registerCommands();
@@ -107,6 +107,7 @@ public class DynamicShopGUI extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ItemWorthListener(this), this);
         getServer().getPluginManager().registerEvents(itemStackFixListener, this);
         getServer().getPluginManager().registerEvents(new AutoSellChestListener(this), this);
+        getServer().getPluginManager().registerEvents(new AutoHarvesterListener(this), this);
     }
 
     public static DynamicShopGUI getInstance() {

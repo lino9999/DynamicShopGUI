@@ -1,5 +1,5 @@
 name: DynamicShopGUI
-version: '1.8-BETA'
+version: '1.9-BETA'
 main: com.Lino.dynamicShopGUI.DynamicShopGUI
 api-version: '1.21'
 depend: [Vault]
@@ -8,11 +8,32 @@ description: Dynamic shop plugin with supply and demand pricing
 
 commands:
   shop:
-    description: Opens the dynamic shop GUI
-    usage: /<command>
+    description: Opens the dynamic shop GUI and provides shop management commands
+    usage: |
+      /<command> - Opens the shop GUI
+      /<command> help - Shows help message
+      /<command> reload - Reloads configuration
+      /<command> give sellchest <player> [amount] - Gives AutoSell chest
+      /<command> give hoe <player> [amount] - Gives Auto Harvester hoe
     permission: dynamicshop.use
+    aliases: [dynamicshop, dshop]
 
 permissions:
   dynamicshop.use:
     description: Allows players to use the shop
     default: true
+
+  dynamicshop.admin:
+    description: Allows access to admin commands
+    default: op
+    children:
+      dynamicshop.reload: true
+      dynamicshop.give: true
+
+  dynamicshop.reload:
+    description: Allows reloading shop configuration
+    default: op
+
+  dynamicshop.give:
+    description: Allows giving special items to players
+    default: op
