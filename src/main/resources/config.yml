@@ -1,5 +1,32 @@
 # DynamicShopGUI Configuration
 
+# Custom Button Settings - Opens other plugin GUIs
+custom-button:
+  # Enable the custom button in main shop menu
+  enabled: false
+
+  # Slot position in the GUI (0-53)
+  # Recommended slots: 51 or 52 for bottom row
+  slot: 52
+
+  # Material/Item type for the button
+  material: NETHER_STAR
+
+  # Command to execute when clicked (without /)
+  # Examples: "blackmarket", "ah", "pets menu"
+  command: "blackmarket"
+
+  # Display name with gradient support
+  display-name: "<gradient:#ff00ff:#ffff00>Black Market</gradient>"
+
+  # Lore with gradient support (list)
+  lore:
+    - ""
+    - "<gradient:#ff0000:#ff8800>» Click to open</gradient>"
+    - "<gradient:#888888:#bbbbbb>Access the black market</gradient>"
+    - "<gradient:#888888:#bbbbbb>for special items!</gradient>"
+    - ""
+
 # Dynamic Pricing System:
 # Prices now change smoothly based on stock levels using a continuous formula.
 # The system automatically adjusts for items with high max stock to prevent

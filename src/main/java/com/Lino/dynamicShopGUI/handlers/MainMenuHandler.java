@@ -25,6 +25,15 @@ public class MainMenuHandler {
             return;
         }
 
+        if (plugin.getShopConfig().isCustomButtonEnabled() && slot == plugin.getShopConfig().getCustomButtonSlot()) {
+            String command = plugin.getShopConfig().getCustomButtonCommand();
+            if (command != null && !command.isEmpty()) {
+                player.closeInventory();
+                plugin.getServer().dispatchCommand(player, command);
+            }
+            return;
+        }
+
         if (slot == 48 || slot == 49 || slot == 4) {
             return;
         }

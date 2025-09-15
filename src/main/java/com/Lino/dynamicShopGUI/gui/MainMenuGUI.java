@@ -125,6 +125,19 @@ public class MainMenuGUI {
         infoBook.setItemMeta(bookMeta);
         inv.setItem(48, infoBook);
 
+        if (plugin.getShopConfig().isCustomButtonEnabled()) {
+            int customSlot = plugin.getShopConfig().getCustomButtonSlot();
+
+            if (customSlot >= 0 && customSlot < 54) {
+                ItemStack customButton = new ItemStack(plugin.getShopConfig().getCustomButtonMaterial());
+                ItemMeta customMeta = customButton.getItemMeta();
+                customMeta.setDisplayName(plugin.getShopConfig().getCustomButtonDisplayName());
+                customMeta.setLore(plugin.getShopConfig().getCustomButtonLore());
+                customButton.setItemMeta(customMeta);
+                inv.setItem(customSlot, customButton);
+            }
+        }
+
         player.openInventory(inv);
     }
 }

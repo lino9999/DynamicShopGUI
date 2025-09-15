@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class ShopConfig {
 
@@ -176,6 +177,41 @@ public class ShopConfig {
 
     public boolean showTaxInfo() {
         return plugin.getConfig().getBoolean("gui.show-tax-info", true);
+    }
+
+    public boolean isCustomButtonEnabled() {
+        return plugin.getConfig().getBoolean("custom-button.enabled", false);
+    }
+
+    public int getCustomButtonSlot() {
+        return plugin.getConfig().getInt("custom-button.slot", 52);
+    }
+
+    public Material getCustomButtonMaterial() {
+        String materialName = plugin.getConfig().getString("custom-button.material", "NETHER_STAR");
+        try {
+            return Material.valueOf(materialName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return Material.NETHER_STAR;
+        }
+    }
+
+    public String getCustomButtonCommand() {
+        return plugin.getConfig().getString("custom-button.command", "blackmarket");
+    }
+
+    public String getCustomButtonDisplayName() {
+        String name = plugin.getConfig().getString("custom-button.display-name", "&eCustom Button");
+        return GradientColor.apply(name);
+    }
+
+    public List<String> getCustomButtonLore() {
+        List<String> lore = plugin.getConfig().getStringList("custom-button.lore");
+        List<String> coloredLore = new ArrayList<>();
+        for (String line : lore) {
+            coloredLore.add(GradientColor.apply(line));
+        }
+        return coloredLore;
     }
 
     public String getMessage(String key) {
