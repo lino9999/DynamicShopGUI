@@ -6,8 +6,10 @@ import com.Lino.dynamicShopGUI.models.ShopItem;
 import com.Lino.dynamicShopGUI.utils.GUIUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
@@ -37,7 +39,7 @@ public class TransactionMenuGUI {
 
             Inventory inv = Bukkit.createInventory(null, 54, title);
 
-            setupBorders(inv, isBuying);
+            setupSimplifiedBorders(inv, isBuying);
 
             if (item.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
                 if (!plugin.getRestockManager().isRestocking(material)) {
@@ -48,14 +50,16 @@ public class TransactionMenuGUI {
             ItemStack displayItem = createDisplayItem(material, item, isBuying);
             inv.setItem(13, displayItem);
 
-            ItemStack glasmorphGlass = new ItemStack(isBuying ? Material.LIME_STAINED_GLASS : Material.RED_STAINED_GLASS);
-            ItemMeta glasmorphMeta = glasmorphGlass.getItemMeta();
-            glasmorphMeta.setDisplayName(" ");
-            glasmorphGlass.setItemMeta(glasmorphMeta);
+            // Glasmorphic effect around the main item
+            ItemStack accentGlass = new ItemStack(isBuying ? Material.LIME_STAINED_GLASS : Material.RED_STAINED_GLASS);
+            ItemMeta accentMeta = accentGlass.getItemMeta();
+            accentMeta.setDisplayName(" ");
+            accentGlass.setItemMeta(accentMeta);
 
-            inv.setItem(12, glasmorphGlass);
-            inv.setItem(14, glasmorphGlass);
+            inv.setItem(12, accentGlass);
+            inv.setItem(14, accentGlass);
 
+            // Amount buttons
             if (isBuying) {
                 setAmountButton(inv, 29, Material.LIME_STAINED_GLASS_PANE, 1, true, item);
                 setAmountButton(inv, 30, Material.LIME_STAINED_GLASS_PANE, 10, true, item);
@@ -70,6 +74,7 @@ public class TransactionMenuGUI {
                 setAmountButton(inv, 33, Material.RED_STAINED_GLASS_PANE, -1, false, item);
             }
 
+            // Toggle button
             ItemStack toggleButton = new ItemStack(Material.HOPPER);
             ItemMeta toggleMeta = toggleButton.getItemMeta();
             toggleMeta.setDisplayName(isBuying ?
@@ -82,12 +87,14 @@ public class TransactionMenuGUI {
             toggleButton.setItemMeta(toggleMeta);
             inv.setItem(22, toggleButton);
 
+            // Back button
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
             backMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.back"));
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
+            // Balance info
             double balance = plugin.getEconomy().getBalance(player);
             ItemStack balanceInfo = new ItemStack(Material.EMERALD);
             ItemMeta balanceMeta = balanceInfo.getItemMeta();
@@ -103,80 +110,67 @@ public class TransactionMenuGUI {
         });
     }
 
-    private void setupBorders(Inventory inv, boolean isBuying) {
+    private void setupSimplifiedBorders(Inventory inv, boolean isBuying) {
+        // Base filler - gray glass
         ItemStack glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassFiller.getItemMeta();
         glassMeta.setDisplayName(" ");
         glassFiller.setItemMeta(glassMeta);
 
+        // Fill everything with gray glass first
         for (int i = 0; i < 54; i++) {
             inv.setItem(i, glassFiller);
         }
 
-        ItemStack ironBorder = new ItemStack(Material.IRON_BLOCK);
-        ItemMeta ironMeta = ironBorder.getItemMeta();
-        ironMeta.setDisplayName(" ");
-        ironBorder.setItemMeta(ironMeta);
+        // Decorative border - black glass with enchant glow
+        ItemStack decorBorder = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta decorMeta = decorBorder.getItemMeta();
+        decorMeta.setDisplayName(" ");
+        decorMeta.addEnchant(Enchantment.PROTECTION, 1, true);
+        decorMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        decorBorder.setItemMeta(decorMeta);
 
-        ItemStack coalBorder = new ItemStack(Material.COAL_BLOCK);
-        ItemMeta coalMeta = coalBorder.getItemMeta();
-        coalMeta.setDisplayName(" ");
-        coalBorder.setItemMeta(coalMeta);
-
-        ItemStack redstoneBorder = new ItemStack(isBuying ? Material.EMERALD_BLOCK : Material.REDSTONE_BLOCK);
-        ItemMeta redstoneMeta = redstoneBorder.getItemMeta();
-        redstoneMeta.setDisplayName(" ");
-        redstoneBorder.setItemMeta(redstoneMeta);
-
-        ItemStack lapisBorder = new ItemStack(Material.LAPIS_BLOCK);
-        ItemMeta lapisMeta = lapisBorder.getItemMeta();
-        lapisMeta.setDisplayName(" ");
-        lapisBorder.setItemMeta(lapisMeta);
-
-        inv.setItem(0, redstoneBorder);
-        inv.setItem(1, ironBorder);
-        inv.setItem(2, coalBorder);
-        inv.setItem(3, ironBorder);
-        inv.setItem(4, lapisBorder);
-        inv.setItem(5, ironBorder);
-        inv.setItem(6, coalBorder);
-        inv.setItem(7, ironBorder);
-        inv.setItem(8, redstoneBorder);
-
-        inv.setItem(45, redstoneBorder);
-        inv.setItem(46, ironBorder);
-        inv.setItem(47, coalBorder);
-        inv.setItem(48, glassFiller);
-        inv.setItem(49, glassFiller);
-        inv.setItem(50, glassFiller);
-        inv.setItem(51, coalBorder);
-        inv.setItem(52, ironBorder);
-        inv.setItem(53, redstoneBorder);
-
-        inv.setItem(9, coalBorder);
-        inv.setItem(17, coalBorder);
-        inv.setItem(18, ironBorder);
-        inv.setItem(26, ironBorder);
-        inv.setItem(27, coalBorder);
-        inv.setItem(35, coalBorder);
-        inv.setItem(36, ironBorder);
-        inv.setItem(44, ironBorder);
-
-        ItemStack borderGlass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-        ItemMeta borderMeta = borderGlass.getItemMeta();
-        borderMeta.setDisplayName(" ");
-        borderGlass.setItemMeta(borderMeta);
-
-        for (int i = 10; i <= 16; i++) {
-            inv.setItem(i, borderGlass);
+        // Top and bottom borders
+        for (int i = 0; i < 9; i++) {
+            inv.setItem(i, decorBorder); // Top row
+            inv.setItem(45 + i, decorBorder); // Bottom row
         }
 
-        inv.setItem(19, borderGlass);
-        inv.setItem(20, borderGlass);
-        inv.setItem(21, borderGlass);
-        inv.setItem(23, borderGlass);
-        inv.setItem(24, borderGlass);
-        inv.setItem(25, borderGlass);
+        // Side borders
+        for (int row = 1; row < 5; row++) {
+            inv.setItem(row * 9, decorBorder); // Left side
+            inv.setItem(row * 9 + 8, decorBorder); // Right side
+        }
+
+        // Accent corners - themed color based on buy/sell
+        ItemStack accentCorner = new ItemStack(isBuying ? Material.EMERALD_BLOCK : Material.REDSTONE_BLOCK);
+        ItemMeta accentMeta = accentCorner.getItemMeta();
+        accentMeta.setDisplayName(" ");
+        accentCorner.setItemMeta(accentMeta);
+
+        inv.setItem(0, accentCorner); // Top-left
+        inv.setItem(8, accentCorner); // Top-right
+        inv.setItem(45, accentCorner); // Bottom-left
+        inv.setItem(53, accentCorner); // Bottom-right
+
+        // Clear the center area for content
+        for (int i = 10; i <= 16; i++) {
+            inv.setItem(i, null);
+        }
+        for (int i = 19; i <= 25; i++) {
+            inv.setItem(i, null);
+        }
+        for (int i = 28; i <= 34; i++) {
+            inv.setItem(i, null);
+        }
+        for (int i = 37; i <= 43; i++) {
+            inv.setItem(i, null);
+        }
+
+        // Keep some spots for navigation buttons
+        inv.setItem(48, glassFiller);
+        inv.setItem(49, null); // Back button
+        inv.setItem(50, glassFiller);
     }
 
     private ItemStack createDisplayItem(Material material, ShopItem item, boolean isBuying) {
