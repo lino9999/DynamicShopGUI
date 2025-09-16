@@ -4,8 +4,10 @@ import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
@@ -23,29 +25,47 @@ public class MainMenuGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, plugin.getShopConfig().getMessage("gui.main-title"));
 
-        ItemStack glassFiller = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+
+        ItemStack glassFiller = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassFiller.getItemMeta();
         glassMeta.setDisplayName(" ");
         glassFiller.setItemMeta(glassMeta);
 
-        ItemStack decorGlass = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+        ItemStack decorGlass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta decorMeta = decorGlass.getItemMeta();
         decorMeta.setDisplayName(" ");
+        decorMeta.addEnchant(Enchantment.PROTECTION, 1, true);
+        decorMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS); // Nasconde il testo dell'enchant ma mantiene l'animazione
         decorGlass.setItemMeta(decorMeta);
+
 
         for (int i = 0; i < 54; i++) {
             inv.setItem(i, glassFiller);
         }
 
         inv.setItem(0, decorGlass);
+        inv.setItem(1, decorGlass);
+        inv.setItem(2, decorGlass);
+        inv.setItem(3, decorGlass);
+        inv.setItem(5, decorGlass);
+        inv.setItem(6, decorGlass);
+        inv.setItem(7, decorGlass);
         inv.setItem(8, decorGlass);
-        inv.setItem(45, decorGlass);
-        inv.setItem(53, decorGlass);
-
         inv.setItem(9, decorGlass);
         inv.setItem(17, decorGlass);
+        inv.setItem(18, decorGlass);
+        inv.setItem(26, decorGlass);
+        inv.setItem(27, decorGlass);
+        inv.setItem(35, decorGlass);
         inv.setItem(36, decorGlass);
         inv.setItem(44, decorGlass);
+        inv.setItem(45, decorGlass);
+        inv.setItem(46, decorGlass);
+        inv.setItem(47, decorGlass);
+        inv.setItem(51, decorGlass);
+        inv.setItem(52, decorGlass);
+        inv.setItem(53, decorGlass);
+
 
         ItemStack centerDecor = new ItemStack(Material.EMERALD_BLOCK);
         ItemMeta centerMeta = centerDecor.getItemMeta();
