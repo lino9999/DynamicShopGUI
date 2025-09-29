@@ -67,23 +67,19 @@ public class ShopManager {
                                 "%price%", String.format("%.2f", totalCost))));
             }
 
+            ItemStack itemStack = new ItemStack(material, amount);
+            if (!canFitItems(player, itemStack)) {
+                return CompletableFuture.completedFuture(new TransactionResult(false,
+                        plugin.getShopConfig().getMessage("errors.inventory-full")));
+            }
+
             boolean withdrawSuccess = plugin.getEconomy().withdrawPlayer(player, totalCost).transactionSuccess();
             if (!withdrawSuccess) {
                 return CompletableFuture.completedFuture(new TransactionResult(false,
                         "Failed to process payment"));
             }
 
-            ItemStack itemStack = new ItemStack(material, amount);
-            if (player.getInventory().firstEmpty() == -1) {
-                if (!canFitItems(player, itemStack)) {
-                    plugin.getEconomy().depositPlayer(player, totalCost);
-                    return CompletableFuture.completedFuture(new TransactionResult(false,
-                            "Inventory is full! Transaction cancelled and refunded."));
-                }
-                player.getWorld().dropItemNaturally(player.getLocation(), itemStack);
-            } else {
-                player.getInventory().addItem(itemStack);
-            }
+            player.getInventory().addItem(itemStack);
 
             int oldStock = item.getStock();
             item.setStock(item.getStock() - amount);
