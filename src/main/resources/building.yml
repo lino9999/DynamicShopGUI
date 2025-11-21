@@ -884,8 +884,6 @@ items:
     price: 15.0
   IRON_BARS:
     price: 5.0
-  CHAIN:
-    price: 15.0
   LANTERN:
     price: 15.0
   SOUL_LANTERN:

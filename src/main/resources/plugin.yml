@@ -1,5 +1,5 @@
 name: DynamicShopGUI
-version: '2.4'
+version: '2.5'
 main: com.Lino.dynamicShopGUI.DynamicShopGUI
 api-version: '1.21'
 depend: [Vault]

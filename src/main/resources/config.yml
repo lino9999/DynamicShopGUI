@@ -106,6 +106,17 @@ restock:
   # Amount to restock (percentage of max stock)
   restock-percentage: 50
 
+# Stock Decay / Oversupply Reset (Decreases stock when full)
+# This allows players to sell items again if the shop stays full for too long.
+stock-decay:
+  enabled: true
+  # Time in minutes between decay checks
+  interval: 30
+  # Stock percentage required to trigger decay (0.95 = 95% full)
+  trigger-threshold: 0.95
+  # Target percentage to reduce stock to (0.50 = 50% capacity)
+  target-percentage: 0.50
+
 # GUI settings
 gui:
   # Enable sounds in GUI
