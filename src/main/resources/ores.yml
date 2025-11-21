@@ -2,151 +2,149 @@
 category:
   display-name: "Ores & Minerals"
   icon: DIAMOND
-  tax-rate: 20.0  # Higher tax rate to prevent mining exploits
+  tax-rate: 20.0
 
-# Default values for all items in this category
 defaults:
   min-stock: 0
   max-stock: 1000
   initial-stock: 50
 
-# Items in this category
 items:
+  # --- Coal ---
   COAL:
     price: 5.0
     max-stock: 5000
-    initial-stock: 200
-
   CHARCOAL:
     price: 6.0
-    max-stock: 3000
-    initial-stock: 150
+  COAL_BLOCK:
+    price: 45.0
+  COAL_ORE:
+    price: 10.0
+  DEEPSLATE_COAL_ORE:
+    price: 10.0
 
+  # --- Iron ---
+  RAW_IRON:
+    price: 12.0
+    max-stock: 3000
+  RAW_IRON_BLOCK:
+    price: 108.0
   IRON_INGOT:
     price: 15.0
     max-stock: 2000
-    initial-stock: 100
+  IRON_BLOCK:
+    price: 135.0
+  IRON_ORE:
+    price: 20.0
+  DEEPSLATE_IRON_ORE:
+    price: 20.0
+  IRON_NUGGET:
+    price: 2.0
 
+  # --- Copper ---
+  RAW_COPPER:
+    price: 10.0
+    max-stock: 4000
+  RAW_COPPER_BLOCK:
+    price: 90.0
   COPPER_INGOT:
     price: 12.0
     max-stock: 2500
-    initial-stock: 120
+  COPPER_BLOCK:
+    price: 108.0
+  COPPER_ORE:
+    price: 15.0
+  DEEPSLATE_COPPER_ORE:
+    price: 15.0
 
+  # --- Gold ---
+  RAW_GOLD:
+    price: 40.0
+    max-stock: 800
+  RAW_GOLD_BLOCK:
+    price: 360.0
   GOLD_INGOT:
     price: 50.0
     max-stock: 500
-    initial-stock: 30
+  GOLD_BLOCK:
+    price: 460.0
+  GOLD_ORE:
+    price: 60.0
+  DEEPSLATE_GOLD_ORE:
+    price: 60.0
+  NETHER_GOLD_ORE:
+    price: 45.0
+  GOLD_NUGGET:
+    price: 5.5
 
+  # --- Diamond ---
   DIAMOND:
     price: 200.0
     max-stock: 100
-    initial-stock: 10
+  DIAMOND_BLOCK:
+    price: 1800.0
+  DIAMOND_ORE:
+    price: 250.0
+  DEEPSLATE_DIAMOND_ORE:
+    price: 250.0
 
+  # --- Emerald ---
   EMERALD:
     price: 150.0
     max-stock: 200
-    initial-stock: 20
+  EMERALD_BLOCK:
+    price: 1350.0
+  EMERALD_ORE:
+    price: 200.0
+  DEEPSLATE_EMERALD_ORE:
+    price: 200.0
 
-  NETHERITE_INGOT:
-    price: 2000.0
-    max-stock: 10
-    initial-stock: 2
-
+  # --- Lapis ---
   LAPIS_LAZULI:
     price: 10.0
     max-stock: 3000
-    initial-stock: 150
+  LAPIS_BLOCK:
+    price: 90.0
+  LAPIS_ORE:
+    price: 50.0
+  DEEPSLATE_LAPIS_ORE:
+    price: 50.0
 
+  # --- Redstone ---
   REDSTONE:
     price: 8.0
     max-stock: 4000
-    initial-stock: 200
+  REDSTONE_BLOCK:
+    price: 72.0
+  REDSTONE_ORE:
+    price: 40.0
+  DEEPSLATE_REDSTONE_ORE:
+    price: 40.0
 
-  QUARTZ:
-    price: 5.0
-    max-stock: 3000
-    initial-stock: 150
-
-  AMETHYST_SHARD:
-    price: 25.0
-    max-stock: 1000
-    initial-stock: 50
-
+  # --- Netherite ---
   ANCIENT_DEBRIS:
     price: 500.0
     max-stock: 20
-    initial-stock: 5
-
-  RAW_IRON:
-    price: 10.0
-    max-stock: 3000
-
-  RAW_COPPER:
-    price: 8.0
-    max-stock: 4000
-
-  RAW_GOLD:
-    price: 35.0
-    max-stock: 800
-
-  COAL_BLOCK:
-    price: 45.0
-    max-stock: 500
-
-  IRON_BLOCK:
-    price: 135.0
-    max-stock: 200
-
-  COPPER_BLOCK:
-    price: 108.0
-    max-stock: 250
-
-  GOLD_BLOCK:
-    price: 450.0
-    max-stock: 50
-
-  DIAMOND_BLOCK:
-    price: 1800.0
+  NETHERITE_SCRAP:
+    price: 500.0
+  NETHERITE_INGOT:
+    price: 2000.0
     max-stock: 10
-
-  EMERALD_BLOCK:
-    price: 1350.0
-    max-stock: 20
-
   NETHERITE_BLOCK:
     price: 18000.0
-    max-stock: 2
-    initial-stock: 1
 
-  LAPIS_BLOCK:
-    price: 90.0
-    max-stock: 300
-
-  REDSTONE_BLOCK:
-    price: 72.0
-    max-stock: 400
-
-  GLOWSTONE_DUST:
-    price: 15.0
-    max-stock: 2000
-
-  GLOWSTONE:
-    price: 60.0
-    max-stock: 500
-
-  PRISMARINE_CRYSTALS:
-    price: 30.0
-    max-stock: 800
-
-  PRISMARINE_SHARD:
-    price: 20.0
-    max-stock: 1200
-
+  # --- Others ---
+  QUARTZ:
+    price: 5.0
+    max-stock: 3000
   NETHER_QUARTZ_ORE:
     price: 20.0
+  AMETHYST_SHARD:
+    price: 25.0
     max-stock: 1000
-
+  AMETHYST_BLOCK:
+    price: 100.0
+  BUDDING_AMETHYST:
+    price: 500.0
   ECHO_SHARD:
     price: 100.0
-    max-stock: 50
-    initial-stock: 5

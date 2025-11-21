@@ -2,29 +2,24 @@
 category:
   display-name: "Armor"
   icon: DIAMOND_CHESTPLATE
-  tax-rate: 15.0  # Standard tax rate for armor
+  tax-rate: 15.0
 
-# Default values for all items in this category
 defaults:
   min-stock: 0
   max-stock: 200
   initial-stock: 30
 
-# Items in this category
 items:
   # Leather Armor
   LEATHER_HELMET:
     price: 20.0
     max-stock: 500
-
   LEATHER_CHESTPLATE:
     price: 40.0
     max-stock: 500
-
   LEATHER_LEGGINGS:
     price: 35.0
     max-stock: 500
-
   LEATHER_BOOTS:
     price: 20.0
     max-stock: 500
@@ -33,48 +28,39 @@ items:
   CHAINMAIL_HELMET:
     price: 60.0
     max-stock: 300
-
   CHAINMAIL_CHESTPLATE:
     price: 120.0
     max-stock: 300
-
   CHAINMAIL_LEGGINGS:
     price: 100.0
     max-stock: 300
-
   CHAINMAIL_BOOTS:
     price: 60.0
     max-stock: 300
 
   # Iron Armor
   IRON_HELMET:
-    price: 100.0
-
+    price: 80.0
   IRON_CHESTPLATE:
-    price: 200.0
-
+    price: 160.0
   IRON_LEGGINGS:
-    price: 175.0
-
+    price: 140.0
   IRON_BOOTS:
-    price: 100.0
+    price: 80.0
 
   # Golden Armor
   GOLDEN_HELMET:
     price: 200.0
     max-stock: 100
     initial-stock: 20
-
   GOLDEN_CHESTPLATE:
     price: 400.0
     max-stock: 100
     initial-stock: 20
-
   GOLDEN_LEGGINGS:
     price: 350.0
     max-stock: 100
     initial-stock: 20
-
   GOLDEN_BOOTS:
     price: 200.0
     max-stock: 100
@@ -85,17 +71,14 @@ items:
     price: 800.0
     max-stock: 50
     initial-stock: 10
-
   DIAMOND_CHESTPLATE:
     price: 1600.0
     max-stock: 50
     initial-stock: 10
-
   DIAMOND_LEGGINGS:
     price: 1400.0
     max-stock: 50
     initial-stock: 10
-
   DIAMOND_BOOTS:
     price: 800.0
     max-stock: 50
@@ -106,28 +89,25 @@ items:
     price: 5000.0
     max-stock: 5
     initial-stock: 1
-
   NETHERITE_CHESTPLATE:
     price: 10000.0
     max-stock: 5
     initial-stock: 1
-
   NETHERITE_LEGGINGS:
     price: 8000.0
     max-stock: 5
     initial-stock: 1
-
   NETHERITE_BOOTS:
     price: 5000.0
     max-stock: 5
     initial-stock: 1
 
   # Special Armor
+  # Turtle Helmet lowered to 300 to prevent Scute crafting exploit
   TURTLE_HELMET:
-    price: 500.0
+    price: 300.0
     max-stock: 80
     initial-stock: 15
-
   ELYTRA:
     price: 20000.0
     max-stock: 3
@@ -138,23 +118,18 @@ items:
     price: 100.0
     max-stock: 300
     initial-stock: 50
-
   IRON_HORSE_ARMOR:
     price: 500.0
     max-stock: 150
     initial-stock: 25
-
   GOLDEN_HORSE_ARMOR:
     price: 800.0
     max-stock: 100
     initial-stock: 20
-
   DIAMOND_HORSE_ARMOR:
     price: 2000.0
     max-stock: 50
     initial-stock: 10
-
-  # Wolf Armor
   WOLF_ARMOR:
     price: 300.0
     max-stock: 200

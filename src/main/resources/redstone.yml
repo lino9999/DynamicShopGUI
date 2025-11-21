@@ -2,183 +2,229 @@
 category:
   display-name: "Redstone"
   icon: REDSTONE
-  tax-rate: 12.0  # Standard tax rate for redstone components
+  tax-rate: 12.0
 
-# Default values for all items in this category
 defaults:
   min-stock: 0
   max-stock: 2000
   initial-stock: 100
 
-# Items in this category
 items:
+  # --- Basic Components ---
   REDSTONE:
     price: 8.0
-    max-stock: 4000
-    initial-stock: 200
-
-  REDSTONE_TORCH:
-    price: 10.0
-    max-stock: 3000
-
+    max-stock: 5000
   REDSTONE_BLOCK:
     price: 72.0
-    max-stock: 400
-    initial-stock: 50
-
+  REDSTONE_TORCH:
+    price: 10.0
   REPEATER:
-    price: 15.0
-
-  COMPARATOR:
-    price: 20.0
-
-  PISTON:
-    price: 30.0
-
-  STICKY_PISTON:
     price: 40.0
-
-  OBSERVER:
+  COMPARATOR:
     price: 50.0
-    max-stock: 1500
-
+  TARGET:
+    price: 30.0
+  LEVER:
+    price: 3.0
+  TRIPWIRE_HOOK:
+    price: 10.0
   HOPPER:
     price: 100.0
-    max-stock: 1000
-    initial-stock: 50
-
-  DROPPER:
-    price: 25.0
-
+  OBSERVER:
+    price: 40.0
   DISPENSER:
     price: 30.0
-
-  NOTE_BLOCK:
-    price: 35.0
-
-  JUKEBOX:
-    price: 250.0
-    max-stock: 500
-    initial-stock: 30
-
-  LEVER:
-    price: 5.0
-    max-stock: 5000
-
-  STONE_BUTTON:
-    price: 3.0
-    max-stock: 5000
-
-  OAK_BUTTON:
-    price: 3.0
-    max-stock: 5000
-
-  STONE_PRESSURE_PLATE:
-    price: 5.0
-    max-stock: 4000
-
-  OAK_PRESSURE_PLATE:
-    price: 5.0
-    max-stock: 4000
-
-  LIGHT_WEIGHTED_PRESSURE_PLATE:
-    price: 120.0
-    max-stock: 800
-
-  HEAVY_WEIGHTED_PRESSURE_PLATE:
+  DROPPER:
+    price: 25.0
+  PISTON:
     price: 40.0
-    max-stock: 1200
-
-  TRIPWIRE_HOOK:
-    price: 15.0
-    max-stock: 3000
-
-  TRAPPED_CHEST:
-    price: 35.0
-
+  STICKY_PISTON:
+    price: 60.0
+  SLIME_BLOCK:
+    price: 250.0
+  HONEY_BLOCK:
+    price: 60.0
   TNT:
     price: 50.0
-    max-stock: 1000
-    initial-stock: 50
-
-  REDSTONE_LAMP:
-    price: 60.0
-    max-stock: 1500
-
-  DAYLIGHT_DETECTOR:
-    price: 40.0
-    max-stock: 1500
-
-  IRON_DOOR:
-    price: 40.0
-
-  IRON_TRAPDOOR:
-    price: 70.0
-    max-stock: 1000
-
-  OAK_DOOR:
-    price: 10.0
-    max-stock: 3000
-
-  OAK_TRAPDOOR:
+  LIGHTNING_ROD:
+    price: 35.0
+  COPPER_BULB:
     price: 15.0
-    max-stock: 3000
+  CRAFTER:
+    price: 200.0
 
-  OAK_FENCE_GATE:
-    price: 12.0
-    max-stock: 3000
-
-  POWERED_RAIL:
-    price: 120.0
-    max-stock: 1000
-    initial-stock: 50
-
-  DETECTOR_RAIL:
-    price: 25.0
-
-  RAIL:
-    price: 10.0
-    max-stock: 5000
-    initial-stock: 200
-
-  ACTIVATOR_RAIL:
+  # --- Sensors & Rails ---
+  DAYLIGHT_DETECTOR:
     price: 30.0
-
-  MINECART:
-    price: 75.0
-    max-stock: 1500
-
-  CHEST_MINECART:
-    price: 100.0
-    max-stock: 1000
-
-  FURNACE_MINECART:
-    price: 100.0
-    max-stock: 1000
-
-  TNT_MINECART:
-    price: 125.0
-    max-stock: 500
-
-  HOPPER_MINECART:
-    price: 175.0
-    max-stock: 500
-
-  COMMAND_BLOCK_MINECART:
-    price: 500.0
-    max-stock: 50
-    initial-stock: 5
-
-  TARGET:
-    price: 40.0
-    max-stock: 1500
-
   SCULK_SENSOR:
     price: 80.0
-    max-stock: 800
-    initial-stock: 40
-
   CALIBRATED_SCULK_SENSOR:
     price: 120.0
-    max-stock: 500
-    initial-stock: 25
+  RAIL:
+    price: 6.0
+  POWERED_RAIL:
+    price: 60.0
+  DETECTOR_RAIL:
+    price: 20.0
+  ACTIVATOR_RAIL:
+    price: 20.0
+  MINECART:
+    price: 75.0
+  HOPPER_MINECART:
+    price: 175.0
+  CHEST_MINECART:
+    price: 100.0
+  TNT_MINECART:
+    price: 125.0
+
+  # --- Lighting & Sound ---
+  REDSTONE_LAMP:
+    price: 60.0
+  NOTE_BLOCK:
+    price: 35.0
+  JUKEBOX:
+    price: 250.0
+  BELL:
+    price: 100.0
+
+  # --- Interaction ---
+  LECTERN:
+    price: 50.0
+  CHISELED_BOOKSHELF:
+    price: 40.0
+  TRAPPED_CHEST:
+    price: 20.0
+
+  # --- Buttons ---
+  STONE_BUTTON:
+    price: 2.5
+  POLISHED_BLACKSTONE_BUTTON:
+    price: 2.5
+  OAK_BUTTON:
+    price: 2.0
+  SPRUCE_BUTTON:
+    price: 2.0
+  BIRCH_BUTTON:
+    price: 2.0
+  JUNGLE_BUTTON:
+    price: 2.0
+  ACACIA_BUTTON:
+    price: 2.0
+  DARK_OAK_BUTTON:
+    price: 2.0
+  MANGROVE_BUTTON:
+    price: 2.0
+  CHERRY_BUTTON:
+    price: 2.0
+  BAMBOO_BUTTON:
+    price: 2.0
+  CRIMSON_BUTTON:
+    price: 2.0
+  WARPED_BUTTON:
+    price: 2.0
+
+  # --- Pressure Plates ---
+  STONE_PRESSURE_PLATE:
+    price: 5.0
+  POLISHED_BLACKSTONE_PRESSURE_PLATE:
+    price: 5.0
+  OAK_PRESSURE_PLATE:
+    price: 4.0
+  SPRUCE_PRESSURE_PLATE:
+    price: 4.0
+  BIRCH_PRESSURE_PLATE:
+    price: 4.0
+  JUNGLE_PRESSURE_PLATE:
+    price: 4.0
+  ACACIA_PRESSURE_PLATE:
+    price: 4.0
+  DARK_OAK_PRESSURE_PLATE:
+    price: 4.0
+  MANGROVE_PRESSURE_PLATE:
+    price: 4.0
+  CHERRY_PRESSURE_PLATE:
+    price: 4.0
+  BAMBOO_PRESSURE_PLATE:
+    price: 4.0
+  CRIMSON_PRESSURE_PLATE:
+    price: 4.0
+  WARPED_PRESSURE_PLATE:
+    price: 4.0
+  LIGHT_WEIGHTED_PRESSURE_PLATE:
+    price: 120.0
+  HEAVY_WEIGHTED_PRESSURE_PLATE:
+    price: 40.0
+
+  # --- Doors & Trapdoors ---
+  IRON_DOOR:
+    price: 40.0
+  IRON_TRAPDOOR:
+    price: 70.0
+  OAK_DOOR:
+    price: 4.0
+  SPRUCE_DOOR:
+    price: 4.0
+  BIRCH_DOOR:
+    price: 4.0
+  JUNGLE_DOOR:
+    price: 4.0
+  ACACIA_DOOR:
+    price: 4.0
+  DARK_OAK_DOOR:
+    price: 4.0
+  MANGROVE_DOOR:
+    price: 4.0
+  CHERRY_DOOR:
+    price: 4.0
+  BAMBOO_DOOR:
+    price: 4.0
+  CRIMSON_DOOR:
+    price: 4.0
+  WARPED_DOOR:
+    price: 4.0
+  OAK_TRAPDOOR:
+    price: 6.0
+  SPRUCE_TRAPDOOR:
+    price: 6.0
+  BIRCH_TRAPDOOR:
+    price: 6.0
+  JUNGLE_TRAPDOOR:
+    price: 6.0
+  ACACIA_TRAPDOOR:
+    price: 6.0
+  DARK_OAK_TRAPDOOR:
+    price: 6.0
+  MANGROVE_TRAPDOOR:
+    price: 6.0
+  CHERRY_TRAPDOOR:
+    price: 6.0
+  BAMBOO_TRAPDOOR:
+    price: 6.0
+  CRIMSON_TRAPDOOR:
+    price: 6.0
+  WARPED_TRAPDOOR:
+    price: 6.0
+
+  # --- Gates ---
+  OAK_FENCE_GATE:
+    price: 8.0
+  SPRUCE_FENCE_GATE:
+    price: 8.0
+  BIRCH_FENCE_GATE:
+    price: 8.0
+  JUNGLE_FENCE_GATE:
+    price: 8.0
+  ACACIA_FENCE_GATE:
+    price: 8.0
+  DARK_OAK_FENCE_GATE:
+    price: 8.0
+  MANGROVE_FENCE_GATE:
+    price: 8.0
+  CHERRY_FENCE_GATE:
+    price: 8.0
+  BAMBOO_FENCE_GATE:
+    price: 8.0
+  CRIMSON_FENCE_GATE:
+    price: 8.0
+  WARPED_FENCE_GATE:
+    price: 8.0

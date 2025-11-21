@@ -7,16 +7,19 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class CategoryConfigLoader {
     private final DynamicShopGUI plugin;
     private final Map<String, CategoryConfig> categories = new HashMap<>();
+
+    private final String[] CATEGORY_FILES = {
+            "armor.yml", "building.yml", "farming.yml", "food.yml",
+            "misc.yml", "ores.yml", "redstone.yml", "tools.yml"
+    };
 
     public CategoryConfigLoader(DynamicShopGUI plugin) {
         this.plugin = plugin;
@@ -32,98 +35,91 @@ public class CategoryConfigLoader {
     }
 
     private void loadCategories() {
-        File shopFile = new File(plugin.getDataFolder(), "shop.yml");
+        for (String fileName : CATEGORY_FILES) {
+            loadCategoryFile(fileName);
+        }
 
-        if (!shopFile.exists()) {
+        plugin.getLogger().info("Loaded " + categories.size() + " shop categories.");
+    }
+
+    private void loadCategoryFile(String fileName) {
+        File file = new File(plugin.getDataFolder(), fileName);
+
+        if (!file.exists()) {
             try {
-                plugin.saveResource("shop.yml", false);
+                if (plugin.getResource(fileName) != null) {
+                    plugin.saveResource(fileName, false);
+                } else {
+                    return;
+                }
             } catch (Exception e) {
-                plugin.getLogger().severe("Failed to save default shop.yml: " + e.getMessage());
+                plugin.getLogger().severe("Failed to save default " + fileName + ": " + e.getMessage());
                 return;
             }
         }
 
-        FileConfiguration shopConfig = YamlConfiguration.loadConfiguration(shopFile);
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        InputStream defConfigStream = plugin.getResource("shop.yml");
-        if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
-            shopConfig.setDefaults(defConfig);
-        }
+        String categoryId = fileName.replace(".yml", "").toLowerCase();
 
-        ConfigurationSection categoriesSection = shopConfig.getConfigurationSection("categories");
-        if (categoriesSection == null) {
-            plugin.getLogger().severe("No categories section found in shop.yml!");
+        ConfigurationSection categorySection = config.getConfigurationSection("category");
+        if (categorySection == null) {
+            plugin.getLogger().warning("File " + fileName + " does not have a 'category' section. Skipping.");
             return;
         }
 
-        for (String categoryKey : categoriesSection.getKeys(false)) {
-            ConfigurationSection categorySection = categoriesSection.getConfigurationSection(categoryKey);
-            if (categorySection == null) continue;
-
-            String displayName = categorySection.getString("display-name", categoryKey);
-            Material icon = Material.CHEST;
-
-            switch (categoryKey.toLowerCase()) {
-                case "building":
-                    icon = Material.BRICKS;
-                    break;
-                case "ores":
-                    icon = Material.DIAMOND;
-                    break;
-                case "food":
-                    icon = Material.APPLE;
-                    break;
-                case "tools":
-                    icon = Material.IRON_PICKAXE;
-                    break;
-                case "armor":
-                    icon = Material.IRON_CHESTPLATE;
-                    break;
-                case "redstone":
-                    icon = Material.REDSTONE;
-                    break;
-                case "farming":
-                    icon = Material.WHEAT;
-                    break;
-                case "misc":
-                    icon = Material.ENDER_PEARL;
-                    break;
-            }
-
-            CategoryConfig category = new CategoryConfig(displayName, icon);
-
-            ConfigurationSection itemsSection = categorySection.getConfigurationSection("items");
-            if (itemsSection != null) {
-                for (String itemKey : itemsSection.getKeys(false)) {
-                    try {
-                        Material material = Material.valueOf(itemKey.toUpperCase());
-                        double price = itemsSection.getDouble(itemKey);
-
-                        int maxStock = plugin.getConfig().getInt("stock.max-stock." + categoryKey.toLowerCase(), 1000);
-
-                        if (plugin.getConfig().contains("stock.special-items." + itemKey)) {
-                            maxStock = plugin.getConfig().getInt("stock.special-items." + itemKey);
-                        }
-
-                        int initialStock = maxStock;
-
-                        ItemConfig itemConfig = new ItemConfig(price, initialStock, maxStock);
-                        category.addItem(material, itemConfig);
-                    } catch (IllegalArgumentException e) {
-                        plugin.getLogger().warning("Invalid material: " + itemKey);
-                    }
-                }
-            }
-
-            double taxRate = plugin.getConfig().getDouble("tax.category-rates." + categoryKey.toLowerCase(),
-                    plugin.getConfig().getDouble("tax.rate", 15.0));
-            category.setTaxRate(taxRate);
-
-            categories.put(categoryKey, category);
+        String displayName = categorySection.getString("display-name", categoryId);
+        Material icon = Material.CHEST;
+        String iconName = categorySection.getString("icon", "CHEST");
+        try {
+            icon = Material.valueOf(iconName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("Invalid icon material in " + fileName + ": " + iconName);
         }
 
-        plugin.getLogger().info("Loaded " + categories.size() + " shop categories");
+        double taxRate = categorySection.getDouble("tax-rate", 15.0);
+
+        CategoryConfig categoryConfig = new CategoryConfig(displayName, icon);
+        categoryConfig.setTaxRate(taxRate);
+
+        ConfigurationSection defaultsSection = config.getConfigurationSection("defaults");
+        int defaultMaxStock = 1000;
+        int defaultInitialStock = 100;
+
+        if (defaultsSection != null) {
+            defaultMaxStock = defaultsSection.getInt("max-stock", 1000);
+            defaultInitialStock = defaultsSection.getInt("initial-stock", 100);
+        }
+
+        ConfigurationSection itemsSection = config.getConfigurationSection("items");
+        if (itemsSection != null) {
+            for (String key : itemsSection.getKeys(false)) {
+                try {
+                    Material material = Material.valueOf(key.toUpperCase());
+
+                    double price;
+                    int maxStock = defaultMaxStock;
+                    int initialStock = defaultInitialStock;
+
+                    if (itemsSection.isConfigurationSection(key)) {
+                        ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
+                        price = itemSection.getDouble("price");
+                        if (itemSection.contains("max-stock")) maxStock = itemSection.getInt("max-stock");
+                        if (itemSection.contains("initial-stock")) initialStock = itemSection.getInt("initial-stock");
+                    } else {
+                        price = itemsSection.getDouble(key);
+                    }
+
+                    ItemConfig itemConfig = new ItemConfig(price, initialStock, maxStock);
+                    categoryConfig.addItem(material, itemConfig);
+
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Invalid material in " + fileName + ": " + key);
+                }
+            }
+        }
+
+        categories.put(categoryId, categoryConfig);
     }
 
     public CategoryConfig getCategory(String name) {

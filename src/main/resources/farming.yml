@@ -2,314 +2,192 @@
 category:
   display-name: "Farming"
   icon: WHEAT
-  tax-rate: 8.0  # Lower tax rate for farming items
+  tax-rate: 8.0
 
-# Default values for all items in this category
 defaults:
   min-stock: 0
   max-stock: 5000
   initial-stock: 300
 
-# Items in this category
 items:
-  # Seeds
+  # --- Crops ---
   WHEAT_SEEDS:
     price: 1.0
-    max-stock: 10000
-
-  PUMPKIN_SEEDS:
-    price: 3.0
-    max-stock: 8000
-
-  MELON_SEEDS:
-    price: 3.0
-    max-stock: 8000
-
-  BEETROOT_SEEDS:
-    price: 2.0
-    max-stock: 8000
-
-  TORCHFLOWER_SEEDS:
-    price: 50.0
-    max-stock: 1000
-    initial-stock: 50
-
-  PITCHER_POD:
-    price: 80.0
-    max-stock: 800
-    initial-stock: 40
-
-  # Crops
   WHEAT:
-    price: 4.0
-
+    price: 3.0
+  HAY_BLOCK:
+    price: 27.0
   CARROT:
     price: 3.0
-    max-stock: 8000
-
   POTATO:
     price: 3.0
-    max-stock: 8000
-
+  BEETROOT_SEEDS:
+    price: 2.0
   BEETROOT:
     price: 2.0
-    max-stock: 6000
-
-  SUGAR_CANE:
+  PUMPKIN_SEEDS:
+    price: 3.0
+  PUMPKIN:
+    price: 10.0
+  MELON_SEEDS:
     price: 2.0
-    max-stock: 10000
-
+  MELON:
+    price: 15.0
+  MELON_SLICE:
+    price: 2.0
+  COCOA_BEANS:
+    price: 5.0
+  SUGAR_CANE:
+    price: 3.0
+  BAMBOO:
+    price: 1.0
+  BAMBOO_BLOCK:
+    price: 9.0
+  STRIPPED_BAMBOO_BLOCK:
+    price: 9.0
   CACTUS:
     price: 3.0
-    max-stock: 8000
-
-  BAMBOO:
-    price: 2.0
-    max-stock: 10000
-
   KELP:
     price: 2.0
-    max-stock: 10000
-
-  PUMPKIN:
-    price: 15.0
-    max-stock: 3000
-
-  MELON:
-    price: 20.0
-    max-stock: 2500
-
-  # Farming Tools
-  BONE_MEAL:
-    price: 5.0
-    max-stock: 8000
-
-  BONE_BLOCK:
-    price: 45.0
-    max-stock: 1000
-
-  COMPOSTER:
-    price: 35.0
-    max-stock: 2000
-
-  # Flowers
-  DANDELION:
-    price: 2.0
-    max-stock: 8000
-
-  POPPY:
-    price: 2.0
-    max-stock: 8000
-
-  BLUE_ORCHID:
-    price: 5.0
-    max-stock: 4000
-
-  ALLIUM:
-    price: 3.0
-    max-stock: 6000
-
-  AZURE_BLUET:
-    price: 3.0
-    max-stock: 6000
-
-  RED_TULIP:
-    price: 4.0
-
-  ORANGE_TULIP:
-    price: 4.0
-
-  WHITE_TULIP:
-    price: 4.0
-
-  PINK_TULIP:
-    price: 4.0
-
-  OXEYE_DAISY:
-    price: 3.0
-    max-stock: 6000
-
-  CORNFLOWER:
-    price: 3.0
-    max-stock: 6000
-
-  LILY_OF_THE_VALLEY:
-    price: 5.0
-    max-stock: 4000
-
-  WITHER_ROSE:
-    price: 100.0
-    max-stock: 500
-    initial-stock: 25
-
-  SUNFLOWER:
-    price: 6.0
-    max-stock: 4000
-
-  LILAC:
-    price: 6.0
-    max-stock: 4000
-
-  ROSE_BUSH:
-    price: 6.0
-    max-stock: 4000
-
-  PEONY:
-    price: 6.0
-    max-stock: 4000
-
-  TORCHFLOWER:
-    price: 60.0
-    max-stock: 1000
-    initial-stock: 50
-
-  PITCHER_PLANT:
-    price: 100.0
-    max-stock: 800
-    initial-stock: 40
-
-  # Dyes from Farming
-  COCOA_BEANS:
-    price: 8.0
-    max-stock: 4000
-
-  INK_SAC:
-    price: 10.0
-    max-stock: 3000
-
-  GLOW_INK_SAC:
-    price: 25.0
-    max-stock: 2000
-    initial-stock: 100
-
-  # Mushrooms
-  BROWN_MUSHROOM:
-    price: 5.0
-    max-stock: 4000
-
-  RED_MUSHROOM:
-    price: 5.0
-    max-stock: 4000
-
-  BROWN_MUSHROOM_BLOCK:
-    price: 20.0
-    max-stock: 1500
-
-  RED_MUSHROOM_BLOCK:
-    price: 20.0
-    max-stock: 1500
-
-  MUSHROOM_STEM:
-    price: 15.0
-    max-stock: 2000
-
-  # Other Farming Items
-  HAY_BLOCK:
-    price: 36.0
-    max-stock: 2000
-
   DRIED_KELP_BLOCK:
     price: 18.0
-    max-stock: 3000
-
+  NETHER_WART:
+    price: 5.0
+  NETHER_WART_BLOCK:
+    price: 45.0
+  WARPED_WART_BLOCK:
+    price: 45.0
+  GLOW_BERRIES:
+    price: 3.0
+  SWEET_BERRIES:
+    price: 3.0
+  CHORUS_FRUIT:
+    price: 8.0
+  SNIFFER_EGG:
+    price: 500.0
+  TORCHFLOWER_SEEDS:
+    price: 20.0
+  PITCHER_POD:
+    price: 20.0
   HONEYCOMB:
     price: 10.0
-    max-stock: 3000
-
   HONEYCOMB_BLOCK:
     price: 40.0
-    max-stock: 1000
-
-  BEE_NEST:
-    price: 200.0
-    max-stock: 200
-    initial-stock: 20
-
-  BEEHIVE:
-    price: 100.0
-    max-stock: 500
-
-  MOSS_BLOCK:
-    price: 8.0
-    max-stock: 4000
-
-  MOSS_CARPET:
-    price: 3.0
-    max-stock: 6000
-
-  AZALEA:
-    price: 10.0
-    max-stock: 3000
-
-  FLOWERING_AZALEA:
-    price: 15.0
-    max-stock: 2500
-
-  BIG_DRIPLEAF:
-    price: 12.0
-    max-stock: 3000
-
-  SMALL_DRIPLEAF:
-    price: 8.0
-    max-stock: 4000
-
-  SPORE_BLOSSOM:
-    price: 50.0
-    max-stock: 1000
-    initial-stock: 50
-
-  GLOW_LICHEN:
-    price: 10.0
-    max-stock: 4000
-
-  HANGING_ROOTS:
+  BONE_MEAL:
     price: 5.0
-    max-stock: 5000
 
-  NETHER_WART:
-    price: 10.0
-    max-stock: 3000
-
-  NETHER_WART_BLOCK:
-    price: 90.0
-    max-stock: 500
-
-  WARPED_WART_BLOCK:
-    price: 90.0
-    max-stock: 500
-
+  # --- Saplings ---
+  OAK_SAPLING:
+    price: 5.0
+  SPRUCE_SAPLING:
+    price: 5.0
+  BIRCH_SAPLING:
+    price: 5.0
+  JUNGLE_SAPLING:
+    price: 5.0
+  ACACIA_SAPLING:
+    price: 5.0
+  DARK_OAK_SAPLING:
+    price: 5.0
+  MANGROVE_PROPAGULE:
+    price: 8.0
+  CHERRY_SAPLING:
+    price: 8.0
   CRIMSON_FUNGUS:
-    price: 15.0
-    max-stock: 2500
-
+    price: 5.0
   WARPED_FUNGUS:
-    price: 15.0
-    max-stock: 2500
-
-  WEEPING_VINES:
-    price: 8.0
-    max-stock: 4000
-
-  TWISTING_VINES:
-    price: 8.0
-    max-stock: 4000
-
-  VINE:
     price: 5.0
-    max-stock: 6000
 
-  LILY_PAD:
-    price: 8.0
-    max-stock: 4000
-
-  SEA_PICKLE:
-    price: 12.0
-    max-stock: 3000
-
-  SEAGRASS:
+  # --- Leaves ---
+  OAK_LEAVES:
+    price: 2.0
+  SPRUCE_LEAVES:
+    price: 2.0
+  BIRCH_LEAVES:
+    price: 2.0
+  JUNGLE_LEAVES:
+    price: 2.0
+  ACACIA_LEAVES:
+    price: 2.0
+  DARK_OAK_LEAVES:
+    price: 2.0
+  MANGROVE_LEAVES:
+    price: 2.0
+  CHERRY_LEAVES:
+    price: 2.0
+  AZALEA_LEAVES:
+    price: 2.5
+  FLOWERING_AZALEA_LEAVES:
     price: 3.0
-    max-stock: 8000
 
-  TALL_SEAGRASS:
+  # --- Flowers ---
+  DANDELION:
+    price: 6.0
+  POPPY:
+    price: 6.0
+  BLUE_ORCHID:
+    price: 6.0
+  ALLIUM:
+    price: 6.0
+  AZURE_BLUET:
+    price: 6.0
+  RED_TULIP:
+    price: 6.0
+  ORANGE_TULIP:
+    price: 6.0
+  WHITE_TULIP:
+    price: 6.0
+  PINK_TULIP:
+    price: 6.0
+  OXEYE_DAISY:
+    price: 6.0
+  CORNFLOWER:
+    price: 6.0
+  LILY_OF_THE_VALLEY:
+    price: 6.0
+  WITHER_ROSE:
+    price: 50.0
+  SUNFLOWER:
+    price: 15.0
+  LILAC:
+    price: 15.0
+  ROSE_BUSH:
+    price: 15.0
+  PEONY:
+    price: 15.0
+  SPORE_BLOSSOM:
+    price: 20.0
+  TORCHFLOWER:
+    price: 25.0
+  PITCHER_PLANT:
+    price: 25.0
+  PINK_PETALS:
+    price: 2.0
+
+  # --- Plants & Decor ---
+  GRASS:
+    price: 1.0
+  FERN:
+    price: 1.0
+  DEAD_BUSH:
+    price: 1.0
+  LILY_PAD:
     price: 5.0
-    max-stock: 6000
+  VINE:
+    price: 3.0
+  GLOW_LICHEN:
+    price: 3.0
+  MOSS_BLOCK:
+    price: 5.0
+  MOSS_CARPET:
+    price: 2.0
+  BIG_DRIPLEAF:
+    price: 5.0
+  SMALL_DRIPLEAF:
+    price: 3.0
+  SEA_PICKLE:
+    price: 2.0
+  MANGROVE_ROOTS:
+    price: 4.0
+  MUDDY_MANGROVE_ROOTS:
+    price: 4.5
