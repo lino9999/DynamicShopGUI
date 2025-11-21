@@ -42,7 +42,7 @@ items:
 
   # --- Bakery ---
   BREAD:
-    price: 8.0
+    price: 5.0
   COOKIE:
     price: 1.5
   CAKE:

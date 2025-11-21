@@ -148,13 +148,13 @@ items:
   WITHER_ROSE:
     price: 50.0
   SUNFLOWER:
-    price: 15.0
+    price: 6.0
   LILAC:
-    price: 15.0
+    price: 6.0
   ROSE_BUSH:
-    price: 15.0
+    price: 6.0
   PEONY:
-    price: 15.0
+    price: 6.0
   SPORE_BLOSSOM:
     price: 20.0
   TORCHFLOWER:

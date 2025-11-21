@@ -25,6 +25,8 @@ items:
     price: 0.5
   CHARCOAL:
     price: 5.0
+  EGG:
+    price: 2.0
   SUGAR:
     price: 2.0
   TORCH:
@@ -33,6 +35,8 @@ items:
     price: 45.0
   POPPED_CHORUS_FRUIT:
     price: 10.0
+  DRAGON_BREATH:
+    price: 20.0
   FERMENTED_SPIDER_EYE:
     price: 15.0
   COBWEB:
@@ -89,6 +93,10 @@ items:
     price: 1500.0
   DISC_FRAGMENT_5:
     price: 100.0
+  GOAT_HORN:
+    price: 150.0
+  ECHO_SHARD:
+    price: 100.0
 
   # --- Dyes ---
   WHITE_DYE:
@@ -123,6 +131,8 @@ items:
     price: 4.0
   BLACK_DYE:
     price: 4.0
+  GLOW_INK_SAC:
+    price: 3.0
 
   # --- Corals ---
   TUBE_CORAL_BLOCK:
@@ -165,8 +175,6 @@ items:
     price: 30.0
   OMINOUS_BOTTLE:
     price: 100.0
-  GOAT_HORN:
-    price: 150.0
   ARMOR_STAND:
     price: 10.0
   ITEM_FRAME:
@@ -270,107 +278,107 @@ items:
 
   # --- Beds ---
   WHITE_BED:
-    price: 20.0
+    price: 60.0
   ORANGE_BED:
-    price: 20.0
+    price: 60.0
   MAGENTA_BED:
-    price: 20.0
+    price: 60.0
   LIGHT_BLUE_BED:
-    price: 20.0
+    price: 60.0
   YELLOW_BED:
-    price: 20.0
+    price: 60.0
   LIME_BED:
-    price: 20.0
+    price: 60.0
   PINK_BED:
-    price: 20.0
+    price: 60.0
   GRAY_BED:
-    price: 20.0
+    price: 60.0
   LIGHT_GRAY_BED:
-    price: 20.0
+    price: 60.0
   CYAN_BED:
-    price: 20.0
+    price: 60.0
   PURPLE_BED:
-    price: 20.0
+    price: 60.0
   BLUE_BED:
-    price: 20.0
+    price: 60.0
   BROWN_BED:
-    price: 20.0
+    price: 60.0
   GREEN_BED:
-    price: 20.0
+    price: 60.0
   RED_BED:
-    price: 20.0
+    price: 60.0
   BLACK_BED:
-    price: 20.0
+    price: 60.0
 
   # --- Candles ---
   CANDLE:
-    price: 10.0
+    price: 20.0
   WHITE_CANDLE:
-    price: 10.0
+    price: 20.0
   ORANGE_CANDLE:
-    price: 10.0
+    price: 20.0
   MAGENTA_CANDLE:
-    price: 10.0
+    price: 20.0
   LIGHT_BLUE_CANDLE:
-    price: 10.0
+    price: 20.0
   YELLOW_CANDLE:
-    price: 10.0
+    price: 20.0
   LIME_CANDLE:
-    price: 10.0
+    price: 20.0
   PINK_CANDLE:
-    price: 10.0
+    price: 20.0
   GRAY_CANDLE:
-    price: 10.0
+    price: 20.0
   LIGHT_GRAY_CANDLE:
-    price: 10.0
+    price: 20.0
   CYAN_CANDLE:
-    price: 10.0
+    price: 20.0
   PURPLE_CANDLE:
-    price: 10.0
+    price: 20.0
   BLUE_CANDLE:
-    price: 10.0
+    price: 20.0
   BROWN_CANDLE:
-    price: 10.0
+    price: 20.0
   GREEN_CANDLE:
-    price: 10.0
+    price: 20.0
   RED_CANDLE:
-    price: 10.0
+    price: 20.0
   BLACK_CANDLE:
-    price: 10.0
+    price: 20.0
 
   # --- Banners ---
   WHITE_BANNER:
-    price: 25.0
+    price: 100.0
   ORANGE_BANNER:
-    price: 25.0
+    price: 100.0
   MAGENTA_BANNER:
-    price: 25.0
+    price: 100.0
   LIGHT_BLUE_BANNER:
-    price: 25.0
+    price: 100.0
   YELLOW_BANNER:
-    price: 25.0
+    price: 100.0
   LIME_BANNER:
-    price: 25.0
+    price: 100.0
   PINK_BANNER:
-    price: 25.0
+    price: 100.0
   GRAY_BANNER:
-    price: 25.0
+    price: 100.0
   LIGHT_GRAY_BANNER:
-    price: 25.0
+    price: 100.0
   CYAN_BANNER:
-    price: 25.0
+    price: 100.0
   PURPLE_BANNER:
-    price: 25.0
+    price: 100.0
   BLUE_BANNER:
-    price: 25.0
+    price: 100.0
   BROWN_BANNER:
-    price: 25.0
+    price: 100.0
   GREEN_BANNER:
-    price: 25.0
+    price: 100.0
   RED_BANNER:
-    price: 25.0
+    price: 100.0
   BLACK_BANNER:
-    price: 25.0
+    price: 100.0
 
   # --- Workstations ---
   CRAFTING_TABLE:

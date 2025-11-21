@@ -46,8 +46,6 @@ items:
     price: 15.0
   INK_SAC:
     price: 3.0
-  GLOW_INK_SAC:
-    price: 3.0
   FEATHER:
     price: 1.0
   LEATHER:
