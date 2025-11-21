@@ -1,6 +1,8 @@
 package com.Lino.dynamicShopGUI.commands;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.database.DatabaseManager;
+import com.Lino.dynamicShopGUI.utils.GUIUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -39,6 +41,13 @@ public class ShopCommand implements CommandExecutor {
                 plugin.getShopConfig().reload();
                 sender.sendMessage(plugin.getShopConfig().getMessage("commands.reload-success"));
                 return true;
+            } else if (args[0].equalsIgnoreCase("top") || args[0].equalsIgnoreCase("bestsellers")) {
+                if (!sender.hasPermission("dynamicshop.admin")) {
+                    sender.sendMessage(plugin.getShopConfig().getMessage("commands.no-permission"));
+                    return true;
+                }
+                handleTopCommand(sender);
+                return true;
             } else if (args.length > 1 && args[0].equalsIgnoreCase("give")) {
                 if (!sender.hasPermission("dynamicshop.admin")) {
                     sender.sendMessage(plugin.getShopConfig().getMessage("commands.no-permission"));
@@ -67,6 +76,31 @@ public class ShopCommand implements CommandExecutor {
 
         plugin.getGUIManager().openMainMenu(player);
         return true;
+    }
+
+    private void handleTopCommand(CommandSender sender) {
+        sender.sendMessage(plugin.getShopConfig().getMessage("commands.top-loading"));
+
+        plugin.getDatabaseManager().getTopSellingItems(10).thenAccept(topItems -> {
+            if (topItems.isEmpty()) {
+                sender.sendMessage(plugin.getShopConfig().getMessage("commands.top-empty"));
+                return;
+            }
+
+            sender.sendMessage(plugin.getShopConfig().getMessage("commands.top-header"));
+
+            int rank = 1;
+            for (DatabaseManager.TopSoldItem item : topItems) {
+                sender.sendMessage(plugin.getShopConfig().getMessage("commands.top-entry",
+                        "%rank%", String.valueOf(rank),
+                        "%item%", GUIUtils.formatMaterialName(item.getMaterial()),
+                        "%amount%", String.valueOf(item.getAmount()),
+                        "%value%", String.format("%,.2f", item.getTotalValue())
+                ));
+                rank++;
+            }
+            sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-footer"));
+        });
     }
 
     private boolean handleGiveHoe(CommandSender sender, String[] args) {
@@ -139,6 +173,7 @@ public class ShopCommand implements CommandExecutor {
                 sender.sendMessage("");
                 sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-admin-header"));
                 sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-reload"));
+                sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-top"));
                 sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-give-sellchest"));
                 sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-give-hoe"));
             }

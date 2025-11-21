@@ -8,6 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import java.sql.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -109,14 +111,13 @@ public class DatabaseManager {
                     Material material = itemEntry.getKey();
                     CategoryConfigLoader.ItemConfig itemConfig = itemEntry.getValue();
 
-                    // Calcola il prezzo iniziale basato sullo stock iniziale per evitare sbalzi
                     double initialPrice = calculateInitialPrice(itemConfig.getPrice(), itemConfig.getInitialStock(), itemConfig.getMaxStock());
 
                     // Insert batch
                     insertStmt.setString(1, material.name());
                     insertStmt.setString(2, categoryName);
                     insertStmt.setDouble(3, itemConfig.getPrice());
-                    insertStmt.setDouble(4, initialPrice); // Usa il prezzo calcolato, non solo quello base
+                    insertStmt.setDouble(4, initialPrice);
                     insertStmt.setInt(5, itemConfig.getInitialStock());
                     insertStmt.setInt(6, itemConfig.getMinStock());
                     insertStmt.setInt(7, itemConfig.getMaxStock());
@@ -136,44 +137,22 @@ public class DatabaseManager {
         }
     }
 
-    // Helper per calcolare il prezzo all'inizializzazione del DB
     private double calculateInitialPrice(double basePrice, int stock, int maxStock) {
         double stockRatio = (double) stock / maxStock;
         double basePriceFactor;
 
-        if (stockRatio < 0.01) {
-            basePriceFactor = 2.5;
-        } else if (stockRatio < 0.05) {
-            double t = (stockRatio - 0.01) / 0.04;
-            basePriceFactor = 2.5 - (t * 0.3);
-        } else if (stockRatio < 0.1) {
-            double t = (stockRatio - 0.05) / 0.05;
-            basePriceFactor = 2.2 - (t * 0.2);
-        } else if (stockRatio < 0.3) {
-            double t = (stockRatio - 0.1) / 0.2;
-            basePriceFactor = 2.0 - (t * 0.5);
-        } else if (stockRatio < 0.5) {
-            double t = (stockRatio - 0.3) / 0.2;
-            basePriceFactor = 1.5 - (t * 0.3);
-        } else if (stockRatio < 0.7) {
-            double t = (stockRatio - 0.5) / 0.2;
-            basePriceFactor = 1.2 - (t * 0.1);
-        } else if (stockRatio < 0.9) {
-            double t = (stockRatio - 0.7) / 0.2;
-            basePriceFactor = 1.1 - (t * 0.05);
-        } else if (stockRatio < 0.95) {
-            double t = (stockRatio - 0.9) / 0.05;
-            basePriceFactor = 1.05 - (t * 0.03);
-        } else if (stockRatio < 0.99) {
-            double t = (stockRatio - 0.95) / 0.04;
-            basePriceFactor = 1.02 - (t * 0.015);
-        } else {
-            double t = (stockRatio - 0.99) / 0.01;
-            basePriceFactor = 1.005 - (t * 0.005);
-        }
+        if (stockRatio < 0.01) basePriceFactor = 2.5;
+        else if (stockRatio < 0.05) basePriceFactor = 2.5 - ((stockRatio - 0.01) / 0.04 * 0.3);
+        else if (stockRatio < 0.1) basePriceFactor = 2.2 - ((stockRatio - 0.05) / 0.05 * 0.2);
+        else if (stockRatio < 0.3) basePriceFactor = 2.0 - ((stockRatio - 0.1) / 0.2 * 0.5);
+        else if (stockRatio < 0.5) basePriceFactor = 1.5 - ((stockRatio - 0.3) / 0.2 * 0.3);
+        else if (stockRatio < 0.7) basePriceFactor = 1.2 - ((stockRatio - 0.5) / 0.2 * 0.1);
+        else if (stockRatio < 0.9) basePriceFactor = 1.1 - ((stockRatio - 0.7) / 0.2 * 0.05);
+        else if (stockRatio < 0.95) basePriceFactor = 1.05 - ((stockRatio - 0.9) / 0.05 * 0.03);
+        else if (stockRatio < 0.99) basePriceFactor = 1.02 - ((stockRatio - 0.95) / 0.04 * 0.015);
+        else basePriceFactor = 1.005 - ((stockRatio - 0.99) / 0.01 * 0.005);
 
         double priceFactor = basePriceFactor;
-
         if (maxStock > 1000) {
             double scaleFactor = Math.log10(maxStock / 1000.0) + 1.0;
             double adjustment = (basePriceFactor - 1.0) / scaleFactor;
@@ -181,13 +160,58 @@ public class DatabaseManager {
         }
 
         double newPrice = basePrice * priceFactor;
-
-        // Limiti hardcoded per l'init sicuri (10% min, 1000% max)
-        double minPrice = basePrice * 0.1;
-        double maxPrice = basePrice * 10.0;
-
-        return Math.max(minPrice, Math.min(maxPrice, newPrice));
+        return Math.max(basePrice * 0.1, Math.min(basePrice * 10.0, newPrice));
     }
+
+    // --- NEW METHOD FOR TOP SELLERS ---
+    public CompletableFuture<List<TopSoldItem>> getTopSellingItems(int limit) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<TopSoldItem> results = new ArrayList<>();
+            // Sums up amount and total_price for all SELL transactions, grouped by material
+            String query = "SELECT material, SUM(amount) as sum_amount, SUM(total_price) as sum_total " +
+                    "FROM transaction_history " +
+                    "WHERE transaction_type = 'SELL' " +
+                    "GROUP BY material " +
+                    "ORDER BY sum_total DESC " +
+                    "LIMIT ?";
+
+            try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+                pstmt.setInt(1, limit);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        String matName = rs.getString("material");
+                        int amount = rs.getInt("sum_amount");
+                        double totalValue = rs.getDouble("sum_total");
+
+                        try {
+                            Material mat = Material.valueOf(matName);
+                            results.add(new TopSoldItem(mat, amount, totalValue));
+                        } catch (IllegalArgumentException ignored) {}
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return results;
+        });
+    }
+
+    public static class TopSoldItem {
+        private final Material material;
+        private final int amount;
+        private final double totalValue;
+
+        public TopSoldItem(Material material, int amount, double totalValue) {
+            this.material = material;
+            this.amount = amount;
+            this.totalValue = totalValue;
+        }
+
+        public Material getMaterial() { return material; }
+        public int getAmount() { return amount; }
+        public double getTotalValue() { return totalValue; }
+    }
+    // ----------------------------------
 
     public CompletableFuture<Void> saveAutoSellChest(Location location, UUID owner) {
         return CompletableFuture.runAsync(() -> {

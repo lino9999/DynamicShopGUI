@@ -68,12 +68,19 @@ commands:
   reload-success: "<gradient:#00ff00:#00ffff>Shop configuration reloaded!</gradient>"
   players-only: "<gradient:#ff0000:#ff8800>This command can only be used by players!</gradient>"
 
+  # Top/Bestsellers command
+  top-header: "<gradient:#ffd700:#ffaa00>═══════ Top Sellers (Revenue) ═══════</gradient>"
+  top-entry: "&e%rank%. &f%item% &7» Sold: %amount% | Earned: <gradient:#00ff00:#00ffff>$%value%</gradient>"
+  top-empty: "&cNo sales data recorded yet."
+  top-loading: "&7Calculating top sellers..."
+
   # Help command messages
   help-header: "<gradient:#ffd700:#ffaa00>═══════ Dynamic Shop Help ═══════</gradient>"
   help-shop: "<gradient:#00ff00:#00ffff>/shop</gradient> &7- Open the shop GUI"
   help-help: "<gradient:#00ff00:#00ffff>/shop help</gradient> &7- Show this help message"
   help-admin-header: "<gradient:#ff00ff:#ff66ff>Admin Commands:</gradient>"
   help-reload: "<gradient:#ffaa00:#ffdd00>/shop reload</gradient> &7- Reload shop configuration"
+  help-top: "<gradient:#ffaa00:#ffdd00>/shop top</gradient> &7- View best-selling items"
   help-give-sellchest: "<gradient:#ffaa00:#ffdd00>/shop give sellchest <player> [amount]</gradient> &7- Give AutoSell chest"
   help-give-hoe: "<gradient:#ffaa00:#ffdd00>/shop give hoe <player> [amount]</gradient> &7- Give Auto Harvester hoe"
   help-footer: "<gradient:#ffd700:#ffaa00>═════════════════════════════════</gradient>"
