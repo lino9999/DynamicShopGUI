@@ -7,8 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +16,7 @@ public class CategoryConfigLoader {
 
     private final String[] CATEGORY_FILES = {
             "armor.yml", "building.yml", "farming.yml", "food.yml",
-            "misc.yml", "ores.yml", "redstone.yml", "tools.yml"
+            "misc.yml", "ores.yml", "redstone.yml", "tools.yml", "mobdrops.yml"
     };
 
     public CategoryConfigLoader(DynamicShopGUI plugin) {
@@ -59,7 +57,6 @@ public class CategoryConfigLoader {
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-
         String categoryId = fileName.replace(".yml", "").toLowerCase();
 
         ConfigurationSection categorySection = config.getConfigurationSection("category");
@@ -84,10 +81,12 @@ public class CategoryConfigLoader {
 
         ConfigurationSection defaultsSection = config.getConfigurationSection("defaults");
         int defaultMaxStock = 1000;
+        int defaultMinStock = 0;
         int defaultInitialStock = 100;
 
         if (defaultsSection != null) {
             defaultMaxStock = defaultsSection.getInt("max-stock", 1000);
+            defaultMinStock = defaultsSection.getInt("min-stock", 0);
             defaultInitialStock = defaultsSection.getInt("initial-stock", 100);
         }
 
@@ -99,18 +98,20 @@ public class CategoryConfigLoader {
 
                     double price;
                     int maxStock = defaultMaxStock;
+                    int minStock = defaultMinStock;
                     int initialStock = defaultInitialStock;
 
                     if (itemsSection.isConfigurationSection(key)) {
                         ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
                         price = itemSection.getDouble("price");
                         if (itemSection.contains("max-stock")) maxStock = itemSection.getInt("max-stock");
+                        if (itemSection.contains("min-stock")) minStock = itemSection.getInt("min-stock");
                         if (itemSection.contains("initial-stock")) initialStock = itemSection.getInt("initial-stock");
                     } else {
                         price = itemsSection.getDouble(key);
                     }
 
-                    ItemConfig itemConfig = new ItemConfig(price, initialStock, maxStock);
+                    ItemConfig itemConfig = new ItemConfig(price, initialStock, minStock, maxStock);
                     categoryConfig.addItem(material, itemConfig);
 
                 } catch (IllegalArgumentException e) {
@@ -123,9 +124,7 @@ public class CategoryConfigLoader {
     }
 
     public CategoryConfig getCategory(String name) {
-        if (name == null) {
-            return null;
-        }
+        if (name == null) return null;
         return categories.get(name.toLowerCase());
     }
 
@@ -148,52 +147,30 @@ public class CategoryConfigLoader {
             items.put(material, config);
         }
 
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public Material getIcon() {
-            return icon;
-        }
-
-        public Map<Material, ItemConfig> getItems() {
-            return items;
-        }
-
-        public ItemConfig getItemConfig(Material material) {
-            return items.get(material);
-        }
-
-        public double getTaxRate() {
-            return taxRate;
-        }
-
-        public void setTaxRate(double taxRate) {
-            this.taxRate = taxRate;
-        }
+        public String getDisplayName() { return displayName; }
+        public Material getIcon() { return icon; }
+        public Map<Material, ItemConfig> getItems() { return items; }
+        public ItemConfig getItemConfig(Material material) { return items.get(material); }
+        public double getTaxRate() { return taxRate; }
+        public void setTaxRate(double taxRate) { this.taxRate = taxRate; }
     }
 
     public static class ItemConfig {
         private final double price;
         private final int initialStock;
+        private final int minStock;
         private final int maxStock;
 
-        public ItemConfig(double price, int initialStock, int maxStock) {
+        public ItemConfig(double price, int initialStock, int minStock, int maxStock) {
             this.price = price;
             this.initialStock = initialStock;
+            this.minStock = minStock;
             this.maxStock = maxStock;
         }
 
-        public double getPrice() {
-            return price;
-        }
-
-        public int getInitialStock() {
-            return initialStock;
-        }
-
-        public int getMaxStock() {
-            return maxStock;
-        }
+        public double getPrice() { return price; }
+        public int getInitialStock() { return initialStock; }
+        public int getMinStock() { return minStock; }
+        public int getMaxStock() { return maxStock; }
     }
 }

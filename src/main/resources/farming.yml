@@ -73,8 +73,9 @@ items:
     price: 10.0
   HONEYCOMB_BLOCK:
     price: 40.0
+  # Reduced to 1.5 to prevent Bone (3.0) -> 3x Bonemeal (1.5 x 3 = 4.5) exploit
   BONE_MEAL:
-    price: 5.0
+    price: 1.5
 
   # --- Saplings ---
   OAK_SAPLING:

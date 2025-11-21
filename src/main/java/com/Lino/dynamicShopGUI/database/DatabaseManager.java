@@ -34,7 +34,8 @@ public class DatabaseManager {
             connection = DriverManager.getConnection(url);
 
             createTables();
-            initializeDefaultData();
+            updateSchema(); // Aggiunge colonne mancanti se necessario
+            initializeDefaultData(); // Sincronizza Config -> DB
 
             return true;
         } catch (SQLException e) {
@@ -44,12 +45,14 @@ public class DatabaseManager {
     }
 
     private void createTables() throws SQLException {
+        // Aggiunta colonna min_stock
         String shopItemsTable = "CREATE TABLE IF NOT EXISTS shop_items (" +
                 "material VARCHAR(100) PRIMARY KEY," +
                 "category VARCHAR(50) NOT NULL," +
                 "base_price DOUBLE NOT NULL," +
                 "current_price DOUBLE NOT NULL," +
                 "stock INTEGER NOT NULL," +
+                "min_stock INTEGER DEFAULT 0," +
                 "max_stock INTEGER NOT NULL," +
                 "transactions_buy INTEGER DEFAULT 0," +
                 "transactions_sell INTEGER DEFAULT 0," +
@@ -83,12 +86,28 @@ public class DatabaseManager {
         }
     }
 
+    private void updateSchema() {
+        // Tenta di aggiungere min_stock se il DB è vecchio
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("ALTER TABLE shop_items ADD COLUMN min_stock INTEGER DEFAULT 0");
+        } catch (SQLException ignored) {
+            // Colonna già esistente
+        }
+    }
+
     private void initializeDefaultData() throws SQLException {
         Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
 
-        String insertQuery = "INSERT OR IGNORE INTO shop_items (material, category, base_price, current_price, stock, max_stock) VALUES (?, ?, ?, ?, ?, ?)";
+        // 1. Inserimento nuovi oggetti (INSERT OR IGNORE)
+        String insertQuery = "INSERT OR IGNORE INTO shop_items (material, category, base_price, current_price, stock, min_stock, max_stock) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
+        // 2. Aggiornamento oggetti esistenti (Sync Config -> DB)
+        // Questo assicura che se cambi il file .yml, il DB si aggiorna
+        String updateQuery = "UPDATE shop_items SET base_price = ?, max_stock = ?, min_stock = ?, category = ? WHERE material = ?";
+
+        try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery);
+             PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
+
             for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> categoryEntry : categories.entrySet()) {
                 String categoryName = categoryEntry.getKey();
                 CategoryConfigLoader.CategoryConfig category = categoryEntry.getValue();
@@ -97,16 +116,27 @@ public class DatabaseManager {
                     Material material = itemEntry.getKey();
                     CategoryConfigLoader.ItemConfig itemConfig = itemEntry.getValue();
 
-                    pstmt.setString(1, material.name());
-                    pstmt.setString(2, categoryName);
-                    pstmt.setDouble(3, itemConfig.getPrice());
-                    pstmt.setDouble(4, itemConfig.getPrice());
-                    pstmt.setInt(5, itemConfig.getInitialStock());
-                    pstmt.setInt(6, itemConfig.getMaxStock());
-                    pstmt.addBatch();
+                    // Insert batch
+                    insertStmt.setString(1, material.name());
+                    insertStmt.setString(2, categoryName);
+                    insertStmt.setDouble(3, itemConfig.getPrice());
+                    insertStmt.setDouble(4, itemConfig.getPrice());
+                    insertStmt.setInt(5, itemConfig.getInitialStock());
+                    insertStmt.setInt(6, itemConfig.getMinStock());
+                    insertStmt.setInt(7, itemConfig.getMaxStock());
+                    insertStmt.addBatch();
+
+                    // Update batch (Sync settings)
+                    updateStmt.setDouble(1, itemConfig.getPrice()); // Aggiorna prezzo base
+                    updateStmt.setInt(2, itemConfig.getMaxStock()); // Aggiorna max stock
+                    updateStmt.setInt(3, itemConfig.getMinStock()); // Aggiorna min stock
+                    updateStmt.setString(4, categoryName); // Aggiorna categoria
+                    updateStmt.setString(5, material.name());
+                    updateStmt.addBatch();
                 }
             }
-            pstmt.executeBatch();
+            insertStmt.executeBatch();
+            updateStmt.executeBatch();
         }
     }
 
@@ -174,12 +204,17 @@ public class DatabaseManager {
                         double currentPrice = rs.getDouble("current_price");
                         double priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
 
+                        // Gestione colonna mancante in vecchi DB se updateSchema fallisce (fallback)
+                        int minStock = 0;
+                        try { minStock = rs.getInt("min_stock"); } catch (SQLException ignored) {}
+
                         return new ShopItem(
                                 Material.valueOf(rs.getString("material")),
                                 rs.getString("category"),
                                 basePrice,
                                 currentPrice,
                                 rs.getInt("stock"),
+                                minStock,
                                 rs.getInt("max_stock"),
                                 rs.getInt("transactions_buy"),
                                 rs.getInt("transactions_sell"),
@@ -207,12 +242,16 @@ public class DatabaseManager {
                         double currentPrice = rs.getDouble("current_price");
                         double priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
 
+                        int minStock = 0;
+                        try { minStock = rs.getInt("min_stock"); } catch (SQLException ignored) {}
+
                         ShopItem item = new ShopItem(
                                 material,
                                 rs.getString("category"),
                                 basePrice,
                                 currentPrice,
                                 rs.getInt("stock"),
+                                minStock,
                                 rs.getInt("max_stock"),
                                 rs.getInt("transactions_buy"),
                                 rs.getInt("transactions_sell"),

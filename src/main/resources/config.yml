@@ -78,17 +78,6 @@ tax:
 
 # Stock settings
 stock:
-  # Maximum stock per category (initial stock will be set to max-stock value)
-  max-stock:
-    building: 10000
-    ores: 1000
-    food: 5000
-    tools: 500
-    armor: 200
-    redstone: 2000
-    farming: 5000
-    misc: 1000
-
   # Special max stock for specific items (overrides category max)
   special-items:
     NETHERITE_INGOT: 10
