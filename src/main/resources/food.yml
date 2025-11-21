@@ -42,32 +42,32 @@ items:
 
   # --- Bakery ---
   BREAD:
-    price: 5.0
+    price: 8.0
   COOKIE:
     price: 1.5
   CAKE:
-    price: 30.0
+    price: 20.0
   PUMPKIN_PIE:
     price: 20.0
 
   # --- Meats ---
-  RAW_BEEF:
+  BEEF:
     price: 6.0
   COOKED_BEEF:
     price: 8.5
-  RAW_PORKCHOP:
+  PORKCHOP:
     price: 5.0
   COOKED_PORKCHOP:
     price: 7.0
-  RAW_CHICKEN:
+  CHICKEN:
     price: 4.0
   COOKED_CHICKEN:
     price: 6.0
-  RAW_MUTTON:
+  MUTTON:
     price: 4.0
   COOKED_MUTTON:
     price: 6.0
-  RAW_RABBIT:
+  RABBIT:
     price: 5.0
   COOKED_RABBIT:
     price: 7.0
@@ -90,7 +90,7 @@ items:
   MUSHROOM_STEW:
     price: 12.0
   BEETROOT_SOUP:
-    price: 18.0
+    price: 12.0
   RABBIT_STEW:
     price: 25.0
   SUSPICIOUS_STEW:

@@ -64,7 +64,7 @@ items:
     price: 1.0
   TURTLE_EGG:
     price: 10.0
-  SCUTE:
+  TURTLE_SCUTE:
     price: 20.0
   ARMADILLO_SCUTE:
     price: 15.0
