@@ -56,25 +56,24 @@ public class ItemWorthManager {
         }
 
         int maxPlayersPerUpdate = plugin.getConfig().getInt("item-worth.max-players-per-update", 5);
-        int playersToProcess = Math.min(maxPlayersPerUpdate, onlinePlayers.size());
 
-        if (System.currentTimeMillis() - lastCacheUpdate > CACHE_DURATION) {
-            priceCache.clear();
-            sellableCache.clear();
-            lastCacheUpdate = System.currentTimeMillis();
-        }
-
-        for (int i = 0; i < playersToProcess; i++) {
+        for (int i = 0; i < maxPlayersPerUpdate; i++) {
             if (playerIndex >= onlinePlayers.size()) {
                 playerIndex = 0;
             }
 
-            Player player = onlinePlayers.get(playerIndex);
-            playerIndex++;
-
-            if (player != null && player.isOnline()) {
-                updatePlayerInventory(player);
+            if (playerIndex < onlinePlayers.size()) {
+                Player player = onlinePlayers.get(playerIndex);
+                if (player != null && player.isOnline()) {
+                    updatePlayerInventory(player);
+                }
             }
+            playerIndex++;
+        }
+
+        if (System.currentTimeMillis() - lastCacheUpdate > CACHE_DURATION) {
+            clearCache();
+            lastCacheUpdate = System.currentTimeMillis();
         }
     }
 

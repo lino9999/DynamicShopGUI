@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class ShopListener implements Listener {
@@ -86,5 +87,10 @@ public class ShopListener implements Listener {
                 }
             }.runTaskLater(plugin, 1L);
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        plugin.getGUIManager().clearPlayerData(event.getPlayer().getUniqueId());
     }
 }
