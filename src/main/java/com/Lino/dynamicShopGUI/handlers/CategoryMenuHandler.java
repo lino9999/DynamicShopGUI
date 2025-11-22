@@ -26,6 +26,9 @@ public class CategoryMenuHandler {
         }
 
         if (slot == 48) {
+            // Fix: Check if the button is actually an arrow before processing
+            if (clicked.getType() != Material.ARROW) return;
+
             String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
             if (category != null) {
                 int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
@@ -37,6 +40,8 @@ public class CategoryMenuHandler {
         }
 
         if (slot == 50) {
+            if (clicked.getType() != Material.ARROW) return;
+
             String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
             if (category != null) {
                 int currentPage = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
