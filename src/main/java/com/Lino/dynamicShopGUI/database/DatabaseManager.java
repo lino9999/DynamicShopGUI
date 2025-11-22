@@ -46,6 +46,59 @@ public class DatabaseManager {
         }
     }
 
+    // --- NUOVO METODO PER SINCRONIZZARE DB E CONFIG ---
+    public void syncWithConfig() {
+        try {
+            // 1. Aggiorna o inserisce gli item presenti nel config (prezzi, stock, ecc.)
+            initializeDefaultData();
+
+            // 2. Trova e rimuove gli item che sono nel DB ma NON più nel config
+            Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
+            List<String> activeMaterials = new ArrayList<>();
+
+            // Raccoglie tutti i materiali attivi dai file yml
+            for (CategoryConfigLoader.CategoryConfig category : categories.values()) {
+                for (Material material : category.getItems().keySet()) {
+                    activeMaterials.add(material.name());
+                }
+            }
+
+            // Raccoglie tutti i materiali presenti nel DB
+            List<String> dbMaterials = new ArrayList<>();
+            try (Statement stmt = connection.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT material FROM shop_items")) {
+                while (rs.next()) {
+                    dbMaterials.add(rs.getString("material"));
+                }
+            }
+
+            // Rimuove dalla lista del DB quelli che sono ancora attivi
+            dbMaterials.removeAll(activeMaterials);
+
+            // Quelli che rimangono in dbMaterials sono obsoleti -> CANCELLIAMOLI
+            if (!dbMaterials.isEmpty()) {
+                String deleteQuery = "DELETE FROM shop_items WHERE material = ?";
+                try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
+                    boolean autoCommit = connection.getAutoCommit();
+                    connection.setAutoCommit(false); // Ottimizzazione batch
+
+                    for (String mat : dbMaterials) {
+                        pstmt.setString(1, mat);
+                        pstmt.addBatch();
+                    }
+                    pstmt.executeBatch();
+                    connection.commit();
+                    connection.setAutoCommit(autoCommit);
+                }
+                plugin.getLogger().info("Removed " + dbMaterials.size() + " obsolete items from database.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    // --------------------------------------------------
+
     private void createTables() throws SQLException {
         String shopItemsTable = "CREATE TABLE IF NOT EXISTS shop_items (" +
                 "material VARCHAR(100) PRIMARY KEY," +
@@ -163,11 +216,9 @@ public class DatabaseManager {
         return Math.max(basePrice * 0.1, Math.min(basePrice * 10.0, newPrice));
     }
 
-    // --- NEW METHOD FOR TOP SELLERS ---
     public CompletableFuture<List<TopSoldItem>> getTopSellingItems(int limit) {
         return CompletableFuture.supplyAsync(() -> {
             List<TopSoldItem> results = new ArrayList<>();
-            // Sums up amount and total_price for all SELL transactions, grouped by material
             String query = "SELECT material, SUM(amount) as sum_amount, SUM(total_price) as sum_total " +
                     "FROM transaction_history " +
                     "WHERE transaction_type = 'SELL' " +
@@ -211,7 +262,6 @@ public class DatabaseManager {
         public int getAmount() { return amount; }
         public double getTotalValue() { return totalValue; }
     }
-    // ----------------------------------
 
     public CompletableFuture<Void> saveAutoSellChest(Location location, UUID owner) {
         return CompletableFuture.runAsync(() -> {

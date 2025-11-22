@@ -27,6 +27,10 @@ public class ShopConfig {
         messageManager.reload();
         categoryLoader.reload();
 
+        // --- CHIAMATA AGGIUNTA PER PULIRE IL DB ---
+        plugin.getDatabaseManager().syncWithConfig();
+        // ------------------------------------------
+
         if (plugin.getItemWorthManager() != null) {
             plugin.getItemWorthManager().stop();
             plugin.getItemWorthManager().start();
