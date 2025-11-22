@@ -1,4 +1,3 @@
-# Ores & Minerals Category Configuration
 category:
   display-name: "Ores & Minerals"
   icon: DIAMOND
@@ -6,14 +5,13 @@ category:
 
 defaults:
   min-stock: 0
-  max-stock: 1000
+  max-stock: 500
   initial-stock: 50
 
 items:
-  # --- Coal ---
   COAL:
     price: 5.0
-    max-stock: 5000
+    max-stock: 2500
   CHARCOAL:
     price: 6.0
   COAL_BLOCK:
@@ -22,16 +20,14 @@ items:
     price: 10.0
   DEEPSLATE_COAL_ORE:
     price: 10.0
-
-  # --- Iron ---
   RAW_IRON:
     price: 12.0
-    max-stock: 3000
+    max-stock: 1500
   RAW_IRON_BLOCK:
     price: 108.0
   IRON_INGOT:
     price: 15.0
-    max-stock: 2000
+    max-stock: 1000
   IRON_BLOCK:
     price: 135.0
   IRON_ORE:
@@ -40,32 +36,28 @@ items:
     price: 20.0
   IRON_NUGGET:
     price: 2.0
-
-  # --- Copper ---
   RAW_COPPER:
     price: 10.0
-    max-stock: 4000
+    max-stock: 2000
   RAW_COPPER_BLOCK:
     price: 90.0
   COPPER_INGOT:
     price: 12.0
-    max-stock: 2500
+    max-stock: 1500
   COPPER_BLOCK:
     price: 108.0
   COPPER_ORE:
     price: 15.0
   DEEPSLATE_COPPER_ORE:
     price: 15.0
-
-  # --- Gold ---
   RAW_GOLD:
     price: 40.0
-    max-stock: 800
+    max-stock: 500
   RAW_GOLD_BLOCK:
     price: 360.0
   GOLD_INGOT:
     price: 50.0
-    max-stock: 500
+    max-stock: 300
   GOLD_BLOCK:
     price: 460.0
   GOLD_ORE:
@@ -76,75 +68,65 @@ items:
     price: 45.0
   GOLD_NUGGET:
     price: 5.5
-
-  # --- Diamond ---
   DIAMOND:
     price: 200.0
-    max-stock: 100
+    max-stock: 64
   DIAMOND_BLOCK:
     price: 1800.0
   DIAMOND_ORE:
     price: 250.0
   DEEPSLATE_DIAMOND_ORE:
     price: 250.0
-
-  # --- Emerald ---
   EMERALD:
     price: 150.0
-    max-stock: 200
+    max-stock: 128
   EMERALD_BLOCK:
     price: 1350.0
   EMERALD_ORE:
     price: 200.0
   DEEPSLATE_EMERALD_ORE:
     price: 200.0
-
-  # --- Lapis ---
   LAPIS_LAZULI:
     price: 10.0
-    max-stock: 3000
+    max-stock: 1500
   LAPIS_BLOCK:
     price: 90.0
   LAPIS_ORE:
     price: 50.0
   DEEPSLATE_LAPIS_ORE:
     price: 50.0
-
-  # --- Redstone ---
   REDSTONE:
     price: 8.0
-    max-stock: 4000
+    max-stock: 2000
   REDSTONE_BLOCK:
     price: 72.0
   REDSTONE_ORE:
     price: 40.0
   DEEPSLATE_REDSTONE_ORE:
     price: 40.0
-
-  # --- Netherite ---
   ANCIENT_DEBRIS:
     price: 500.0
-    max-stock: 20
+    max-stock: 16
   NETHERITE_SCRAP:
     price: 500.0
+    max-stock: 16
   NETHERITE_INGOT:
     price: 2000.0
     max-stock: 10
   NETHERITE_BLOCK:
     price: 18000.0
-
-  # --- Others ---
   QUARTZ:
     price: 5.0
-    max-stock: 3000
+    max-stock: 1500
   NETHER_QUARTZ_ORE:
     price: 20.0
   AMETHYST_SHARD:
     price: 25.0
-    max-stock: 1000
+    max-stock: 500
   AMETHYST_BLOCK:
     price: 100.0
   BUDDING_AMETHYST:
     price: 500.0
   ECHO_SHARD:
     price: 100.0
+    max-stock: 32

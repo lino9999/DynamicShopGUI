@@ -2,87 +2,117 @@
 category:
   display-name: "Mob Drops"
   icon: ROTTEN_FLESH
-  tax-rate: 20.0  # High tax rate for farmed items
+  tax-rate: 20.0
 
 defaults:
   min-stock: 0
-  max-stock: 5000
-  initial-stock: 200
+  max-stock: 500
+  initial-stock: 100
 
 items:
-  # --- Common Drops ---
   ROTTEN_FLESH:
     price: 1.0
-    max-stock: 20000
+    max-stock: 2500
   BONE:
     price: 3.0
-    max-stock: 20000
+    max-stock: 2500
   ARROW:
     price: 2.0
-    max-stock: 10000
+    max-stock: 1500
   SPECTRAL_ARROW:
     price: 5.0
+    max-stock: 500
   SPIDER_EYE:
     price: 3.0
+    max-stock: 1000
   STRING:
     price: 3.0
-    max-stock: 20000
+    max-stock: 2500
   GUNPOWDER:
     price: 5.0
-    max-stock: 10000
+    max-stock: 2000
   SLIME_BALL:
     price: 5.0
+    max-stock: 1000
   MAGMA_CREAM:
     price: 10.0
+    max-stock: 1000
   ENDER_PEARL:
     price: 10.0
+    max-stock: 500
   BLAZE_ROD:
     price: 15.0
+    max-stock: 800
   BLAZE_POWDER:
     price: 8.0
+    max-stock: 1000
   GHAST_TEAR:
     price: 50.0
+    max-stock: 200
   PHANTOM_MEMBRANE:
     price: 15.0
+    max-stock: 300
   INK_SAC:
     price: 3.0
+    max-stock: 1000
   FEATHER:
     price: 1.0
+    max-stock: 2000
   LEATHER:
     price: 5.0
+    max-stock: 1000
   RABBIT_HIDE:
     price: 2.0
+    max-stock: 1000
   RABBIT_FOOT:
     price: 15.0
+    max-stock: 100
   PRISMARINE_SHARD:
     price: 2.0
+    max-stock: 1500
   PRISMARINE_CRYSTALS:
     price: 2.0
+    max-stock: 1500
   EGG:
     price: 1.0
+    max-stock: 1000
+
   TURTLE_EGG:
     price: 10.0
+    max-stock: 100
   TURTLE_SCUTE:
     price: 20.0
+    max-stock: 100
   ARMADILLO_SCUTE:
     price: 15.0
+    max-stock: 200
   NAUTILUS_SHELL:
     price: 20.0
+    max-stock: 100
   HEART_OF_THE_SEA:
     price: 500.0
+    max-stock: 20
   SHULKER_SHELL:
     price: 100.0
+    max-stock: 200
   NETHER_STAR:
     price: 2000.0
+    max-stock: 10
   TOTEM_OF_UNDYING:
     price: 200.0
+    max-stock: 50
   DRAGON_BREATH:
     price: 10.0
+    max-stock: 200
   BREEZE_ROD:
     price: 15.0
+    max-stock: 300
   WIND_CHARGE:
     price: 5.0
+    max-stock: 500
   HEAVY_CORE:
     price: 500.0
+    max-stock: 10
   DRAGON_HEAD:
     price: 1000.0
+    max-stock: 5
