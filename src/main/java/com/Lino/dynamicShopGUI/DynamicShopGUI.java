@@ -4,6 +4,7 @@ import com.Lino.dynamicShopGUI.listeners.AutoSellChestListener;
 import com.Lino.dynamicShopGUI.listeners.AutoHarvesterListener;
 import com.Lino.dynamicShopGUI.managers.AutoSellChestManager;
 import com.Lino.dynamicShopGUI.managers.ItemWorthManager;
+import com.Lino.dynamicShopGUI.placeholders.ShopPlaceholders;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -61,6 +62,11 @@ public class DynamicShopGUI extends JavaPlugin {
 
         registerCommands();
         registerListeners();
+
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new ShopPlaceholders(this).register();
+            getLogger().info("PlaceholderAPI hook registered!");
+        }
 
         getLogger().info("DynamicShopGUI has been enabled!");
     }
