@@ -24,9 +24,11 @@ items:
   DIAMOND_PICKAXE:
     price: 600.0
     max-stock: 100
+    initial-stock: 20
   NETHERITE_PICKAXE:
     price: 4000.0
     max-stock: 10
+    initial-stock: 2
   WOODEN_AXE:
     price: 8.0
     max-stock: 1000
@@ -42,9 +44,11 @@ items:
   DIAMOND_AXE:
     price: 600.0
     max-stock: 100
+    initial-stock: 20
   NETHERITE_AXE:
     price: 4000.0
     max-stock: 10
+    initial-stock: 2
   WOODEN_SHOVEL:
     price: 6.0
     max-stock: 1000
@@ -60,9 +64,11 @@ items:
   DIAMOND_SHOVEL:
     price: 250.0
     max-stock: 100
+    initial-stock: 20
   NETHERITE_SHOVEL:
     price: 2500.0
     max-stock: 10
+    initial-stock: 2
   WOODEN_HOE:
     price: 6.0
     max-stock: 1000
@@ -78,9 +84,11 @@ items:
   DIAMOND_HOE:
     price: 350.0
     max-stock: 100
+    initial-stock: 20
   NETHERITE_HOE:
     price: 3000.0
     max-stock: 10
+    initial-stock: 2
   WOODEN_SWORD:
     price: 5.0
     max-stock: 1000
@@ -96,9 +104,11 @@ items:
   DIAMOND_SWORD:
     price: 700.0
     max-stock: 100
+    initial-stock: 20
   NETHERITE_SWORD:
     price: 4500.0
     max-stock: 10
+    initial-stock: 2
   BOW:
     price: 25.0
     max-stock: 500
@@ -110,10 +120,12 @@ items:
     max-stock: 500
   TRIDENT:
     price: 1000.0
-    max-stock: 16
+    max-stock: 10
+    initial-stock: 2
   MACE:
     price: 800.0
-    max-stock: 16
+    max-stock: 10
+    initial-stock: 2
   FISHING_ROD:
     price: 20.0
     max-stock: 500
