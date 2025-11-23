@@ -212,7 +212,7 @@ public class TransactionMenuHandler {
     private int countItemsInInventory(Player player, Material material) {
         int count = 0;
         for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && item.getType() == material) {
+            if (item != null && item.getType() == material && item.getEnchantments().isEmpty()) {
                 count += item.getAmount();
             }
         }

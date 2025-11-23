@@ -296,7 +296,7 @@ public class ShopManager {
     private boolean hasItem(Player player, Material material, int amount) {
         int count = 0;
         for (ItemStack item : player.getInventory().getContents()) {
-            if (item != null && item.getType() == material) {
+            if (item != null && item.getType() == material && item.getEnchantments().isEmpty()) {
                 count += item.getAmount();
                 if (count >= amount) return true;
             }
@@ -310,7 +310,7 @@ public class ShopManager {
 
         for (int i = 0; i < contents.length && remaining > 0; i++) {
             ItemStack item = contents[i];
-            if (item != null && item.getType() == material) {
+            if (item != null && item.getType() == material && item.getEnchantments().isEmpty()) {
                 int stackAmount = item.getAmount();
                 if (stackAmount <= remaining) {
                     player.getInventory().setItem(i, null);
