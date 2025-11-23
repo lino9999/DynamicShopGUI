@@ -109,7 +109,7 @@ restock:
   # Trigger Threshold (0.10 = 10%)
   # Items will begin the restock timer when stock drops below this percentage of max stock.
   # Set to 0.0 to only restock when completely empty.
-  trigger-threshold: 0.10
+  trigger-threshold: 0.05
 
 # Stock Decay / Oversupply Reset (Decreases stock when full)
 # This allows players to sell items again if the shop stays full for too long.
