@@ -173,7 +173,7 @@ public class CategoryMenuGUI {
 
         if (plugin.getShopConfig().showPriceTrends()) {
             lore.add("");
-            lore.add(GUIUtils.formatPriceChange(plugin, item.getPriceChangePercent()));
+            lore.add(GUIUtils.formatPriceChange(plugin, item));
         }
 
         if (plugin.getRestockManager().isRestocking(item.getMaterial())) {

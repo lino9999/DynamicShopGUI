@@ -85,10 +85,12 @@ public class RestockManager {
                             if (newStock < item.getStock()) {
                                 item.setStock(newStock);
 
+                                double oldPrice = item.getCurrentPrice();
                                 double newPrice = calculateNewPrice(item);
                                 item.setCurrentPrice(newPrice);
 
-                                double priceChangePercent = ((newPrice - item.getBasePrice()) / item.getBasePrice()) * 100;
+                                // FIX: Calculate percentage relative to OLD price
+                                double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
                                 item.setPriceChangePercent(priceChangePercent);
 
                                 plugin.getDatabaseManager().updateShopItem(item);
@@ -168,10 +170,12 @@ public class RestockManager {
 
                 item.setStock(restockAmount);
 
+                double oldPrice = item.getCurrentPrice();
                 double newPrice = calculateNewPrice(item);
                 item.setCurrentPrice(newPrice);
 
-                double priceChangePercent = ((newPrice - item.getBasePrice()) / item.getBasePrice()) * 100;
+                // FIX: Calculate percentage relative to OLD price
+                double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
                 item.setPriceChangePercent(priceChangePercent);
 
                 plugin.getDatabaseManager().updateShopItem(item);

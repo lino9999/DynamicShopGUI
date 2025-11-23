@@ -90,6 +90,7 @@ public class ShopManager {
             double newPrice = calculateNewPrice(item);
             item.setCurrentPrice(newPrice);
 
+            // FIX: Calculate percentage relative to OLD price (last transaction)
             double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
             item.setPriceChangePercent(priceChangePercent);
 
@@ -187,6 +188,7 @@ public class ShopManager {
             double newPrice = calculateNewPrice(item);
             item.setCurrentPrice(newPrice);
 
+            // FIX: Calculate percentage relative to OLD price (last transaction)
             double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
             item.setPriceChangePercent(priceChangePercent);
 

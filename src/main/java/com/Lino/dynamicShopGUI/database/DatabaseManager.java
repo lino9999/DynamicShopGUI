@@ -46,24 +46,19 @@ public class DatabaseManager {
         }
     }
 
-    // --- NUOVO METODO PER SINCRONIZZARE DB E CONFIG ---
     public void syncWithConfig() {
         try {
-            // 1. Aggiorna o inserisce gli item presenti nel config (prezzi, stock, ecc.)
             initializeDefaultData();
 
-            // 2. Trova e rimuove gli item che sono nel DB ma NON più nel config
             Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
             List<String> activeMaterials = new ArrayList<>();
 
-            // Raccoglie tutti i materiali attivi dai file yml
             for (CategoryConfigLoader.CategoryConfig category : categories.values()) {
                 for (Material material : category.getItems().keySet()) {
                     activeMaterials.add(material.name());
                 }
             }
 
-            // Raccoglie tutti i materiali presenti nel DB
             List<String> dbMaterials = new ArrayList<>();
             try (Statement stmt = connection.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT material FROM shop_items")) {
@@ -72,15 +67,13 @@ public class DatabaseManager {
                 }
             }
 
-            // Rimuove dalla lista del DB quelli che sono ancora attivi
             dbMaterials.removeAll(activeMaterials);
 
-            // Quelli che rimangono in dbMaterials sono obsoleti -> CANCELLIAMOLI
             if (!dbMaterials.isEmpty()) {
                 String deleteQuery = "DELETE FROM shop_items WHERE material = ?";
                 try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
                     boolean autoCommit = connection.getAutoCommit();
-                    connection.setAutoCommit(false); // Ottimizzazione batch
+                    connection.setAutoCommit(false);
 
                     for (String mat : dbMaterials) {
                         pstmt.setString(1, mat);
@@ -97,7 +90,6 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
-    // --------------------------------------------------
 
     private void createTables() throws SQLException {
         String shopItemsTable = "CREATE TABLE IF NOT EXISTS shop_items (" +
@@ -166,7 +158,6 @@ public class DatabaseManager {
 
                     double initialPrice = calculateInitialPrice(itemConfig.getPrice(), itemConfig.getInitialStock(), itemConfig.getMaxStock());
 
-                    // Insert batch
                     insertStmt.setString(1, material.name());
                     insertStmt.setString(2, categoryName);
                     insertStmt.setDouble(3, itemConfig.getPrice());
@@ -176,7 +167,6 @@ public class DatabaseManager {
                     insertStmt.setInt(7, itemConfig.getMaxStock());
                     insertStmt.addBatch();
 
-                    // Update batch
                     updateStmt.setDouble(1, itemConfig.getPrice());
                     updateStmt.setInt(2, itemConfig.getMaxStock());
                     updateStmt.setInt(3, itemConfig.getMinStock());
@@ -325,7 +315,9 @@ public class DatabaseManager {
                     if (rs.next()) {
                         double basePrice = rs.getDouble("base_price");
                         double currentPrice = rs.getDouble("current_price");
-                        double priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
+
+                        // FIX: Read persisted value instead of recalculating from base price
+                        double priceChangePercent = rs.getDouble("price_change_percent");
 
                         int minStock = 0;
                         try { minStock = rs.getInt("min_stock"); } catch (SQLException ignored) {}
@@ -362,7 +354,9 @@ public class DatabaseManager {
                         Material material = Material.valueOf(rs.getString("material"));
                         double basePrice = rs.getDouble("base_price");
                         double currentPrice = rs.getDouble("current_price");
-                        double priceChangePercent = ((currentPrice - basePrice) / basePrice) * 100;
+
+                        // FIX: Read persisted value instead of recalculating from base price
+                        double priceChangePercent = rs.getDouble("price_change_percent");
 
                         int minStock = 0;
                         try { minStock = rs.getInt("min_stock"); } catch (SQLException ignored) {}

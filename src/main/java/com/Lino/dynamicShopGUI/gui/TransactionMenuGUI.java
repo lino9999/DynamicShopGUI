@@ -191,7 +191,7 @@ public class TransactionMenuGUI {
 
         if (plugin.getShopConfig().showPriceTrends()) {
             displayLore.add("");
-            displayLore.add(GUIUtils.formatPriceChange(plugin, item.getPriceChangePercent()));
+            displayLore.add(GUIUtils.formatPriceChange(plugin, item));
         }
 
         if (plugin.getRestockManager().isRestocking(material)) {

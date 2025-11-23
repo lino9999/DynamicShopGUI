@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.utils;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.models.ShopItem;
 import org.bukkit.Material;
 
 public class GUIUtils {
@@ -25,13 +26,15 @@ public class GUIUtils {
         return formatted.toString();
     }
 
-    public static String formatPriceChange(DynamicShopGUI plugin, double percent) {
-        if (percent > 0) {
+    public static String formatPriceChange(DynamicShopGUI plugin, ShopItem item) {
+        double percent = item.getPriceChangePercent();
+
+        if (percent > 0.005) {
             return plugin.getShopConfig().getMessage("gui.price-increase",
-                    "%percent%", String.format("%.1f", percent));
-        } else if (percent < 0) {
+                    "%percent%", String.format("%.2f", percent));
+        } else if (percent < -0.005) {
             return plugin.getShopConfig().getMessage("gui.price-decrease",
-                    "%percent%", String.format("%.1f", Math.abs(percent)));
+                    "%percent%", String.format("%.2f", Math.abs(percent)));
         } else {
             return plugin.getShopConfig().getMessage("gui.price-stable");
         }
