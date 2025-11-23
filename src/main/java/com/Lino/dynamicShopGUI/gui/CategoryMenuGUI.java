@@ -60,7 +60,8 @@ public class CategoryMenuGUI {
                 Map.Entry<Material, ShopItem> entry = sortedItems.get(i);
                 ShopItem shopItem = entry.getValue();
 
-                if (shopItem.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
+                double restockThreshold = plugin.getShopConfig().getRestockTriggerThreshold();
+                if (shopItem.getStock() < shopItem.getMaxStock() * restockThreshold && plugin.getShopConfig().isRestockEnabled()) {
                     if (!plugin.getRestockManager().isRestocking(shopItem.getMaterial())) {
                         plugin.getRestockManager().startRestockTimer(shopItem.getMaterial());
                     }
@@ -175,15 +176,21 @@ public class CategoryMenuGUI {
             lore.add(GUIUtils.formatPriceChange(plugin, item.getPriceChangePercent()));
         }
 
-        if (item.getStock() == 0 && plugin.getRestockManager().isRestocking(item.getMaterial())) {
+        if (plugin.getRestockManager().isRestocking(item.getMaterial())) {
             String countdown = plugin.getRestockManager().getRestockCountdown(item.getMaterial());
             if (countdown != null) {
                 lore.add("");
-                lore.add(plugin.getShopConfig().getMessage("restock.out-of-stock-purchase"));
+                if (item.getStock() == 0) {
+                    lore.add(plugin.getShopConfig().getMessage("restock.out-of-stock-purchase"));
+                } else {
+                    lore.add(plugin.getShopConfig().getMessage("restock.restocking"));
+                }
                 lore.add(plugin.getShopConfig().getMessage("restock.countdown", "%time%", countdown));
-                lore.add("");
-                lore.add(plugin.getShopConfig().getMessage("restock.can-still-sell"));
-                lore.add(plugin.getShopConfig().getMessage("gui.right-click-sell"));
+                if (item.getStock() == 0) {
+                    lore.add("");
+                    lore.add(plugin.getShopConfig().getMessage("restock.can-still-sell"));
+                    lore.add(plugin.getShopConfig().getMessage("gui.right-click-sell"));
+                }
             }
         } else if (item.getStock() == 0) {
             lore.add("");
@@ -194,6 +201,15 @@ public class CategoryMenuGUI {
             lore.add("");
             lore.add(plugin.getShopConfig().getMessage("gui.left-click-buy"));
             lore.add(plugin.getShopConfig().getMessage("gui.right-click-sell"));
+        }
+
+        double decayThreshold = plugin.getShopConfig().getStockDecayTriggerThreshold();
+        if (plugin.getShopConfig().isStockDecayEnabled() && item.getStock() >= item.getMaxStock() * decayThreshold) {
+            String decayCountdown = plugin.getRestockManager().getDecayCountdown();
+            if (decayCountdown != null) {
+                lore.add("");
+                lore.add(plugin.getShopConfig().getMessage("restock.decay-countdown", "%time%", decayCountdown));
+            }
         }
 
         meta.setLore(lore);

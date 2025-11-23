@@ -103,6 +103,11 @@ public class ShopManager {
                 checkOutOfStockAlert(item);
             }
 
+            double triggerThreshold = plugin.getShopConfig().getRestockTriggerThreshold();
+            if (plugin.getShopConfig().isRestockEnabled() && item.getStock() < item.getMaxStock() * triggerThreshold) {
+                plugin.getRestockManager().startRestockTimer(material);
+            }
+
             return CompletableFuture.completedFuture(new TransactionResult(true,
                     plugin.getShopConfig().getMessage("transaction.buy-success",
                             "%amount%", String.valueOf(amount),

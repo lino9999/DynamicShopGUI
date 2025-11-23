@@ -41,7 +41,8 @@ public class TransactionMenuGUI {
 
             setupSimplifiedBorders(inv, isBuying);
 
-            if (item.getStock() == 0 && plugin.getShopConfig().isRestockEnabled()) {
+            double restockThreshold = plugin.getShopConfig().getRestockTriggerThreshold();
+            if (item.getStock() < item.getMaxStock() * restockThreshold && plugin.getShopConfig().isRestockEnabled()) {
                 if (!plugin.getRestockManager().isRestocking(material)) {
                     plugin.getRestockManager().startRestockTimer(material);
                 }
@@ -50,7 +51,6 @@ public class TransactionMenuGUI {
             ItemStack displayItem = createDisplayItem(material, item, isBuying);
             inv.setItem(13, displayItem);
 
-            // Glasmorphic effect around the main item
             ItemStack accentGlass = new ItemStack(isBuying ? Material.LIME_STAINED_GLASS : Material.RED_STAINED_GLASS);
             ItemMeta accentMeta = accentGlass.getItemMeta();
             accentMeta.setDisplayName(" ");
@@ -59,7 +59,6 @@ public class TransactionMenuGUI {
             inv.setItem(12, accentGlass);
             inv.setItem(14, accentGlass);
 
-            // Amount buttons
             if (isBuying) {
                 setAmountButton(inv, 29, Material.LIME_STAINED_GLASS_PANE, 1, true, item);
                 setAmountButton(inv, 30, Material.LIME_STAINED_GLASS_PANE, 10, true, item);
@@ -74,7 +73,6 @@ public class TransactionMenuGUI {
                 setAmountButton(inv, 33, Material.RED_STAINED_GLASS_PANE, -1, false, item);
             }
 
-            // Toggle button
             ItemStack toggleButton = new ItemStack(Material.HOPPER);
             ItemMeta toggleMeta = toggleButton.getItemMeta();
             toggleMeta.setDisplayName(isBuying ?
@@ -87,14 +85,12 @@ public class TransactionMenuGUI {
             toggleButton.setItemMeta(toggleMeta);
             inv.setItem(22, toggleButton);
 
-            // Back button
             ItemStack backButton = new ItemStack(Material.ARROW);
             ItemMeta backMeta = backButton.getItemMeta();
             backMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.back"));
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
-            // Balance info
             double balance = plugin.getEconomy().getBalance(player);
             ItemStack balanceInfo = new ItemStack(Material.EMERALD);
             ItemMeta balanceMeta = balanceInfo.getItemMeta();
@@ -111,18 +107,15 @@ public class TransactionMenuGUI {
     }
 
     private void setupSimplifiedBorders(Inventory inv, boolean isBuying) {
-        // Base filler - gray glass
         ItemStack glassFiller = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassFiller.getItemMeta();
         glassMeta.setDisplayName(" ");
         glassFiller.setItemMeta(glassMeta);
 
-        // Fill everything with gray glass first
         for (int i = 0; i < 54; i++) {
             inv.setItem(i, glassFiller);
         }
 
-        // Decorative border - black glass with enchant glow
         ItemStack decorBorder = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta decorMeta = decorBorder.getItemMeta();
         decorMeta.setDisplayName(" ");
@@ -130,30 +123,26 @@ public class TransactionMenuGUI {
         decorMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         decorBorder.setItemMeta(decorMeta);
 
-        // Top and bottom borders
         for (int i = 0; i < 9; i++) {
-            inv.setItem(i, decorBorder); // Top row
-            inv.setItem(45 + i, decorBorder); // Bottom row
+            inv.setItem(i, decorBorder);
+            inv.setItem(45 + i, decorBorder);
         }
 
-        // Side borders
         for (int row = 1; row < 5; row++) {
-            inv.setItem(row * 9, decorBorder); // Left side
-            inv.setItem(row * 9 + 8, decorBorder); // Right side
+            inv.setItem(row * 9, decorBorder);
+            inv.setItem(row * 9 + 8, decorBorder);
         }
 
-        // Accent corners - themed color based on buy/sell
         ItemStack accentCorner = new ItemStack(isBuying ? Material.EMERALD_BLOCK : Material.REDSTONE_BLOCK);
         ItemMeta accentMeta = accentCorner.getItemMeta();
         accentMeta.setDisplayName(" ");
         accentCorner.setItemMeta(accentMeta);
 
-        inv.setItem(0, accentCorner); // Top-left
-        inv.setItem(8, accentCorner); // Top-right
-        inv.setItem(45, accentCorner); // Bottom-left
-        inv.setItem(53, accentCorner); // Bottom-right
+        inv.setItem(0, accentCorner);
+        inv.setItem(8, accentCorner);
+        inv.setItem(45, accentCorner);
+        inv.setItem(53, accentCorner);
 
-        // Clear the center area for content
         for (int i = 10; i <= 16; i++) {
             inv.setItem(i, null);
         }
@@ -167,9 +156,8 @@ public class TransactionMenuGUI {
             inv.setItem(i, null);
         }
 
-        // Keep some spots for navigation buttons
         inv.setItem(48, glassFiller);
-        inv.setItem(49, null); // Back button
+        inv.setItem(49, null);
         inv.setItem(50, glassFiller);
     }
 
@@ -206,12 +194,25 @@ public class TransactionMenuGUI {
             displayLore.add(GUIUtils.formatPriceChange(plugin, item.getPriceChangePercent()));
         }
 
-        if (item.getStock() == 0 && plugin.getRestockManager().isRestocking(material)) {
+        if (plugin.getRestockManager().isRestocking(material)) {
             String countdown = plugin.getRestockManager().getRestockCountdown(material);
             if (countdown != null) {
                 displayLore.add("");
-                displayLore.add(plugin.getShopConfig().getMessage("restock.out-of-stock"));
+                if (item.getStock() == 0) {
+                    displayLore.add(plugin.getShopConfig().getMessage("restock.out-of-stock"));
+                } else {
+                    displayLore.add(plugin.getShopConfig().getMessage("restock.restocking"));
+                }
                 displayLore.add(plugin.getShopConfig().getMessage("restock.countdown", "%time%", countdown));
+            }
+        }
+
+        double decayThreshold = plugin.getShopConfig().getStockDecayTriggerThreshold();
+        if (plugin.getShopConfig().isStockDecayEnabled() && item.getStock() >= item.getMaxStock() * decayThreshold) {
+            String decayCountdown = plugin.getRestockManager().getDecayCountdown();
+            if (decayCountdown != null) {
+                displayLore.add("");
+                displayLore.add(plugin.getShopConfig().getMessage("restock.decay-countdown", "%time%", decayCountdown));
             }
         }
 

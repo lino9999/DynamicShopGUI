@@ -163,6 +163,18 @@ public class ShopConfig {
         return plugin.getConfig().getInt("restock.restock-percentage", 50);
     }
 
+    public double getRestockTriggerThreshold() {
+        return plugin.getConfig().getDouble("restock.trigger-threshold", 0.10);
+    }
+
+    public boolean isStockDecayEnabled() {
+        return plugin.getConfig().getBoolean("stock-decay.enabled", true);
+    }
+
+    public double getStockDecayTriggerThreshold() {
+        return plugin.getConfig().getDouble("stock-decay.trigger-threshold", 0.95);
+    }
+
     public boolean isSoundEnabled() {
         return plugin.getConfig().getBoolean("gui.sounds-enabled", true);
     }

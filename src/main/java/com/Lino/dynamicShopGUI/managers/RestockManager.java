@@ -16,7 +16,8 @@ public class RestockManager {
     private final DynamicShopGUI plugin;
     private final Map<Material, Long> restockTimers;
     private BukkitTask masterTask;
-    private BukkitTask decayTask; // Task per l'oversupply
+    private BukkitTask decayTask;
+    private long nextDecayTime = 0;
 
     public RestockManager(DynamicShopGUI plugin) {
         this.plugin = plugin;
@@ -46,19 +47,22 @@ public class RestockManager {
         }.runTaskTimer(plugin, 20L, 20L);
     }
 
-    // Nuovo metodo: Gestisce il Decay dello Stock / Reset Oversupply
     private void startDecayTask() {
         boolean enabled = plugin.getConfig().getBoolean("stock-decay.enabled", false);
         if (!enabled) return;
 
-        long interval = plugin.getConfig().getLong("stock-decay.interval", 60) * 60 * 20L; // Minuti in tick
+        long intervalTicks = plugin.getConfig().getLong("stock-decay.interval", 60) * 60 * 20L;
+        long intervalMillis = intervalTicks * 50;
+
+        nextDecayTime = System.currentTimeMillis() + intervalMillis;
 
         decayTask = new BukkitRunnable() {
             @Override
             public void run() {
                 performDecayCheck();
+                nextDecayTime = System.currentTimeMillis() + intervalMillis;
             }
-        }.runTaskTimer(plugin, interval, interval);
+        }.runTaskTimer(plugin, intervalTicks, intervalTicks);
     }
 
     private void performDecayCheck() {
@@ -73,27 +77,22 @@ public class RestockManager {
                     if (item != null) {
                         double currentRatio = (double) item.getStock() / item.getMaxStock();
 
-                        // Se lo stock è troppo alto (oversupply)
                         if (currentRatio >= triggerThreshold) {
                             int newStock = (int) (item.getMaxStock() * targetPercentage);
 
-                            // Non scendere sotto il min stock
                             newStock = Math.max(newStock, item.getMinStock());
 
                             if (newStock < item.getStock()) {
                                 item.setStock(newStock);
 
-                                // Ricalcola il prezzo basato sul nuovo stock ridotto
                                 double newPrice = calculateNewPrice(item);
                                 item.setCurrentPrice(newPrice);
 
-                                // Aggiorna percentuale cambio
                                 double priceChangePercent = ((newPrice - item.getBasePrice()) / item.getBasePrice()) * 100;
                                 item.setPriceChangePercent(priceChangePercent);
 
                                 plugin.getDatabaseManager().updateShopItem(item);
 
-                                // Log in console per notificare l'admin
                                 plugin.getLogger().info("Decayed stock for " + material.name() + " from " + item.getStock() + " to " + newStock);
                             }
                         }
@@ -127,11 +126,23 @@ public class RestockManager {
         long currentTime = System.currentTimeMillis();
         long remainingTime = endTime - currentTime;
 
-        if (remainingTime <= 0) {
-            return "Restocking...";
+        return formatDuration(remainingTime);
+    }
+
+    public String getDecayCountdown() {
+        if (!plugin.getShopConfig().isStockDecayEnabled() || nextDecayTime == 0) {
+            return null;
+        }
+        long remainingTime = nextDecayTime - System.currentTimeMillis();
+        return formatDuration(remainingTime);
+    }
+
+    private String formatDuration(long remainingMillis) {
+        if (remainingMillis <= 0) {
+            return "0s";
         }
 
-        long seconds = remainingTime / 1000;
+        long seconds = remainingMillis / 1000;
         long minutes = seconds / 60;
         long hours = minutes / 60;
 
