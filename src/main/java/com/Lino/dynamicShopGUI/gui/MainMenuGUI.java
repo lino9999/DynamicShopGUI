@@ -2,6 +2,7 @@ package com.Lino.dynamicShopGUI.gui;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
+import com.Lino.dynamicShopGUI.config.ShopConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -25,7 +26,6 @@ public class MainMenuGUI {
 
         Inventory inv = Bukkit.createInventory(null, 54, plugin.getShopConfig().getMessage("gui.main-title"));
 
-
         ItemStack glassFiller = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassFiller.getItemMeta();
         glassMeta.setDisplayName(" ");
@@ -35,9 +35,8 @@ public class MainMenuGUI {
         ItemMeta decorMeta = decorGlass.getItemMeta();
         decorMeta.setDisplayName(" ");
         decorMeta.addEnchant(Enchantment.PROTECTION, 1, true);
-        decorMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS); // Nasconde il testo dell'enchant ma mantiene l'animazione
+        decorMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         decorGlass.setItemMeta(decorMeta);
-
 
         for (int i = 0; i < 54; i++) {
             inv.setItem(i, glassFiller);
@@ -65,7 +64,6 @@ public class MainMenuGUI {
         inv.setItem(51, decorGlass);
         inv.setItem(52, decorGlass);
         inv.setItem(53, decorGlass);
-
 
         ItemStack centerDecor = new ItemStack(Material.EMERALD_BLOCK);
         ItemMeta centerMeta = centerDecor.getItemMeta();
@@ -145,16 +143,18 @@ public class MainMenuGUI {
         infoBook.setItemMeta(bookMeta);
         inv.setItem(48, infoBook);
 
-        if (plugin.getShopConfig().isCustomButtonEnabled()) {
-            int customSlot = plugin.getShopConfig().getCustomButtonSlot();
+        for (ShopConfig.CustomButtonConfig btn : plugin.getShopConfig().getCustomButtons()) {
+            int slot = btn.getSlot();
 
-            if (customSlot >= 0 && customSlot < 54) {
-                ItemStack customButton = new ItemStack(plugin.getShopConfig().getCustomButtonMaterial());
+            if (slot >= 0 && slot < 54) {
+                ItemStack customButton = new ItemStack(btn.getMaterial());
                 ItemMeta customMeta = customButton.getItemMeta();
-                customMeta.setDisplayName(plugin.getShopConfig().getCustomButtonDisplayName());
-                customMeta.setLore(plugin.getShopConfig().getCustomButtonLore());
-                customButton.setItemMeta(customMeta);
-                inv.setItem(customSlot, customButton);
+                if (customMeta != null) {
+                    customMeta.setDisplayName(btn.getDisplayName());
+                    customMeta.setLore(btn.getLore());
+                    customButton.setItemMeta(customMeta);
+                    inv.setItem(slot, customButton);
+                }
             }
         }
 

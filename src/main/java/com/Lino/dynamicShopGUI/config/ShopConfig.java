@@ -5,6 +5,7 @@ import com.Lino.dynamicShopGUI.managers.MessageManager;
 import com.Lino.dynamicShopGUI.utils.GradientColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +27,7 @@ public class ShopConfig {
         plugin.reloadConfig();
         messageManager.reload();
         categoryLoader.reload();
-
-        // --- CHIAMATA AGGIUNTA PER PULIRE IL DB ---
         plugin.getDatabaseManager().syncWithConfig();
-        // ------------------------------------------
 
         if (plugin.getItemWorthManager() != null) {
             plugin.getItemWorthManager().stop();
@@ -195,39 +193,58 @@ public class ShopConfig {
         return plugin.getConfig().getBoolean("gui.show-tax-info", true);
     }
 
-    public boolean isCustomButtonEnabled() {
-        return plugin.getConfig().getBoolean("custom-button.enabled", false);
-    }
+    public List<CustomButtonConfig> getCustomButtons() {
+        List<CustomButtonConfig> buttons = new ArrayList<>();
 
-    public int getCustomButtonSlot() {
-        return plugin.getConfig().getInt("custom-button.slot", 52);
-    }
-
-    public Material getCustomButtonMaterial() {
-        String materialName = plugin.getConfig().getString("custom-button.material", "NETHER_STAR");
-        try {
-            return Material.valueOf(materialName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Material.NETHER_STAR;
+        if (plugin.getConfig().isConfigurationSection("custom-buttons")) {
+            ConfigurationSection section = plugin.getConfig().getConfigurationSection("custom-buttons");
+            for (String key : section.getKeys(false)) {
+                if (section.getBoolean(key + ".enabled")) {
+                    buttons.add(new CustomButtonConfig(
+                            section.getInt(key + ".slot"),
+                            section.getString(key + ".material", "STONE"),
+                            section.getString(key + ".command", ""),
+                            section.getString(key + ".display-name", "Button"),
+                            section.getStringList(key + ".lore")
+                    ));
+                }
+            }
         }
+
+        return buttons;
     }
 
-    public String getCustomButtonCommand() {
-        return plugin.getConfig().getString("custom-button.command", "blackmarket");
-    }
+    public static class CustomButtonConfig {
+        private final int slot;
+        private final Material material;
+        private final String command;
+        private final String displayName;
+        private final List<String> lore;
 
-    public String getCustomButtonDisplayName() {
-        String name = plugin.getConfig().getString("custom-button.display-name", "&eCustom Button");
-        return GradientColor.apply(name);
-    }
+        public CustomButtonConfig(int slot, String materialName, String command, String displayName, List<String> lore) {
+            this.slot = slot;
+            Material mat;
+            try {
+                mat = Material.valueOf(materialName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                mat = Material.STONE;
+            }
+            this.material = mat;
+            this.command = command;
+            this.displayName = GradientColor.apply(displayName);
 
-    public List<String> getCustomButtonLore() {
-        List<String> lore = plugin.getConfig().getStringList("custom-button.lore");
-        List<String> coloredLore = new ArrayList<>();
-        for (String line : lore) {
-            coloredLore.add(GradientColor.apply(line));
+            List<String> coloredLore = new ArrayList<>();
+            for (String line : lore) {
+                coloredLore.add(GradientColor.apply(line));
+            }
+            this.lore = coloredLore;
         }
-        return coloredLore;
+
+        public int getSlot() { return slot; }
+        public Material getMaterial() { return material; }
+        public String getCommand() { return command; }
+        public String getDisplayName() { return displayName; }
+        public List<String> getLore() { return lore; }
     }
 
     public String getMessage(String key) {

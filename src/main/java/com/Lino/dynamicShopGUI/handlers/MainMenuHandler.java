@@ -2,6 +2,7 @@ package com.Lino.dynamicShopGUI.handlers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
+import com.Lino.dynamicShopGUI.config.ShopConfig;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -25,13 +26,15 @@ public class MainMenuHandler {
             return;
         }
 
-        if (plugin.getShopConfig().isCustomButtonEnabled() && slot == plugin.getShopConfig().getCustomButtonSlot()) {
-            String command = plugin.getShopConfig().getCustomButtonCommand();
-            if (command != null && !command.isEmpty()) {
-                player.closeInventory();
-                plugin.getServer().dispatchCommand(player, command);
+        for (ShopConfig.CustomButtonConfig btn : plugin.getShopConfig().getCustomButtons()) {
+            if (slot == btn.getSlot()) {
+                String command = btn.getCommand();
+                if (command != null && !command.isEmpty()) {
+                    player.closeInventory();
+                    plugin.getServer().dispatchCommand(player, command);
+                }
+                return;
             }
-            return;
         }
 
         if (slot == 48 || slot == 49 || slot == 4) {
