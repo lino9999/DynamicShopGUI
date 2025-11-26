@@ -5,7 +5,7 @@
 custom-buttons:
   blackmarket:
     enabled: true
-    slot: 52
+    slot: 12
     material: NETHER_STAR
     command: "blackmarket"
     display-name: "<gradient:#ff00ff:#ffff00>Black Market</gradient>"
@@ -18,7 +18,7 @@ custom-buttons:
 
   auction_house:
     enabled: true
-    slot: 51
+    slot: 14
     material: GOLD_INGOT
     command: "ah"
     display-name: "<gradient:#00aaff:#00ffee>Auction House</gradient>"
