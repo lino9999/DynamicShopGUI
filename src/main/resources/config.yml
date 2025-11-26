@@ -4,7 +4,7 @@
 # You can add multiple buttons here.
 custom-buttons:
   blackmarket:
-    enabled: true
+    enabled: false
     slot: 12
     material: NETHER_STAR
     command: "blackmarket"
@@ -17,7 +17,7 @@ custom-buttons:
       - ""
 
   auction_house:
-    enabled: true
+    enabled: false
     slot: 14
     material: GOLD_INGOT
     command: "ah"
