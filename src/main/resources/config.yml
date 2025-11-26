@@ -5,7 +5,7 @@
 custom-buttons:
   blackmarket:
     enabled: true
-    slot: 12
+    slot: 52
     material: NETHER_STAR
     command: "blackmarket"
     display-name: "<gradient:#ff00ff:#ffff00>Black Market</gradient>"
@@ -15,9 +15,10 @@ custom-buttons:
       - "<gradient:#888888:#bbbbbb>Access the black market</gradient>"
       - "<gradient:#888888:#bbbbbb>for special items!</gradient>"
       - ""
+
   auction_house:
     enabled: true
-    slot: 14
+    slot: 51
     material: GOLD_INGOT
     command: "ah"
     display-name: "<gradient:#00aaff:#00ffee>Auction House</gradient>"
@@ -25,6 +26,12 @@ custom-buttons:
       - ""
       - "<gradient:#00ff00:#00aa00>» Click to view</gradient>"
       - "&7View player listings"
+
+# Discord Webhook Integration
+discord:
+  enabled: false
+  webhook-url: "YOUR_WEBHOOK_URL_HERE"
+  # Events are currently hardcoded to Out of Stock alerts
 
 # Dynamic Pricing System:
 # Prices now change smoothly based on stock levels using a continuous formula.

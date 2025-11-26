@@ -353,6 +353,9 @@ public class ShopManager {
     private void checkOutOfStockAlert(ShopItem item) {
         if (!plugin.getShopConfig().isOutOfStockAlertEnabled()) return;
 
+        // Send to Discord
+        plugin.getDiscordManager().sendOutOfStockAlert(item);
+
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             String itemName = formatMaterialName(item.getMaterial());
             String message = plugin.getShopConfig().getMessage("out-of-stock.alert",

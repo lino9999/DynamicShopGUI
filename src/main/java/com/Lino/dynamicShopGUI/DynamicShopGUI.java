@@ -3,6 +3,7 @@ package com.Lino.dynamicShopGUI;
 import com.Lino.dynamicShopGUI.listeners.AutoSellChestListener;
 import com.Lino.dynamicShopGUI.listeners.AutoHarvesterListener;
 import com.Lino.dynamicShopGUI.managers.AutoSellChestManager;
+import com.Lino.dynamicShopGUI.managers.DiscordManager;
 import com.Lino.dynamicShopGUI.managers.ItemWorthManager;
 import com.Lino.dynamicShopGUI.placeholders.ShopPlaceholders;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,6 +31,7 @@ public class DynamicShopGUI extends JavaPlugin {
     private ItemWorthManager itemWorthManager;
     private ItemStackFixListener itemStackFixListener;
     private AutoSellChestManager autoSellChestManager;
+    private DiscordManager discordManager;
 
     @Override
     public void onEnable() {
@@ -51,6 +53,7 @@ public class DynamicShopGUI extends JavaPlugin {
             return;
         }
 
+        discordManager = new DiscordManager(this);
         restockManager = new RestockManager(this);
         shopManager = new ShopManager(this);
         guiManager = new GUIManager(this);
@@ -154,5 +157,9 @@ public class DynamicShopGUI extends JavaPlugin {
 
     public AutoSellChestManager getAutoSellChestManager() {
         return autoSellChestManager;
+    }
+
+    public DiscordManager getDiscordManager() {
+        return discordManager;
     }
 }
