@@ -2,25 +2,40 @@ package com.Lino.dynamicShopGUI.managers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.models.ShopItem;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ItemWorthManager {
 
     private final DynamicShopGUI plugin;
-    private BukkitTask updateTask;
-    private int playerIndex = 0;
-    private final Map<Material, Double> priceCache = new HashMap<>();
-    private final Map<Material, Boolean> sellableCache = new HashMap<>();
-    private long lastCacheUpdate = 0;
-    private final long CACHE_DURATION = 2000;
+    private final Map<Material, CachedItem> itemCache = new ConcurrentHashMap<>();
+    private final Map<Material, Boolean> sellableCache = new ConcurrentHashMap<>();
+    private BukkitTask cacheUpdateTask;
+
+    private static class CachedItem {
+        final double sellPrice;
+        final String category;
+
+        CachedItem(double sellPrice, String category) {
+            this.sellPrice = sellPrice;
+            this.category = category;
+        }
+    }
 
     public ItemWorthManager(DynamicShopGUI plugin) {
         this.plugin = plugin;
@@ -31,78 +46,182 @@ public class ItemWorthManager {
             return;
         }
 
-        int interval = plugin.getConfig().getInt("item-worth.update-interval", 5) * 20;
+        if (plugin.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
+            return;
+        }
 
-        updateTask = new BukkitRunnable() {
+        refreshCache();
+
+        int interval = plugin.getConfig().getInt("item-worth.update-interval", 5) * 20;
+        cacheUpdateTask = new BukkitRunnable() {
             @Override
             public void run() {
-                updatePlayerInventories();
+                refreshCache();
             }
-        }.runTaskTimer(plugin, interval, interval);
+        }.runTaskTimerAsynchronously(plugin, interval, interval);
+
+        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(
+                plugin,
+                ListenerPriority.HIGH,
+                PacketType.Play.Server.WINDOW_ITEMS,
+                PacketType.Play.Server.SET_SLOT
+        ) {
+            @Override
+            public void onPacketSending(PacketEvent event) {
+                if (event.getPlayer() == null) return;
+
+                if (plugin.getConfig().getBoolean("item-worth.disable-in-creative", true) &&
+                        event.getPlayer().getGameMode() == org.bukkit.GameMode.CREATIVE) {
+                    return;
+                }
+
+                PacketContainer packet = event.getPacket();
+
+                if (event.getPacketType() == PacketType.Play.Server.SET_SLOT) {
+                    ItemStack item = packet.getItemModifier().read(0);
+                    if (item != null && item.getType() != Material.AIR) {
+                        packet.getItemModifier().write(0, addWorthLore(item));
+                    }
+                } else if (event.getPacketType() == PacketType.Play.Server.WINDOW_ITEMS) {
+                    List<ItemStack> items = packet.getItemListModifier().read(0);
+                    if (items != null) {
+                        List<ItemStack> newItems = new ArrayList<>();
+                        for (ItemStack item : items) {
+                            if (item != null && item.getType() != Material.AIR) {
+                                newItems.add(addWorthLore(item));
+                            } else {
+                                newItems.add(item);
+                            }
+                        }
+                        packet.getItemListModifier().write(0, newItems);
+                    }
+                }
+            }
+        });
     }
 
     public void stop() {
-        if (updateTask != null) {
-            updateTask.cancel();
-            updateTask = null;
+        if (cacheUpdateTask != null) {
+            cacheUpdateTask.cancel();
+            cacheUpdateTask = null;
         }
+        ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
+        clearCache();
     }
 
-    private void updatePlayerInventories() {
-        List<Player> onlinePlayers = new ArrayList<>(plugin.getServer().getOnlinePlayers());
+    private ItemStack addWorthLore(ItemStack originalItem) {
+        ItemStack item = originalItem.clone();
+        Material material = item.getType();
 
-        if (onlinePlayers.isEmpty()) {
-            return;
+        List<String> excludedItems = plugin.getConfig().getStringList("item-worth.excluded-items");
+        if (excludedItems.contains(material.name())) {
+            return item;
         }
 
-        int maxPlayersPerUpdate = plugin.getConfig().getInt("item-worth.max-players-per-update", 5);
+        if (isCustomItem(item)) {
+            return item;
+        }
 
-        for (int i = 0; i < maxPlayersPerUpdate; i++) {
-            if (playerIndex >= onlinePlayers.size()) {
-                playerIndex = 0;
-            }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return item;
 
-            if (playerIndex < onlinePlayers.size()) {
-                Player player = onlinePlayers.get(playerIndex);
-                if (player != null && player.isOnline()) {
-                    updatePlayerInventory(player);
+        List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+        boolean hasContentValue = false;
+
+        if (meta instanceof BlockStateMeta) {
+            BlockStateMeta blockStateMeta = (BlockStateMeta) meta;
+            if (blockStateMeta.getBlockState() instanceof ShulkerBox) {
+                double shulkerValue = calculateShulkerValue(blockStateMeta);
+                if (shulkerValue > 0) {
+                    hasContentValue = true;
+                    String shulkerLine = plugin.getShopConfig().getMessage("item-worth.shulker-contents",
+                            "%value%", String.format("%.2f", shulkerValue));
+                    lore.add(shulkerLine);
                 }
             }
-            playerIndex++;
         }
 
-        if (System.currentTimeMillis() - lastCacheUpdate > CACHE_DURATION) {
-            clearCache();
-            lastCacheUpdate = System.currentTimeMillis();
+        Boolean isSellable = sellableCache.get(material);
+        CachedItem cachedItem = itemCache.get(material);
+
+        String notSellableText = plugin.getShopConfig().getMessage("item-worth.not-sellable");
+        if (notSellableText == null) notSellableText = "Not Sellable";
+
+        if (isSellable == null || !isSellable) {
+            // MOSTRA "Not Sellable" SOLO SE NON HA CONTENUTO DI VALORE
+            if (!hasContentValue) {
+                lore.add(notSellableText);
+            }
+        } else if (cachedItem != null) {
+            int amount = item.getAmount();
+            double grossValue = cachedItem.sellPrice * amount;
+            double tax = plugin.getShopConfig().calculateTax(material, cachedItem.category, grossValue);
+            double netValue = grossValue - tax;
+
+            if (amount > 1) {
+                String stackLine = plugin.getShopConfig().getMessage("item-worth.worth-stack",
+                        "%value%", String.format("%.2f", netValue));
+                lore.add(stackLine);
+            } else {
+                String unitLine = plugin.getShopConfig().getMessage("item-worth.worth-unit",
+                        "%value%", String.format("%.2f", netValue));
+                lore.add(unitLine);
+            }
+        }
+
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private double calculateShulkerValue(BlockStateMeta meta) {
+        double totalNetValue = 0.0;
+        BlockState state = meta.getBlockState();
+
+        if (state instanceof ShulkerBox) {
+            ShulkerBox shulker = (ShulkerBox) state;
+            for (ItemStack content : shulker.getInventory().getContents()) {
+                if (content != null && content.getType() != Material.AIR) {
+                    CachedItem cachedContent = itemCache.get(content.getType());
+                    if (cachedContent != null) {
+                        double contentGross = cachedContent.sellPrice * content.getAmount();
+                        double contentTax = plugin.getShopConfig().calculateTax(content.getType(), cachedContent.category, contentGross);
+                        totalNetValue += (contentGross - contentTax);
+                    }
+                }
+            }
+        }
+        return totalNetValue;
+    }
+
+    private void refreshCache() {
+        Map<String, com.Lino.dynamicShopGUI.config.CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
+
+        for (var category : categories.values()) {
+            for (Material material : category.getItems().keySet()) {
+                try {
+                    ShopItem shopItem = plugin.getDatabaseManager().getShopItem(material).join();
+                    if (shopItem != null) {
+                        itemCache.put(material, new CachedItem(shopItem.getSellPrice(), shopItem.getCategory()));
+                        sellableCache.put(material, true);
+                    } else {
+                        sellableCache.put(material, false);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    private void updatePlayerInventory(Player player) {
-        if (plugin.getConfig().getBoolean("item-worth.disable-in-creative", true) &&
-                player.getGameMode() == org.bukkit.GameMode.CREATIVE) {
-            return;
-        }
-
-        if (plugin.getItemStackFixListener() != null &&
-                plugin.getItemStackFixListener().isProcessingInventory(player.getUniqueId())) {
-            return;
-        }
-
-        boolean updated = false;
-
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
-                continue;
-            }
-
-            if (updateItemLore(item)) {
-                updated = true;
-            }
-        }
-
-        if (updated) {
-            player.updateInventory();
+    public void clearCache() {
+        if (plugin.isEnabled()) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    refreshCache();
+                }
+            }.runTaskAsynchronously(plugin);
         }
     }
 
@@ -110,140 +229,13 @@ public class ItemWorthManager {
         if (!plugin.getConfig().getBoolean("item-worth.skip-custom-items", true)) {
             return false;
         }
-
-        if (item == null || item.getType() == Material.AIR) {
-            return false;
-        }
-
+        if (item == null || item.getType() == Material.AIR) return false;
         ItemMeta meta = item.getItemMeta();
-        if (meta == null) {
-            return false;
-        }
+        if (meta == null) return false;
 
-        if (meta.hasDisplayName()) {
-            String displayName = org.bukkit.ChatColor.stripColor(meta.getDisplayName());
-            String defaultName = formatMaterialName(item.getType());
-
-            if (!displayName.equalsIgnoreCase(defaultName)) {
-                return true;
-            }
-        }
-
-        if (meta.hasEnchants() && !meta.getEnchants().isEmpty()) {
-            return true;
-        }
-
-        if (meta.hasLore() && meta.getLore() != null && !meta.getLore().isEmpty()) {
-            List<String> lore = meta.getLore();
-            for (String line : lore) {
-                String stripped = org.bukkit.ChatColor.stripColor(line);
-                if (!stripped.startsWith("Worth:") && !stripped.contains("Not Sellable")) {
-                    return true;
-                }
-            }
-        }
+        if (meta.hasDisplayName()) return true;
+        if (meta.hasEnchants()) return true;
 
         return false;
-    }
-
-    private boolean updateItemLore(ItemStack item) {
-        Material material = item.getType();
-
-        List<String> excludedItems = plugin.getConfig().getStringList("item-worth.excluded-items");
-        if (excludedItems.contains(material.name())) {
-            return false;
-        }
-
-        if (isCustomItem(item)) {
-            return false;
-        }
-
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) {
-            return false;
-        }
-
-        List<String> lore = meta.getLore();
-        if (lore == null) {
-            lore = new ArrayList<>();
-        } else {
-            lore = new ArrayList<>(lore);
-        }
-
-        String worthPrefix = plugin.getShopConfig().getMessage("item-worth.worth-prefix");
-        String notSellableText = plugin.getShopConfig().getMessage("item-worth.not-sellable");
-
-        if (worthPrefix == null) worthPrefix = "Worth: ";
-        if (notSellableText == null) notSellableText = "Not Sellable";
-
-        Iterator<String> iterator = lore.iterator();
-        while (iterator.hasNext()) {
-            String line = org.bukkit.ChatColor.stripColor(iterator.next());
-            if (line.startsWith(org.bukkit.ChatColor.stripColor(worthPrefix.substring(0, Math.min(worthPrefix.length(), 6)))) ||
-                    line.contains(org.bukkit.ChatColor.stripColor(notSellableText))) {
-                iterator.remove();
-            }
-        }
-
-        if (!sellableCache.containsKey(material)) {
-            CompletableFuture<ShopItem> future = plugin.getDatabaseManager().getShopItem(material);
-            ShopItem shopItem = future.join();
-
-            if (shopItem != null) {
-                sellableCache.put(material, true);
-                priceCache.put(material, shopItem.getSellPrice());
-            } else {
-                sellableCache.put(material, false);
-            }
-        }
-
-        Boolean isSellable = sellableCache.get(material);
-        if (isSellable == null || !isSellable) {
-            lore.add(notSellableText);
-        } else {
-            Double price = priceCache.get(material);
-            if (price != null) {
-                String worthLine = plugin.getShopConfig().getMessage("item-worth.worth-each",
-                        "%each%", String.format("%.2f", price));
-                lore.add(worthLine);
-            }
-        }
-
-        meta.setLore(lore);
-        item.setItemMeta(meta);
-
-        return true;
-    }
-
-    private String formatMaterialName(Material material) {
-        String name = material.name().toLowerCase().replace('_', ' ');
-        StringBuilder formatted = new StringBuilder();
-        boolean capitalizeNext = true;
-
-        for (char c : name.toCharArray()) {
-            if (c == ' ') {
-                formatted.append(c);
-                capitalizeNext = true;
-            } else if (capitalizeNext) {
-                formatted.append(Character.toUpperCase(c));
-                capitalizeNext = false;
-            } else {
-                formatted.append(c);
-            }
-        }
-
-        return formatted.toString();
-    }
-
-    public void updateSingleItem(ItemStack item) {
-        if (item != null && item.getType() != Material.AIR) {
-            updateItemLore(item);
-        }
-    }
-
-    public void clearCache() {
-        priceCache.clear();
-        sellableCache.clear();
-        lastCacheUpdate = 0;
     }
 }

@@ -15,8 +15,6 @@ import com.Lino.dynamicShopGUI.managers.GUIManager;
 import com.Lino.dynamicShopGUI.managers.RestockManager;
 import com.Lino.dynamicShopGUI.commands.ShopCommand;
 import com.Lino.dynamicShopGUI.listeners.ShopListener;
-import com.Lino.dynamicShopGUI.listeners.ItemWorthListener;
-import com.Lino.dynamicShopGUI.listeners.ItemStackFixListener;
 import com.Lino.dynamicShopGUI.config.ShopConfig;
 
 public class DynamicShopGUI extends JavaPlugin {
@@ -29,7 +27,6 @@ public class DynamicShopGUI extends JavaPlugin {
     private ShopConfig shopConfig;
     private RestockManager restockManager;
     private ItemWorthManager itemWorthManager;
-    private ItemStackFixListener itemStackFixListener;
     private AutoSellChestManager autoSellChestManager;
     private DiscordManager discordManager;
 
@@ -41,6 +38,11 @@ public class DynamicShopGUI extends JavaPlugin {
             getLogger().severe("Vault economy not found! Disabling plugin.");
             getServer().getPluginManager().disablePlugin(this);
             return;
+        }
+
+        // Verifica ProtocolLib per la feature Packet-Based
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
+            getLogger().warning("ProtocolLib not found! The Item Worth function will not work.");
         }
 
         saveDefaultConfig();
@@ -57,11 +59,12 @@ public class DynamicShopGUI extends JavaPlugin {
         restockManager = new RestockManager(this);
         shopManager = new ShopManager(this);
         guiManager = new GUIManager(this);
-        itemWorthManager = new ItemWorthManager(this);
-        itemStackFixListener = new ItemStackFixListener(this);
-        autoSellChestManager = new AutoSellChestManager(this);
 
+        // Inizializza il nuovo Packet Based Manager
+        itemWorthManager = new ItemWorthManager(this);
         itemWorthManager.start();
+
+        autoSellChestManager = new AutoSellChestManager(this);
 
         registerCommands();
         registerListeners();
@@ -113,8 +116,6 @@ public class DynamicShopGUI extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
-        getServer().getPluginManager().registerEvents(new ItemWorthListener(this), this);
-        getServer().getPluginManager().registerEvents(itemStackFixListener, this);
         getServer().getPluginManager().registerEvents(new AutoSellChestListener(this), this);
         getServer().getPluginManager().registerEvents(new AutoHarvesterListener(this), this);
     }
@@ -149,10 +150,6 @@ public class DynamicShopGUI extends JavaPlugin {
 
     public ItemWorthManager getItemWorthManager() {
         return itemWorthManager;
-    }
-
-    public ItemStackFixListener getItemStackFixListener() {
-        return itemStackFixListener;
     }
 
     public AutoSellChestManager getAutoSellChestManager() {

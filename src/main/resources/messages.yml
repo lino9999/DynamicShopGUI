@@ -5,9 +5,10 @@
 
 # Item worth display
 item-worth:
-  worth-prefix: "Worth: "
-  worth-each: "<gradient:#00ff00:#88ff00>Worth: $%each% each</gradient>"
+  worth-unit: "<gradient:#00ff00:#88ff00>Worth (1x): $%value%</gradient>"
+  worth-stack: "<gradient:#00ff00:#88ff00>Worth (Stack): $%value%</gradient>"
   not-sellable: "<gradient:#ff0000:#ff8800>Not Sellable</gradient>"
+  shulker-contents: "<gradient:#ff0000:#ff8800>Contents Value: $%value%</gradient>"
 
 # General prefix
 prefix: "<gradient:#00ff00:#00ffff>[DynamicShop]</gradient> &7"
