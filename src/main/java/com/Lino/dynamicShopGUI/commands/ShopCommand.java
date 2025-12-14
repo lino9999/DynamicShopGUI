@@ -169,6 +169,9 @@ public class ShopCommand implements CommandExecutor {
             sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-shop"));
             sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-help"));
 
+            // NUOVO MESSAGGIO PER IL COMANDO SELL
+            sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-sell"));
+
             if (sender.hasPermission("dynamicshop.admin")) {
                 sender.sendMessage("");
                 sender.sendMessage(plugin.getShopConfig().getMessage("commands.help-admin-header"));

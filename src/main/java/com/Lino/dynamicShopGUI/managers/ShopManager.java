@@ -7,8 +7,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ShopManager {
 
@@ -24,6 +27,139 @@ public class ShopManager {
         this.PRICE_DECREASE_FACTOR = plugin.getShopConfig().getPriceDecreaseFactor();
         this.MIN_PRICE_MULTIPLIER = plugin.getShopConfig().getMinPriceMultiplier();
         this.MAX_PRICE_MULTIPLIER = plugin.getShopConfig().getMaxPriceMultiplier();
+    }
+
+    public void sellHandItem(Player player) {
+        ItemStack hand = player.getInventory().getItemInMainHand();
+        if (hand == null || hand.getType() == Material.AIR) {
+            player.sendMessage(plugin.getShopConfig().getMessage("transaction.sell-no-item-hand"));
+            return;
+        }
+
+        sellItem(player, hand.getType(), hand.getAmount());
+    }
+
+    public void sellAllItems(Player player) {
+        CompletableFuture.runAsync(() -> {
+            Map<Material, Integer> inventoryContents = new HashMap<>();
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    inventoryContents.put(item.getType(), inventoryContents.getOrDefault(item.getType(), 0) + item.getAmount());
+                }
+            }
+
+            if (inventoryContents.isEmpty()) {
+                player.sendMessage(plugin.getShopConfig().getMessage("transaction.sell-nothing"));
+                return;
+            }
+
+            double totalNetEarnings = 0;
+            double totalTax = 0;
+            int totalItemsSold = 0;
+            List<ShopItem> itemsToUpdate = new ArrayList<>();
+            Map<Material, Integer> amountsToRemove = new HashMap<>();
+
+            for (Map.Entry<Material, Integer> entry : inventoryContents.entrySet()) {
+                Material material = entry.getKey();
+                int amount = entry.getValue();
+
+                ShopItem item = plugin.getDatabaseManager().getShopItem(material).join();
+                if (item == null) continue;
+
+                if (item.getStock() >= item.getMaxStock()) continue;
+
+                int canAccept = Math.min(amount, item.getMaxStock() - item.getStock());
+                if (canAccept <= 0) continue;
+
+                double itemTotalEarnings = 0;
+                double itemTotalTax = 0;
+                int tempStock = item.getStock();
+                double tempPrice = item.getCurrentPrice();
+                double oldPrice = tempPrice;
+
+                int batchSize = Math.max(1, canAccept / 10);
+                int processed = 0;
+
+                while (processed < canAccept) {
+                    int currentBatch = Math.min(batchSize, canAccept - processed);
+
+                    // FIX: Aggiunto * 0.7 per usare il prezzo di vendita corretto
+                    double batchEarnings = tempPrice * currentBatch * 0.7;
+                    double batchTax = plugin.getShopConfig().calculateTax(material, item.getCategory(), batchEarnings);
+
+                    itemTotalEarnings += batchEarnings;
+                    itemTotalTax += batchTax;
+
+                    tempStock += currentBatch;
+                    processed += currentBatch;
+
+                    ShopItem tempItem = new ShopItem(
+                            item.getMaterial(),
+                            item.getCategory(),
+                            item.getBasePrice(),
+                            tempPrice,
+                            tempStock,
+                            item.getMinStock(),
+                            item.getMaxStock(),
+                            item.getTransactionsBuy(),
+                            item.getTransactionsSell(),
+                            0
+                    );
+                    tempPrice = calculateNewPrice(tempItem);
+                }
+
+                totalNetEarnings += (itemTotalEarnings - itemTotalTax);
+                totalTax += itemTotalTax;
+                totalItemsSold += canAccept;
+
+                item.setStock(item.getStock() + canAccept);
+                item.incrementTransactionsSell();
+                item.setCurrentPrice(tempPrice);
+
+                double priceChangePercent = ((tempPrice - oldPrice) / oldPrice) * 100;
+                item.setPriceChangePercent(priceChangePercent);
+
+                itemsToUpdate.add(item);
+                amountsToRemove.put(material, canAccept);
+
+                plugin.getDatabaseManager().logTransaction(player.getUniqueId().toString(),
+                        material, "SELL_ALL", canAccept, itemTotalEarnings / canAccept, itemTotalEarnings - itemTotalTax);
+            }
+
+            if (totalItemsSold > 0) {
+                double finalEarnings = totalNetEarnings;
+                double finalTax = totalTax;
+                int finalAmount = totalItemsSold;
+
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    for (Map.Entry<Material, Integer> remove : amountsToRemove.entrySet()) {
+                        removeItem(player, remove.getKey(), remove.getValue());
+                    }
+
+                    plugin.getEconomy().depositPlayer(player, finalEarnings);
+
+                    player.sendMessage(plugin.getShopConfig().getMessage("transaction.sell-all-success",
+                            "%amount%", String.valueOf(finalAmount),
+                            "%price%", String.format("%.2f", finalEarnings),
+                            "%tax%", String.format("%.2f", finalTax)));
+
+                    if (plugin.getShopConfig().isSoundEnabled()) {
+                        player.playSound(player.getLocation(), "entity.experience_orb.pickup", 0.7f, 1.0f);
+                    }
+                });
+
+                for (ShopItem updatedItem : itemsToUpdate) {
+                    plugin.getDatabaseManager().updateShopItem(updatedItem);
+                }
+
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    plugin.getItemWorthManager().clearCache();
+                });
+
+            } else {
+                player.sendMessage(plugin.getShopConfig().getMessage("transaction.sell-nothing"));
+            }
+        });
     }
 
     public CompletableFuture<TransactionResult> buyItem(Player player, Material material, int amount) {
@@ -90,7 +226,6 @@ public class ShopManager {
             double newPrice = calculateNewPrice(item);
             item.setCurrentPrice(newPrice);
 
-            // FIX: Calculate percentage relative to OLD price (last transaction)
             double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
             item.setPriceChangePercent(priceChangePercent);
 
@@ -188,7 +323,6 @@ public class ShopManager {
             double newPrice = calculateNewPrice(item);
             item.setCurrentPrice(newPrice);
 
-            // FIX: Calculate percentage relative to OLD price (last transaction)
             double priceChangePercent = ((newPrice - oldPrice) / oldPrice) * 100;
             item.setPriceChangePercent(priceChangePercent);
 
@@ -353,7 +487,6 @@ public class ShopManager {
     private void checkOutOfStockAlert(ShopItem item) {
         if (!plugin.getShopConfig().isOutOfStockAlertEnabled()) return;
 
-        // Send to Discord
         plugin.getDiscordManager().sendOutOfStockAlert(item);
 
         plugin.getServer().getScheduler().runTask(plugin, () -> {

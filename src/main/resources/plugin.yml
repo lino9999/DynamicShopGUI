@@ -17,6 +17,10 @@ commands:
       /<command> give hoe <player> [amount] - Gives Auto Harvester hoe
     permission: dynamicshop.use
     aliases: [dynamicshop, dshop]
+  sell:
+    description: Sell items to the shop
+    usage: /sell <all|hand>
+    permission: dynamicshop.use
 
 permissions:
   dynamicshop.use:

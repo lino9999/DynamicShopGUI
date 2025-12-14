@@ -18,6 +18,10 @@ transaction:
   buy-success: "<gradient:#00ff00:#88ff00>Successfully purchased %amount%x %item% for $%price%</gradient>"
   sell-success: "<gradient:#00ff00:#88ff00>Successfully sold %amount%x %item% for $%price%</gradient>"
   sell-success-with-tax: "<gradient:#00ff00:#88ff00>Successfully sold %amount%x %item% for $%price%</gradient> &7(Tax: $%tax%)"
+  sell-all-success: "<gradient:#00ff00:#88ff00>Sold %amount% items for $%price%</gradient> &7(Tax: $%tax%)"
+  sell-hand-success: "<gradient:#00ff00:#88ff00>Sold held item for $%price%</gradient> &7(Tax: $%tax%)"
+  sell-nothing: "<gradient:#ff0000:#ff8800>No sellable items found!</gradient>"
+  sell-no-item-hand: "<gradient:#ff0000:#ff8800>You are not holding a sellable item!</gradient>"
 
 # Error messages
 errors:
@@ -69,6 +73,8 @@ commands:
   no-permission-reload: "<gradient:#ff0000:#ff8800>You don't have permission to reload the shop!</gradient>"
   reload-success: "<gradient:#00ff00:#00ffff>Shop configuration reloaded!</gradient>"
   players-only: "<gradient:#ff0000:#ff8800>This command can only be used by players!</gradient>"
+  sell-usage: "<gradient:#ff0000:#ff8800>Usage: /sell <all|hand></gradient>"
+  help-sell: "<gradient:#00ff00:#00ffff>/sell <all|hand></gradient> &7- Sell items to the shop"
 
   # Top/Bestsellers command
   top-header: "<gradient:#ffd700:#ffaa00>═══════ Top Sellers (Revenue) ═══════</gradient>"

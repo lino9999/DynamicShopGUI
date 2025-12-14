@@ -14,6 +14,9 @@ import com.Lino.dynamicShopGUI.managers.ShopManager;
 import com.Lino.dynamicShopGUI.managers.GUIManager;
 import com.Lino.dynamicShopGUI.managers.RestockManager;
 import com.Lino.dynamicShopGUI.commands.ShopCommand;
+import com.Lino.dynamicShopGUI.commands.SellCommand;
+import com.Lino.dynamicShopGUI.commands.ShopTabCompleter;
+import com.Lino.dynamicShopGUI.commands.SellTabCompleter;
 import com.Lino.dynamicShopGUI.listeners.ShopListener;
 import com.Lino.dynamicShopGUI.config.ShopConfig;
 
@@ -40,9 +43,8 @@ public class DynamicShopGUI extends JavaPlugin {
             return;
         }
 
-        // Verifica ProtocolLib per la feature Packet-Based
         if (getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-            getLogger().warning("ProtocolLib not found! The Item Worth function will not work.");
+            getLogger().warning("ProtocolLib non trovato! La funzione Item Worth non funzionerà.");
         }
 
         saveDefaultConfig();
@@ -60,7 +62,6 @@ public class DynamicShopGUI extends JavaPlugin {
         shopManager = new ShopManager(this);
         guiManager = new GUIManager(this);
 
-        // Inizializza il nuovo Packet Based Manager
         itemWorthManager = new ItemWorthManager(this);
         itemWorthManager.start();
 
@@ -112,6 +113,10 @@ public class DynamicShopGUI extends JavaPlugin {
 
     private void registerCommands() {
         getCommand("shop").setExecutor(new ShopCommand(this));
+        getCommand("shop").setTabCompleter(new ShopTabCompleter());
+
+        getCommand("sell").setExecutor(new SellCommand(this));
+        getCommand("sell").setTabCompleter(new SellTabCompleter());
     }
 
     private void registerListeners() {
