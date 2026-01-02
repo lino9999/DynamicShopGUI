@@ -112,7 +112,7 @@ gui:
   click-to-open: "<gradient:#00ff00:#00ffff>» Click to open</gradient>"
 
   # Navigation
-  back-to-categories: "<gradient:#ff0000:#ff8800>Back to Categories</gradient>"
+  back-to-categories: "<gradient:#ff0000:#ff8800>Close Shop</gradient>"
   previous-page: "<gradient:#ffff00:#ff8800>« Previous Page</gradient>"
   next-page: "<gradient:#ffff00:#ff8800>Next Page »</gradient>"
   page-info: "<gradient:#ffd700:#ffaa00>Page %current%/%total%</gradient>"

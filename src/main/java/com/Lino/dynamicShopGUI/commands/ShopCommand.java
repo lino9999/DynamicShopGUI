@@ -59,6 +59,32 @@ public class ShopCommand implements CommandExecutor {
                 } else if (args[1].equalsIgnoreCase("hoe")) {
                     return handleGiveHoe(sender, args);
                 }
+            } else if (args.length > 1 && args[0].equalsIgnoreCase("open")) {
+                if (!sender.hasPermission("dynamicshop.admin")) {
+                    sender.sendMessage(plugin.getShopConfig().getMessage("commands.no-permission"));
+                    return true;
+                }
+
+                Player target;
+                if (args[2] != null) {
+                    if (Bukkit.getPlayer(args[2]) == null) {
+                        sender.sendMessage(plugin.getShopConfig().getMessage("errors.player-not-found"));
+                        return true;
+                    } else {
+                        target = Bukkit.getPlayer(args[2]);
+                    }
+                } else {
+                    target = (Player) sender;
+                }
+                if (target == null) {
+                    sender.sendMessage(plugin.getShopConfig().getMessage("errors.player-not-found"));
+                    return true;
+                }
+
+                plugin.getGUIManager().openCategoryMenu(target, args[1], 0);
+                sender.sendMessage(plugin.getShopConfig().getMessage("commands.open-success",
+                        "%player%", target.getName()));
+                return true;
             }
         }
 

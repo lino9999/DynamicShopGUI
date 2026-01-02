@@ -21,7 +21,7 @@ public class CategoryMenuHandler {
         }
 
         if (slot == 49) {
-            plugin.getGUIManager().openMainMenu(player);
+            player.closeInventory();
             return;
         }
 

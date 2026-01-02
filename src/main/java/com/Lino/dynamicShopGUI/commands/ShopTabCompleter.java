@@ -1,14 +1,15 @@
 package com.Lino.dynamicShopGUI.commands;
 
+import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
+import com.Lino.dynamicShopGUI.handlers.MainMenuHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ShopTabCompleter implements TabCompleter {
 
@@ -24,6 +25,7 @@ public class ShopTabCompleter implements TabCompleter {
                 completions.add("top");
                 completions.add("give");
                 completions.add("bestsellers");
+                completions.add("open");
             }
             return StringUtil.copyPartialMatches(args[0], completions, new ArrayList<>());
         }
@@ -37,6 +39,13 @@ public class ShopTabCompleter implements TabCompleter {
         if (args.length == 3) {
             if (args[0].equalsIgnoreCase("give") && sender.hasPermission("dynamicshop.admin")) {
                 return null;
+            }
+            if (args[0].equalsIgnoreCase("open") && sender.hasPermission("dynamicshop.admin")) {
+                List<String> onlinePlayers = new ArrayList<>(List.of());
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    onlinePlayers.add(player.getName());
+                }
+                return StringUtil.copyPartialMatches(args[2], onlinePlayers, new ArrayList<>());
             }
         }
 
