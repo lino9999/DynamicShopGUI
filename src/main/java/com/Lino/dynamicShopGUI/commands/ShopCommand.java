@@ -105,7 +105,6 @@ public class ShopCommand implements CommandExecutor {
                         0,0,0,
                         0,0,0.0);
                 sender.sendMessage("ShopItem Mat: "+ shopItem.getMaterial());
-//                sender.sendMessage("ShopItem Display name: "+ shopItem.getDisplayName());
                 sender.sendMessage("Meta: " + itemInHand.getItemMeta());
                 return true;
             }

@@ -1,5 +1,6 @@
 package com.Lino.dynamicShopGUI.commands;
 
+import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -35,6 +36,11 @@ public class ShopTabCompleter implements TabCompleter {
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("give") && sender.hasPermission("dynamicshop.admin")) {
                 return StringUtil.copyPartialMatches(args[1], Arrays.asList("sellchest", "hoe"), new ArrayList<>());
+            }
+            if (args[0].equalsIgnoreCase("open") && sender.hasPermission("dynamicshop.admin")) {
+                List<String> shops = new ArrayList<>(List.of());
+                shops.addAll(DynamicShopGUI.getInstance().getShopConfig().getAllCategories().keySet());
+                return StringUtil.copyPartialMatches(args[1], shops, new ArrayList<>());
             }
         }
 
