@@ -1,7 +1,6 @@
 package com.Lino.dynamicShopGUI.commands;
 
-import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
-import com.Lino.dynamicShopGUI.handlers.MainMenuHandler;
+import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,7 +8,10 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ShopTabCompleter implements TabCompleter {
 
@@ -26,6 +28,7 @@ public class ShopTabCompleter implements TabCompleter {
                 completions.add("give");
                 completions.add("bestsellers");
                 completions.add("open");
+                completions.add("debugItem");
             }
             return StringUtil.copyPartialMatches(args[0], completions, new ArrayList<>());
         }
@@ -33,6 +36,11 @@ public class ShopTabCompleter implements TabCompleter {
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("give") && sender.hasPermission("dynamicshop.admin")) {
                 return StringUtil.copyPartialMatches(args[1], Arrays.asList("sellchest", "hoe"), new ArrayList<>());
+            }
+            if (args[0].equalsIgnoreCase("open") && sender.hasPermission("dynamicshop.admin")) {
+                List<String> shops = new ArrayList<>(List.of());
+                shops.addAll(DynamicShopGUI.getInstance().getShopConfig().getAllCategories().keySet());
+                return StringUtil.copyPartialMatches(args[1], shops, new ArrayList<>());
             }
         }
 

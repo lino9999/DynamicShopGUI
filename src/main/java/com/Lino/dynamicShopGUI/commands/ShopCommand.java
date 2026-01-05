@@ -2,6 +2,7 @@ package com.Lino.dynamicShopGUI.commands;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.database.DatabaseManager;
+import com.Lino.dynamicShopGUI.models.ShopItem;
 import com.Lino.dynamicShopGUI.utils.GUIUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -84,6 +85,27 @@ public class ShopCommand implements CommandExecutor {
                 plugin.getGUIManager().openCategoryMenu(target, args[1], 0);
                 sender.sendMessage(plugin.getShopConfig().getMessage("commands.open-success",
                         "%player%", target.getName()));
+                return true;
+            } else if (args[0].equalsIgnoreCase("debugItem")) {
+                if (!sender.hasPermission("dynamicshop.admin")) {
+                    sender.sendMessage(plugin.getShopConfig().getMessage("commands.no-permission"));
+                    return true;
+                }
+                Player player = (Player) sender;
+                ItemStack itemInHand = player.getInventory().getItemInMainHand();
+                if (itemInHand.getType() == Material.AIR) {
+                    sender.sendMessage(ChatColor.RED + "You must be holding an item to debug.");
+                    return true;
+                }
+                sender.sendMessage("Item: " + itemInHand);
+                sender.sendMessage("Type: " + itemInHand.getType());
+                sender.sendMessage("Data: " + itemInHand.getData());
+                ShopItem shopItem = new  ShopItem(Material.getMaterial(itemInHand.getType().name()),
+                        "debug-category", 0.0, 0.0,
+                        0,0,0,
+                        0,0,0.0);
+                sender.sendMessage("ShopItem Mat: "+ shopItem.getMaterial());
+                sender.sendMessage("Meta: " + itemInHand.getItemMeta());
                 return true;
             }
         }
