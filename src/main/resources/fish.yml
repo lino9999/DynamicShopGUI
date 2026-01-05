@@ -1,0 +1,35 @@
+category:
+  display-name: "Fish"
+  icon: COD
+  tax-rate: 7.0
+
+defaults:
+  min-stock: 0
+  max-stock: 1000
+  initial-stock: 100
+
+items:
+  RAW_COD:
+    price: 1.0
+    max-stock: 1000
+  RAW_SALMON:
+    price: 1.0
+    max-stock: 1000
+  TROPICAL_FISH:
+    price: 2.0
+    max-stock: 1000
+  WILDERNATURE_FISH_OIL:
+    price: 2.0
+    max-stock: 3000
+  INC_SAC:
+    price: 3.0
+    max-stock: 1000
+  PUFFERFISH:
+    price: 5.0
+    max-stock: 1000
+  NAUTILUS_SHELL:
+    price: 50.0
+    max-stock: 100
+  HEART_OF_THE_SEA:
+    price: 500.0
+    max-stock: 20
