@@ -1,7 +1,5 @@
 package com.Lino.dynamicShopGUI.commands;
 
-import com.Lino.dynamicShopGUI.config.CategoryConfigLoader;
-import com.Lino.dynamicShopGUI.handlers.MainMenuHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,7 +7,10 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ShopTabCompleter implements TabCompleter {
 
@@ -26,6 +27,7 @@ public class ShopTabCompleter implements TabCompleter {
                 completions.add("give");
                 completions.add("bestsellers");
                 completions.add("open");
+                completions.add("debugItem");
             }
             return StringUtil.copyPartialMatches(args[0], completions, new ArrayList<>());
         }
