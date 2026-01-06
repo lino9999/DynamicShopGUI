@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BulkSellMenuGUI {
@@ -19,13 +18,26 @@ public class BulkSellMenuGUI {
     private final DynamicShopGUI plugin;
     private final GUIManager guiManager;
 
+    public static final int[] SELL_SLOTS = {
+            10, 11, 12, 13, 14, 15, 16,
+            19, 20, 21, 22, 23, 24, 25,
+            28, 29, 30, 31, 32, 33, 34,
+            37, 38, 39, 40, 41, 42, 43
+    };
+
+    public static final int TOTAL_SLOT = 52;
+    public static final int BALANCE_SLOT = 48;
+    public static final int CLEAR_SLOT = 47;
+    public static final int SELL_SLOT = 51;
+    public static final int BACK_SLOT = 49;
+
     public BulkSellMenuGUI(DynamicShopGUI plugin, GUIManager guiManager) {
         this.plugin = plugin;
         this.guiManager = guiManager;
     }
 
     public void open(Player player) {
-        String title = plugin.getShopConfig().getMessage("gui.sell-bulk");
+        String title = plugin.getShopConfig().getMessage("gui.bulk-sell-title");
 
         Inventory inv = Bukkit.createInventory(null, 54, title);
 
@@ -35,18 +47,21 @@ public class BulkSellMenuGUI {
         ItemMeta backMeta = backButton.getItemMeta();
         backMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.back"));
         backButton.setItemMeta(backMeta);
-        inv.setItem(49, backButton);
+        inv.setItem(BACK_SLOT, backButton);
 
-        double balance = plugin.getEconomy().getBalance(player);
-        ItemStack balanceInfo = new ItemStack(Material.EMERALD);
-        ItemMeta balanceMeta = balanceInfo.getItemMeta();
-        balanceMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.balance-label"));
-        List<String> balanceLore = new ArrayList<>();
-        balanceLore.add("");
-        balanceLore.add(plugin.getShopConfig().getMessage("gui.balance-current", "%balance%", String.format("%.2f", balance)));
-        balanceMeta.setLore(balanceLore);
-        balanceInfo.setItemMeta(balanceMeta);
-        inv.setItem(40, balanceInfo);
+        ItemStack clearButton = new ItemStack(Material.HOPPER);
+        ItemMeta clearMeta = clearButton.getItemMeta();
+        clearMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.clear-inventory"));
+        clearMeta.setLore(List.of(plugin.getShopConfig().getMessage("gui.clear-inventory-desc")));
+        clearButton.setItemMeta(clearMeta);
+        inv.setItem(CLEAR_SLOT, clearButton);
+
+        ItemStack sellButton = new ItemStack(Material.EMERALD);
+        ItemMeta sellMeta = sellButton.getItemMeta();
+        sellMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.bulk-sell"));
+        sellMeta.setLore(List.of(plugin.getShopConfig().getMessage("gui.bulk-sell-total", "%total%", "0")));
+        sellButton.setItemMeta(sellMeta);
+        inv.setItem(SELL_SLOT, sellButton);
 
         Bukkit.getScheduler().runTask(plugin, () -> player.openInventory(inv));
     }

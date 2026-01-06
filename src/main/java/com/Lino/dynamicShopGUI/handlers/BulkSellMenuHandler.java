@@ -1,10 +1,16 @@
 package com.Lino.dynamicShopGUI.handlers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.gui.BulkSellMenuGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class BulkSellMenuHandler {
 
@@ -14,8 +20,10 @@ public class BulkSellMenuHandler {
         this.plugin = plugin;
     }
 
-    public void handleClick(Player player, ItemStack clicked, int slot) {
-        Material type = clicked.getType();
+    public void handleClick(InventoryClickEvent event) {
+        Material type = event.getCurrentItem().getType();
+        Player player = (Player) event.getWhoClicked();
+        int slot = event.getSlot();
 
         Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
 
@@ -26,8 +34,11 @@ public class BulkSellMenuHandler {
             }
         }
 
-        if (slot == 49 && type == Material.ARROW) {
+        if (slot == BulkSellMenuGUI.BACK_SLOT && type == Material.ARROW) {
             String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
+
+            event.setCancelled(true);
+            returnItemsToPlayer(player);
             if (category != null) {
                 int page = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
                 plugin.getGUIManager().openCategoryMenu(player, category, page);
@@ -37,7 +48,15 @@ public class BulkSellMenuHandler {
             return;
         }
 
-        if (slot == 13 || slot == 12 || slot == 14 || slot == 40 || slot >= 45) {
+        if (slot == BulkSellMenuGUI.CLEAR_SLOT && type == Material.HOPPER) {
+            event.setCancelled(true);
+            returnItemsToPlayer(player);
+            return;
+        }
+
+        if (Arrays.stream(BulkSellMenuGUI.SELL_SLOTS).noneMatch( sellSlot -> sellSlot == slot)
+                && (Objects.equals(event.getClickedInventory(), event.getView().getTopInventory()))) {
+            event.setCancelled(true);
             return;
         }
 
@@ -82,5 +101,20 @@ public class BulkSellMenuHandler {
         }
 
         return material;
+    }
+
+    public void returnItemsToPlayer(Player player) {
+        for (int slot : BulkSellMenuGUI.SELL_SLOTS) {
+            ItemStack item = player.getOpenInventory().getItem(slot);
+            if (item != null && item.getType() != Material.AIR) {
+                HashMap<Integer, ItemStack> notReturned = player.getInventory().addItem(item);
+                if (!notReturned.isEmpty()) {
+                    for (ItemStack leftover : notReturned.values()) {
+                        player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+                    }
+                }
+                player.getOpenInventory().setItem(slot, null);
+            }
+        }
     }
 }

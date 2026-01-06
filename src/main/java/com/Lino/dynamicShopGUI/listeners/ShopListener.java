@@ -41,8 +41,6 @@ public class ShopListener implements Listener {
 
         if (guiType == null) return;
 
-        event.setCancelled(true);
-
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) return;
 
@@ -54,19 +52,23 @@ public class ShopListener implements Listener {
 
         switch (guiType) {
             case MAIN_MENU:
+                event.setCancelled(true);
                 mainMenuHandler.handleClick(player, clicked, event.getSlot());
                 break;
             case CATEGORY_MENU:
+                event.setCancelled(true);
                 categoryMenuHandler.handleClick(player, clicked, event.getClick(), title, event.getSlot());
                 break;
             case TRANSACTION_BUY:
+                event.setCancelled(true);
                 transactionMenuHandler.handleClick(player, clicked, true, event.getSlot());
                 break;
             case TRANSACTION_SELL:
+                event.setCancelled(true);
                 transactionMenuHandler.handleClick(player, clicked, false, event.getSlot());
                 break;
             case BULK_SELL:
-                bulkSellMenuHandler.handleClick(player, clicked, event.getSlot());
+                bulkSellMenuHandler.handleClick(event);
                 break;
         }
     }
@@ -79,6 +81,9 @@ public class ShopListener implements Listener {
         Player player = (Player) event.getPlayer();
 
         if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
+            if (GUIManager.GUIType.BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
+                bulkSellMenuHandler.returnItemsToPlayer(player);
+            }
 
             new org.bukkit.scheduler.BukkitRunnable() {
                 @Override
@@ -97,6 +102,10 @@ public class ShopListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (GUIManager.GUIType.BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
+            bulkSellMenuHandler.returnItemsToPlayer(player);
+        }
         plugin.getGUIManager().clearPlayerData(event.getPlayer().getUniqueId());
     }
 }

@@ -111,6 +111,13 @@ gui:
   tax-rate-label: "&8Tax Rate: &7%rate%%"
   click-to-open: "<gradient:#00ff00:#00ffff>» Click to open</gradient>"
 
+  # Bulk sell menu
+  bulk-sell-title: "<gradient:#ff0000:#ff8800>Bulk Sell</gradient>"
+  clear-inventory: "<gradient:#ff0000:#ff8800>« Remove All Items</gradient>"
+  clear-inventory-desc: "&7Places all items back into your inventory"
+  bulk-sell: "<gradient:#00ff00:#88ff00>» Sell Items</gradient>"
+  bulk-sell-total: "&7Total Value: <gradient:#00ff00:#88ff00>$%total%</gradient>"
+
   # Navigation
   back-to-categories: "<gradient:#ff0000:#ff8800>Close Shop</gradient>"
   previous-page: "<gradient:#ffff00:#ff8800>« Previous Page</gradient>"
@@ -119,7 +126,6 @@ gui:
   page-label: "&7Page %current%/%total%"
   total-items: "&7Total items: %amount%"
   items-per-page: "&7Items per page: %amount%"
-  bulk-sell: "<gradient:#ffd700:#ffaa00>» Bulk Sell</gradient>"
 
   # Transaction menu
   buy-title: "<gradient:#00ff00:#88ff00>Buy %item%</gradient>"
