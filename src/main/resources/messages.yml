@@ -119,6 +119,7 @@ gui:
   page-label: "&7Page %current%/%total%"
   total-items: "&7Total items: %amount%"
   items-per-page: "&7Items per page: %amount%"
+  bulk-sell: "<gradient:#ffd700:#ffaa00>» Bulk Sell</gradient>"
 
   # Transaction menu
   buy-title: "<gradient:#00ff00:#88ff00>Buy %item%</gradient>"

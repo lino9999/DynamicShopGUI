@@ -1,8 +1,9 @@
 package com.Lino.dynamicShopGUI.listeners;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
-import com.Lino.dynamicShopGUI.handlers.MainMenuHandler;
+import com.Lino.dynamicShopGUI.handlers.BulkSellMenuHandler;
 import com.Lino.dynamicShopGUI.handlers.CategoryMenuHandler;
+import com.Lino.dynamicShopGUI.handlers.MainMenuHandler;
 import com.Lino.dynamicShopGUI.handlers.TransactionMenuHandler;
 import com.Lino.dynamicShopGUI.managers.GUIManager;
 import org.bukkit.ChatColor;
@@ -21,12 +22,14 @@ public class ShopListener implements Listener {
     private final MainMenuHandler mainMenuHandler;
     private final CategoryMenuHandler categoryMenuHandler;
     private final TransactionMenuHandler transactionMenuHandler;
+    private final BulkSellMenuHandler bulkSellMenuHandler;
 
     public ShopListener(DynamicShopGUI plugin) {
         this.plugin = plugin;
         this.mainMenuHandler = new MainMenuHandler(plugin);
         this.categoryMenuHandler = new CategoryMenuHandler(plugin);
         this.transactionMenuHandler = new TransactionMenuHandler(plugin);
+        this.bulkSellMenuHandler = new BulkSellMenuHandler(plugin);
     }
 
     @EventHandler
@@ -61,6 +64,9 @@ public class ShopListener implements Listener {
                 break;
             case TRANSACTION_SELL:
                 transactionMenuHandler.handleClick(player, clicked, false, event.getSlot());
+                break;
+            case BULK_SELL:
+                bulkSellMenuHandler.handleClick(player, clicked, event.getSlot());
                 break;
         }
     }

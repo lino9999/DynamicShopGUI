@@ -90,6 +90,12 @@ public class CategoryMenuGUI {
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
+            ItemStack bulkSellButton = new ItemStack(Material.MINECART);
+            ItemMeta bulkMeta = bulkSellButton.getItemMeta();
+            bulkMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.bulk-sell"));
+            bulkSellButton.setItemMeta(bulkMeta);
+            inv.setItem(52, bulkSellButton);
+
             if (finalPage < totalPages - 1) {
                 ItemStack nextPage = new ItemStack(Material.ARROW);
                 ItemMeta nextMeta = nextPage.getItemMeta();
