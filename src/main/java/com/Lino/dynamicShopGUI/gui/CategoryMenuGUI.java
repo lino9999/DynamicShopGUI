@@ -90,7 +90,7 @@ public class CategoryMenuGUI {
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
-            ItemStack bulkSellButton = new ItemStack(Material.MINECART);
+            ItemStack bulkSellButton = new ItemStack(Material.CHEST_MINECART);
             ItemMeta bulkMeta = bulkSellButton.getItemMeta();
             bulkMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.bulk-sell"));
             bulkSellButton.setItemMeta(bulkMeta);
