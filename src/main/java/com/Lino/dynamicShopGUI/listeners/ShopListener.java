@@ -1,6 +1,7 @@
 package com.Lino.dynamicShopGUI.listeners;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
+import com.Lino.dynamicShopGUI.gui.BulkSellMenuGUI;
 import com.Lino.dynamicShopGUI.handlers.BulkSellMenuHandler;
 import com.Lino.dynamicShopGUI.handlers.CategoryMenuHandler;
 import com.Lino.dynamicShopGUI.handlers.MainMenuHandler;
@@ -15,6 +16,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ShopListener implements Listener {
 
@@ -81,6 +86,16 @@ public class ShopListener implements Listener {
         Player player = (Player) event.getPlayer();
 
         if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
+            // Collect items to return for bulk sell GUI
+            List<ItemStack> itemsToReturn = new ArrayList<>();
+            if (GUIManager.GUIType.BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
+                for (int slot : BulkSellMenuGUI.SELL_SLOTS) {
+                    ItemStack item = event.getInventory().getItem(slot);
+                    if (item != null && item.getType() != Material.AIR) {
+                        itemsToReturn.add(item);
+                    }
+                }
+            }
             new org.bukkit.scheduler.BukkitRunnable() {
                 @Override
                 public void run() {
@@ -90,6 +105,18 @@ public class ShopListener implements Listener {
 
                     if (player.getOpenInventory().getTopInventory().getType() == org.bukkit.event.inventory.InventoryType.CRAFTING) {
                         plugin.getGUIManager().clearPlayerData(player.getUniqueId());
+                    }
+
+                    // Return items if any
+                    if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) == null) {
+                        for (ItemStack item : itemsToReturn) {
+                            HashMap<Integer, ItemStack> notReturned = player.getInventory().addItem(item);
+                            if (!notReturned.isEmpty()) {
+                                for (ItemStack leftover : notReturned.values()) {
+                                    player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+                                }
+                            }
+                        }
                     }
                 }
             }.runTaskLater(plugin, 1L);

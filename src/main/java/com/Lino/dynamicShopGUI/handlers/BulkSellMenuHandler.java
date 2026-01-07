@@ -117,4 +117,16 @@ public class BulkSellMenuHandler {
             }
         }
     }
+
+    private boolean isAllowedItem(Material material, String category) {
+        return plugin.getShopConfig().getShopItems().get(category).containsKey(material.getKey());
+//        try {
+//            Map<Material, ShopItem> shopItems = plugin.getDatabaseManager().getItemsByCategory(category).get();
+//            return shopItems.containsKey(material);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+    }
 }
