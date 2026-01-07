@@ -53,7 +53,8 @@ public class CategoryMenuHandler {
         if (slot == 52) {
             if (clicked.getType() != Material.CHEST_MINECART) return;
 
-            plugin.getGUIManager().openBulkSellMenu(player);
+            plugin.getGUIManager().openBulkSellMenu(player,
+                    String.join("bulk_", plugin.getGUIManager().getPlayerCategory(player.getUniqueId())));
             return;
         }
 

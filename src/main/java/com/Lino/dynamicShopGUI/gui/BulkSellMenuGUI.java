@@ -25,8 +25,6 @@ public class BulkSellMenuGUI {
             37, 38, 39, 40, 41, 42, 43
     };
 
-    public static final int TOTAL_SLOT = 52;
-    public static final int BALANCE_SLOT = 48;
     public static final int CLEAR_SLOT = 47;
     public static final int SELL_SLOT = 51;
     public static final int BACK_SLOT = 49;
@@ -36,8 +34,9 @@ public class BulkSellMenuGUI {
         this.guiManager = guiManager;
     }
 
-    public void open(Player player) {
-        String title = plugin.getShopConfig().getMessage("gui.bulk-sell-title");
+    public void open(Player player, String category) {
+        String displayName = plugin.getShopConfig().getCategoryDisplayName(category.toLowerCase());
+        String title = plugin.getShopConfig().getMessage("gui.bulk-sell-title", "%category%", displayName);
 
         Inventory inv = Bukkit.createInventory(null, 54, title);
 

@@ -90,11 +90,13 @@ public class CategoryMenuGUI {
             backButton.setItemMeta(backMeta);
             inv.setItem(49, backButton);
 
-            ItemStack bulkSellButton = new ItemStack(Material.CHEST_MINECART);
-            ItemMeta bulkMeta = bulkSellButton.getItemMeta();
-            bulkMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.bulk-sell-title"));
-            bulkSellButton.setItemMeta(bulkMeta);
-            inv.setItem(52, bulkSellButton);
+            if (plugin.getShopConfig().getAllCategories().containsKey("bulk_" + category.toLowerCase())) {
+                ItemStack bulkSellButton = new ItemStack(Material.CHEST_MINECART);
+                ItemMeta bulkMeta = bulkSellButton.getItemMeta();
+                bulkMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.bulk-sell-button"));
+                bulkSellButton.setItemMeta(bulkMeta);
+                inv.setItem(52, bulkSellButton);
+            }
 
             if (finalPage < totalPages - 1) {
                 ItemStack nextPage = new ItemStack(Material.ARROW);

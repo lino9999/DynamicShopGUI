@@ -81,10 +81,6 @@ public class ShopListener implements Listener {
         Player player = (Player) event.getPlayer();
 
         if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
-            if (GUIManager.GUIType.BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
-                bulkSellMenuHandler.returnItemsToPlayer(player);
-            }
-
             new org.bukkit.scheduler.BukkitRunnable() {
                 @Override
                 public void run() {

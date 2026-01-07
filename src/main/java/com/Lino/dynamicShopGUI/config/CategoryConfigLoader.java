@@ -16,7 +16,8 @@ public class CategoryConfigLoader {
 
     private final String[] CATEGORY_FILES = {
             "armor.yml", "building.yml", "farming.yml", "food.yml",
-            "ores.yml", "redstone.yml", "tools.yml", "mobdrops.yml", "fish.yml"
+            "ores.yml", "redstone.yml", "tools.yml", "mobdrops.yml", "fish.yml",
+            "bulk_fish.yml", "bulk_food.yml"
     };
 
     public CategoryConfigLoader(DynamicShopGUI plugin) {

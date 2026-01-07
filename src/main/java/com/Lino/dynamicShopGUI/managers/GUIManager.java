@@ -62,10 +62,10 @@ public class GUIManager {
         transactionMenuGUI.open(player, material, isBuying);
     }
 
-    public void openBulkSellMenu(Player player) {
-//        playerSelectedItem.put(player.getUniqueId(), material);
+    public void openBulkSellMenu(Player player, String category) {
+        playerCategory.put(player.getUniqueId(), category);
         playerGUIType.put(player.getUniqueId(), GUIType.BULK_SELL);
-        bulkSellMenuGUI.open(player);
+        bulkSellMenuGUI.open(player, category);
     }
 
     public String getPlayerCategory(UUID uuid) {
