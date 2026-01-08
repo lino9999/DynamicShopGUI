@@ -63,7 +63,6 @@ public class GUIManager {
     }
 
     public void openBulkSellMenu(Player player, String category) {
-        player.sendMessage("Category: " + category);
         playerCategory.put(player.getUniqueId(), category);
         playerGUIType.put(player.getUniqueId(), GUIType.BULK_SELL);
         bulkSellMenuGUI.open(player, category);

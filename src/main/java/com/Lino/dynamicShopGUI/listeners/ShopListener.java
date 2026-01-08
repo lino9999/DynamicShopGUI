@@ -14,12 +14,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.Lino.dynamicShopGUI.managers.GUIManager.GUIType.BULK_SELL;
 
 public class ShopListener implements Listener {
 
@@ -39,15 +42,15 @@ public class ShopListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        Player player = (Player) event.getWhoClicked();
         GUIManager.GUIType guiType = plugin.getGUIManager().getPlayerGUIType(player.getUniqueId());
-
         if (guiType == null) return;
 
         ItemStack clicked = event.getCurrentItem();
-        if (clicked == null || clicked.getType() == Material.AIR) return;
+        ItemStack held = event.getCursor();
+        if ((clicked == null || clicked.getType() == Material.AIR)
+        && (held == null || held.getType() == Material.AIR)) return;
 
         if (plugin.getShopConfig().isSoundEnabled()) {
             player.playSound(player.getLocation(), "ui.button.click", 0.5f, 1.0f);
@@ -58,23 +61,41 @@ public class ShopListener implements Listener {
         switch (guiType) {
             case MAIN_MENU:
                 event.setCancelled(true);
+                if (event.getClickedInventory() != event.getView().getTopInventory()) { return; }
                 mainMenuHandler.handleClick(player, clicked, event.getSlot());
                 break;
             case CATEGORY_MENU:
                 event.setCancelled(true);
+                if (event.getClickedInventory() != event.getView().getTopInventory()) { return; }
                 categoryMenuHandler.handleClick(player, clicked, event.getClick(), title, event.getSlot());
                 break;
             case TRANSACTION_BUY:
                 event.setCancelled(true);
+                if (event.getClickedInventory() != event.getView().getTopInventory()) { return; }
                 transactionMenuHandler.handleClick(player, clicked, true, event.getSlot());
                 break;
             case TRANSACTION_SELL:
                 event.setCancelled(true);
+                if (event.getClickedInventory() != event.getView().getTopInventory()) { return; }
                 transactionMenuHandler.handleClick(player, clicked, false, event.getSlot());
                 break;
             case BULK_SELL:
                 bulkSellMenuHandler.handleClick(event);
                 break;
+        }
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        plugin.getLogger().info("Player: " + event.getWhoClicked());
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        GUIManager.GUIType guiType = plugin.getGUIManager().getPlayerGUIType(player.getUniqueId());
+        plugin.getLogger().info("GuiType: " + guiType);
+        if (guiType == null) return;
+
+        if (guiType == BULK_SELL) {
+            bulkSellMenuHandler.handleDrag(event);
         }
     }
 
@@ -88,7 +109,7 @@ public class ShopListener implements Listener {
         if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
             // Collect items to return for bulk sell GUI
             List<ItemStack> itemsToReturn = new ArrayList<>();
-            if (GUIManager.GUIType.BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
+            if (BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
                 for (int slot : BulkSellMenuGUI.SELL_SLOTS) {
                     ItemStack item = event.getInventory().getItem(slot);
                     if (item != null && item.getType() != Material.AIR) {
@@ -126,8 +147,8 @@ public class ShopListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        if (GUIManager.GUIType.BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
-            bulkSellMenuHandler.returnItemsToPlayer(player);
+        if (BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
+            bulkSellMenuHandler.returnItemsToPlayer(player, true);
         }
         plugin.getGUIManager().clearPlayerData(event.getPlayer().getUniqueId());
     }

@@ -2,11 +2,12 @@ package com.Lino.dynamicShopGUI.handlers;
 
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.gui.BulkSellMenuGUI;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -24,24 +25,44 @@ public class BulkSellMenuHandler {
     }
 
     public void handleClick(InventoryClickEvent event) {
-        Material type = event.getCurrentItem().getType();
         Player player = (Player) event.getWhoClicked();
+        ItemStack itemStack = event.getCurrentItem();
+        Material type = itemStack != null ? itemStack.getType() : Material.AIR;
+        Inventory clickedInventory = event.getClickedInventory();
         int slot = event.getSlot();
 
-        Material selectedItem = plugin.getGUIManager().getPlayerSelectedItem(player.getUniqueId());
+        if (clickedInventory == null) { return; }
 
-        if (selectedItem == null) {
-            selectedItem = extractMaterialFromGUI(player);
-            if (selectedItem != null) {
-                plugin.getGUIManager().setPlayerSelectedItem(player.getUniqueId(), selectedItem);
-            }
-        }
+//        if (itemStack == null || itemStack.getType() == Material.AIR) {
+//            if (Objects.equals(clickedInventory, event.getView().getTopInventory())) {
+//                if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) {
+//                    if (!isAllowedItem(event.getCursor(), plugin.getGUIManager().getPlayerCategory(player.getUniqueId()))) {
+//                        event.setCancelled(true);
+//                        if (plugin.getShopConfig().isSoundEnabled()) {
+//                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 1.0f);
+//                        }
+//                        return;
+//                    }
+//                }
+//            } else if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+//                plugin.getLogger().info("Shift-click item: " + clickedInventory.getItem(event.getSlot()));
+//                if (!isAllowedItem(clickedInventory.getItem(event.getSlot()),
+//                        plugin.getGUIManager().getPlayerCategory(player.getUniqueId()))) {
+//                    event.setCancelled(true);
+//                    if (plugin.getShopConfig().isSoundEnabled()) {
+//                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 1.0f);
+//                    }
+//                    return;
+//                }
+//            }
+//            returnItemsToPlayer(player, false);
+//        }
 
-        if (slot == BulkSellMenuGUI.BACK_SLOT && type == Material.ARROW) {
+        if (slot == BulkSellMenuGUI.BACK_SLOT && clickedInventory == event.getView().getTopInventory()) {
             String category = plugin.getGUIManager().getPlayerCategory(player.getUniqueId());
 
             event.setCancelled(true);
-            returnItemsToPlayer(player);
+            returnItemsToPlayer(player, true);
             if (category != null) {
                 int page = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
                 plugin.getGUIManager().openCategoryMenu(player, category.split("_")[1], page);
@@ -51,74 +72,71 @@ public class BulkSellMenuHandler {
             return;
         }
 
-        if (slot == BulkSellMenuGUI.CLEAR_SLOT && type == Material.HOPPER) {
+        if (slot == BulkSellMenuGUI.CLEAR_SLOT && clickedInventory == event.getView().getTopInventory()) {
             event.setCancelled(true);
-            returnItemsToPlayer(player);
+            returnItemsToPlayer(player, true);
+            return;
+        }
+
+        if (slot == BulkSellMenuGUI.SELL_SLOT && clickedInventory == event.getView().getTopInventory()) {
+            event.setCancelled(true);
             return;
         }
 
         if (Arrays.stream(BulkSellMenuGUI.SELL_SLOTS).noneMatch( sellSlot -> sellSlot == slot)
-                && (Objects.equals(event.getClickedInventory(), event.getView().getTopInventory()))) {
+                && (Objects.equals(clickedInventory, event.getView().getTopInventory()))) {
             event.setCancelled(true);
             return;
         }
 
-        if (!isAllowedItem(event.getCurrentItem(), plugin.getGUIManager().getPlayerCategory(player.getUniqueId()))) {
-            event.setCancelled(true);
-            if (plugin.getShopConfig().isSoundEnabled()) {
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-            }
-            return;
-        }
-
-        if (type == Material.BLACK_STAINED_GLASS_PANE || type == Material.GRAY_STAINED_GLASS_PANE ||
+        if (clickedInventory == event.getView().getTopInventory() && (
+                type == Material.BLACK_STAINED_GLASS_PANE || type == Material.GRAY_STAINED_GLASS_PANE ||
                 type == Material.IRON_BLOCK || type == Material.COAL_BLOCK ||
                 type == Material.EMERALD_BLOCK || type == Material.REDSTONE_BLOCK ||
                 type == Material.LAPIS_BLOCK || type == Material.LIME_STAINED_GLASS ||
-                type == Material.RED_STAINED_GLASS) {
+                type == Material.RED_STAINED_GLASS)) {
+            event.setCancelled(true);
             return;
         }
+
+        new org.bukkit.scheduler.BukkitRunnable() {
+            @Override
+            public void run() {
+                returnItemsToPlayer(player, false);
+            }
+        }.runTaskLater(plugin, 1L);
     }
 
-    private Material extractMaterialFromGUI(Player player) {
-        String title = ChatColor.stripColor(player.getOpenInventory().getTitle());
-        String cleanTitle = title;
+    public void handleDrag(InventoryDragEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        ItemStack itemStack = event.getOldCursor();
 
-        Material material = null;
+        plugin.getLogger().info("Held item: " + itemStack);
+        plugin.getLogger().info("Item allowed: " +
+                isAllowedItem(itemStack, plugin.getGUIManager().getPlayerCategory(player.getUniqueId())));
+        plugin.getLogger().info("Inventory match: " +
+                Objects.equals(event.getInventory(), event.getView().getTopInventory()));
 
-        if (cleanTitle.startsWith("Buy ") || cleanTitle.startsWith("Sell ")) {
-            String itemName = cleanTitle.substring(4).trim();
-
-            String[] possibleNames = {
-                    itemName.toUpperCase().replace(" ", "_"),
-                    itemName.toUpperCase().replace(" ", ""),
-                    itemName.replace(" ", "_").toUpperCase()
-            };
-
-            for (String possibleName : possibleNames) {
-                try {
-                    material = Material.valueOf(possibleName);
-                    break;
-                } catch (IllegalArgumentException e) {
-                }
+        new org.bukkit.scheduler.BukkitRunnable() {
+            @Override
+            public void run() {
+                returnItemsToPlayer(player, false);
             }
-        }
-
-        if (material == null) {
-            ItemStack displayItem = player.getOpenInventory().getItem(13);
-            if (displayItem != null && displayItem.getType() != Material.AIR) {
-                material = displayItem.getType();
-            }
-        }
-
-        return material;
+        }.runTaskLater(plugin, 1L);
     }
 
-    public void returnItemsToPlayer(Player player) {
+    public void returnItemsToPlayer(Player player, boolean allItems) {
         for (int slot : BulkSellMenuGUI.SELL_SLOTS) {
             ItemStack item = player.getOpenInventory().getItem(slot);
-            if (item != null && item.getType() != Material.AIR) {
+
+            if ((item != null && item.getType() != Material.AIR)
+                    && (allItems || !isAllowedItem(item, plugin.getGUIManager().getPlayerCategory(player.getUniqueId())))) {
+
                 HashMap<Integer, ItemStack> notReturned = player.getInventory().addItem(item);
+                if (plugin.getShopConfig().isSoundEnabled() && !allItems) {
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 1.0f);
+                }
+
                 if (!notReturned.isEmpty()) {
                     for (ItemStack leftover : notReturned.values()) {
                         player.getWorld().dropItemNaturally(player.getLocation(), leftover);
@@ -129,7 +147,7 @@ public class BulkSellMenuHandler {
         }
     }
 
-    private boolean isAllowedItem(ItemStack itemStack, String category) {
+    public boolean isAllowedItem(ItemStack itemStack, String category) {
         if (category.contains("fish")) {
             ItemMeta fishMeta = itemStack.getItemMeta();
             if (fishMeta != null) {

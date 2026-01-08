@@ -55,14 +55,22 @@ public class BulkSellMenuGUI {
         clearButton.setItemMeta(clearMeta);
         inv.setItem(CLEAR_SLOT, clearButton);
 
-        ItemStack sellButton = new ItemStack(Material.EMERALD);
-        ItemMeta sellMeta = sellButton.getItemMeta();
-        sellMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.bulk-sell"));
-        sellMeta.setLore(List.of(plugin.getShopConfig().getMessage("gui.bulk-sell-total", "%total%", "0")));
-        sellButton.setItemMeta(sellMeta);
+        ItemStack sellButton = createNewSellButton(inv, 0.0);
         inv.setItem(SELL_SLOT, sellButton);
 
         Bukkit.getScheduler().runTask(plugin, () -> player.openInventory(inv));
+    }
+
+    public ItemStack createNewSellButton(Inventory inv, double totalAmount) {
+        ItemStack sellButton = inv.getItem(SELL_SLOT);
+        if (sellButton.getType() != Material.EMERALD) {
+            sellButton = new ItemStack(Material.EMERALD);
+        }
+        ItemMeta sellMeta = sellButton.getItemMeta();
+        sellMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.bulk-sell"));
+        sellMeta.setLore(List.of(plugin.getShopConfig().getMessage("gui.bulk-sell-total", "%total%", String.valueOf(totalAmount))));
+        sellButton.setItemMeta(sellMeta);
+        return sellButton;
     }
 
     private void setupSimplifiedBorders(Inventory inv) {
