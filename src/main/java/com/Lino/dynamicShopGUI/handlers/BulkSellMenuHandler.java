@@ -4,13 +4,16 @@ import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.gui.BulkSellMenuGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 
 public class BulkSellMenuHandler {
 
@@ -41,9 +44,9 @@ public class BulkSellMenuHandler {
             returnItemsToPlayer(player);
             if (category != null) {
                 int page = plugin.getGUIManager().getPlayerPage(player.getUniqueId());
-                plugin.getGUIManager().openCategoryMenu(player, category, page);
+                plugin.getGUIManager().openCategoryMenu(player, category.split("_")[1], page);
             } else {
-                plugin.getGUIManager().openMainMenu(player);
+                player.closeInventory();
             }
             return;
         }
@@ -57,6 +60,14 @@ public class BulkSellMenuHandler {
         if (Arrays.stream(BulkSellMenuGUI.SELL_SLOTS).noneMatch( sellSlot -> sellSlot == slot)
                 && (Objects.equals(event.getClickedInventory(), event.getView().getTopInventory()))) {
             event.setCancelled(true);
+            return;
+        }
+
+        if (!isAllowedItem(event.getCurrentItem(), plugin.getGUIManager().getPlayerCategory(player.getUniqueId()))) {
+            event.setCancelled(true);
+            if (plugin.getShopConfig().isSoundEnabled()) {
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+            }
             return;
         }
 
@@ -118,15 +129,15 @@ public class BulkSellMenuHandler {
         }
     }
 
-    private boolean isAllowedItem(Material material, String category) {
-        return plugin.getShopConfig().getShopItems().get(category).containsKey(material.getKey());
-//        try {
-//            Map<Material, ShopItem> shopItems = plugin.getDatabaseManager().getItemsByCategory(category).get();
-//            return shopItems.containsKey(material);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return false;
+    private boolean isAllowedItem(ItemStack itemStack, String category) {
+        if (category.contains("fish")) {
+            ItemMeta fishMeta = itemStack.getItemMeta();
+            if (fishMeta != null) {
+                boolean isStarcatcher = fishMeta.getAsComponentString().contains("starcatcher");
+                if (isStarcatcher) { return true; }
+            }
+        }
+        Set<String> shopItems = plugin.getShopConfig().getShopItems().get(category).keySet();
+        return shopItems.contains(itemStack.getType().toString());
     }
 }

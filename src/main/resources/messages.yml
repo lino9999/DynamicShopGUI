@@ -75,6 +75,7 @@ commands:
   players-only: "<gradient:#ff0000:#ff8800>This command can only be used by players!</gradient>"
   sell-usage: "<gradient:#ff0000:#ff8800>Usage: /sell <all|hand></gradient>"
   help-sell: "<gradient:#00ff00:#00ffff>/sell <all|hand></gradient> &7- Sell items to the shop"
+  open-success: "<gradient:#00ff00:#00ffff>Shop opened successfully for %player%</gradient>"
 
   # Top/Bestsellers command
   top-header: "<gradient:#ffd700:#ffaa00>═══════ Top Sellers (Revenue) ═══════</gradient>"

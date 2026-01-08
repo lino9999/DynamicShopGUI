@@ -99,7 +99,6 @@ public class ShopCommand implements CommandExecutor {
                 }
                 sender.sendMessage("Item: " + itemInHand);
                 sender.sendMessage("Type: " + itemInHand.getType());
-                sender.sendMessage("Data: " + itemInHand.getData());
                 ShopItem shopItem = new  ShopItem(Material.getMaterial(itemInHand.getType().name()),
                         "debug-category", 0.0, 0.0,
                         0,0,0,

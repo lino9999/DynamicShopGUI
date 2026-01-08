@@ -9,6 +9,3 @@ defaults:
   initial-stock: 100
 
 items:
-  RAW_COD:
-    price: 1.0
-    max-stock: 1000
