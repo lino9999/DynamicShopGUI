@@ -87,11 +87,10 @@ public class ShopListener implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
-        plugin.getLogger().info("Player: " + event.getWhoClicked());
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
+        if (event.getCursor() == null || event.getCursor().getAmount() <= 1) { return; }
         GUIManager.GUIType guiType = plugin.getGUIManager().getPlayerGUIType(player.getUniqueId());
-        plugin.getLogger().info("GuiType: " + guiType);
         if (guiType == null) return;
 
         if (guiType == BULK_SELL) {
