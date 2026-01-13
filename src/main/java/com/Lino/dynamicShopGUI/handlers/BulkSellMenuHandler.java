@@ -319,8 +319,16 @@ public class BulkSellMenuHandler {
                 }
                 break;
             case "bulk_tools":
-                ItemStatsReader.CombatStats stats = ItemStatsReader.getCombatStats(itemStack);
-                return baseValue + (10 * stats.attackDamage()) + (10 * stats.armor());
+                ItemStatsReader.CombatStats gearStats = ItemStatsReader.getCombatStats(itemStack);
+                int rarityModifier = switch (gearStats.rarity()) {
+                    case "reinforced", "resilient", "keen", "extended", "critical", "swift" -> 2;
+                    case "rare", "fortified", "sharp", "hasteful" -> 3;
+                    case "epic" -> 4;
+                    case "legendary" -> 5;
+                    default -> 1;
+                };
+
+                return (baseValue + (10 * gearStats.attackDamage()) + (10 * gearStats.armor())) * rarityModifier;
         }
         plugin.getLogger().warning("Category " + category + " is unaccounted for.");
         return baseValue;

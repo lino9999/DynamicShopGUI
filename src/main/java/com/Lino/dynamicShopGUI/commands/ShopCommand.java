@@ -3,7 +3,7 @@ package com.Lino.dynamicShopGUI.commands;
 import com.Lino.dynamicShopGUI.DynamicShopGUI;
 import com.Lino.dynamicShopGUI.database.DatabaseManager;
 import com.Lino.dynamicShopGUI.models.ShopItem;
-import com.Lino.dynamicShopGUI.utils.FoodReader;
+import com.Lino.dynamicShopGUI.utils.ComponentParser;
 import com.Lino.dynamicShopGUI.utils.GUIUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -106,7 +106,7 @@ public class ShopCommand implements CommandExecutor {
                         0,0,0.0);
                 sender.sendMessage("ShopItem Mat: "+ shopItem.getMaterial());
                 sender.sendMessage("Comps: " + itemInHand.getItemMeta().getAsComponentString());
-                sender.sendMessage("FoodStats: " + FoodReader.readFoodStats(itemInHand));
+                sender.sendMessage("Rarity: " + ComponentParser.parseGearRarity(itemInHand.getItemMeta().getAsComponentString()));
                 return true;
             }
         }

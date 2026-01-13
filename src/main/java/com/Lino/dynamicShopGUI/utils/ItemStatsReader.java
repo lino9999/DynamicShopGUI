@@ -5,12 +5,14 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemStatsReader {
 
     public record CombatStats(
             double attackDamage,
-            double armor
+            double armor,
+            String rarity
     ) {}
 
     enum EquipmentSlots {
@@ -35,6 +37,8 @@ public class ItemStatsReader {
     public static CombatStats getCombatStats(ItemStack itemStack) {
         double attackTotal = 0.0;
         double armorTotal = 0.0;
+        String rarity = null;
+        ItemMeta itemMeta = itemStack.getItemMeta();
 
         for (EquipmentSlots slot : EquipmentSlots.values()) {
             Multimap<Attribute, AttributeModifier> attributes = itemStack.getType().getDefaultAttributeModifiers(
@@ -54,6 +58,10 @@ public class ItemStatsReader {
             }
         }
 
-        return new CombatStats(attackTotal, armorTotal);
+        if (itemMeta != null) {
+            rarity = ComponentParser.parseGearRarity(itemMeta.getAsComponentString());
+        }
+
+        return new CombatStats(attackTotal, armorTotal, rarity);
     }
 }
