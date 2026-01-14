@@ -116,39 +116,57 @@ public class ShopListener implements Listener {
                     }
                 }
             }
-            new org.bukkit.scheduler.BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (!player.isOnline()) {
-                        return;
-                    }
 
-                    if (player.getOpenInventory().getTopInventory().getType() == org.bukkit.event.inventory.InventoryType.CRAFTING) {
-                        plugin.getGUIManager().clearPlayerData(player.getUniqueId());
-                    }
-
-                    // Return items if any
-                    if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) == null) {
-                        for (ItemStack item : itemsToReturn) {
-                            HashMap<Integer, ItemStack> notReturned = player.getInventory().addItem(item);
-                            if (!notReturned.isEmpty()) {
-                                for (ItemStack leftover : notReturned.values()) {
-                                    player.getWorld().dropItemNaturally(player.getLocation(), leftover);
-                                }
-                            }
-                        }
-                    }
-                }
-            }.runTaskLater(plugin, 1L);
+            delayReturnItems(player, itemsToReturn);
         }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        if (BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
-            bulkSellMenuHandler.returnItemsToPlayer(player, true);
+
+        if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
+            // Collect items to return for bulk sell GUI
+            List<ItemStack> itemsToReturn = new ArrayList<>();
+            if (BULK_SELL == plugin.getGUIManager().getPlayerGUIType(player.getUniqueId())) {
+                for (int slot : BulkSellMenuGUI.SELL_SLOTS) {
+                    ItemStack item = player.getOpenInventory().getTopInventory().getItem(slot);
+                    if (item != null && item.getType() != Material.AIR) {
+                        itemsToReturn.add(item);
+                    }
+                }
+            }
+
+            delayReturnItems(player, itemsToReturn);
         }
-        plugin.getGUIManager().clearPlayerData(event.getPlayer().getUniqueId());
+    }
+
+    private void delayReturnItems(Player player, List<ItemStack> itemsToReturn) {
+        new org.bukkit.scheduler.BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    for (ItemStack leftover : itemsToReturn) {
+                        player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+                    }
+                }
+
+                if (player.getOpenInventory().getTopInventory().getType() == org.bukkit.event.inventory.InventoryType.CRAFTING) {
+                    plugin.getGUIManager().clearPlayerData(player.getUniqueId());
+                }
+
+                // Return items if any
+                if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) == null) {
+                    for (ItemStack item : itemsToReturn) {
+                        HashMap<Integer, ItemStack> notReturned = player.getInventory().addItem(item);
+                        if (!notReturned.isEmpty()) {
+                            for (ItemStack leftover : notReturned.values()) {
+                                player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+                            }
+                        }
+                    }
+                }
+            }
+        }.runTaskLater(plugin, 1L);
     }
 }
