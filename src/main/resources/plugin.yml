@@ -1,5 +1,5 @@
 name: DynamicShopGUI
-version: '3.7'
+version: '3.8'
 main: com.Lino.dynamicShopGUI.DynamicShopGUI
 api-version: '1.21'
 depend: [Vault]
@@ -41,3 +41,7 @@ permissions:
   dynamicshop.give:
     description: Allows giving special items to players
     default: op
+
+  dynamicshop.sell:
+    description: Allows players to use the /sell command
+    default: true

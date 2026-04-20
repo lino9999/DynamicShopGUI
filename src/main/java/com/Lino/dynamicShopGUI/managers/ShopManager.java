@@ -83,7 +83,6 @@ public class ShopManager {
                 while (processed < canAccept) {
                     int currentBatch = Math.min(batchSize, canAccept - processed);
 
-                    // FIX: Aggiunto * 0.7 per usare il prezzo di vendita corretto
                     double batchEarnings = tempPrice * currentBatch * 0.7;
                     double batchTax = plugin.getShopConfig().calculateTax(material, item.getCategory(), batchEarnings);
 
@@ -362,7 +361,7 @@ public class ShopManager {
         for (int i = 0; i < contents.length; i++) {
             if (remaining <= 0) break;
 
-            if (contents[i] == null) {
+            if (contents[i] == null || contents[i].getType() == Material.AIR) {
                 remaining -= maxStackSize;
             } else if (contents[i].getType() == items.getType() &&
                     contents[i].getAmount() < maxStackSize) {

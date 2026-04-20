@@ -23,22 +23,24 @@ public class SellCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        if (!player.hasPermission("dynamicshop.use")) {
+        if (!player.hasPermission("dynamicshop.sell")) {
             player.sendMessage(plugin.getShopConfig().getMessage("commands.no-permission"));
             return true;
         }
 
-        if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("all")) {
-                plugin.getShopManager().sellAllItems(player);
-                return true;
-            } else if (args[0].equalsIgnoreCase("hand")) {
-                plugin.getShopManager().sellHandItem(player);
-                return true;
-            }
+        if (args.length == 0) {
+            player.sendMessage(plugin.getShopConfig().getMessage("commands.sell-usage"));
+            return true;
         }
 
-        plugin.getShopManager().sellHandItem(player);
+        if (args[0].equalsIgnoreCase("hand")) {
+            plugin.getShopManager().sellHandItem(player);
+        } else if (args[0].equalsIgnoreCase("all")) {
+            plugin.getShopManager().sellAllItems(player);
+        } else {
+            player.sendMessage(plugin.getShopConfig().getMessage("commands.sell-usage"));
+        }
+
         return true;
     }
 }
