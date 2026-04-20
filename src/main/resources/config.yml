@@ -151,12 +151,6 @@ item-worth:
   # Enable showing item worth in player inventories
   enabled: true
 
-  # Update interval in seconds
-  update-interval: 5
-
-  # Maximum players to update per cycle
-  max-players-per-update: 5
-
   # Skip items with custom names or enchantments
   skip-custom-items: true
 
