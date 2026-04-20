@@ -5,8 +5,8 @@
 
 # Item worth display
 item-worth:
-  worth-unit: "<gradient:#00ff00:#88ff00>Worth (1x): $%value%</gradient>"
-  worth-stack: "<gradient:#00ff00:#88ff00>Worth (Stack): $%value%</gradient>"
+  worth-unit: "<gradient:#00ff00:#88ff00>Worth (%amount%x): $%value%</gradient>"
+  worth-stack: "<gradient:#00ff00:#88ff00>Worth (%amount%x): $%value%</gradient>"
   not-sellable: "<gradient:#ff0000:#ff8800>Not Sellable</gradient>"
   shulker-contents: "<gradient:#ff0000:#ff8800>Contents Value: $%value%</gradient>"
 

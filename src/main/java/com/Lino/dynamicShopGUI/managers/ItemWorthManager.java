@@ -12,6 +12,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,7 +31,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ItemWorthManager {
+public class ItemWorthManager implements Listener {
 
     private final DynamicShopGUI plugin;
     private final Map<Material, CachedItem> itemCache = new ConcurrentHashMap<>();
@@ -61,6 +71,8 @@ public class ItemWorthManager {
                 refreshCache();
             }
         }.runTaskTimerAsynchronously(plugin, interval, interval);
+
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(
                 plugin,
@@ -107,8 +119,43 @@ public class ItemWorthManager {
             cacheUpdateTask.cancel();
             cacheUpdateTask = null;
         }
+        HandlerList.unregisterAll(this);
         ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
         clearCache();
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player) {
+            Player player = (Player) event.getWhoClicked();
+            plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (event.getWhoClicked() instanceof Player) {
+            Player player = (Player) event.getWhoClicked();
+            plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        Player player = event.getPlayer();
+        plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        Player player = event.getPlayer();
+        plugin.getServer().getScheduler().runTask(plugin, player::updateInventory);
     }
 
     private ItemStack addWorthLore(ItemStack originalItem) {
@@ -134,8 +181,11 @@ public class ItemWorthManager {
         String rawShulker = plugin.getShopConfig().getMessageManager().getConfig().getString("item-worth.shulker-contents", "Contents Value:");
         String rawNotSellable = plugin.getShopConfig().getMessageManager().getConfig().getString("item-worth.not-sellable", "Not Sellable");
 
-        String prefixUnit = ChatColor.stripColor(rawUnit.split("%value%")[0].replaceAll("<[^>]*>", "")).trim();
-        String prefixStack = ChatColor.stripColor(rawStack.split("%value%")[0].replaceAll("<[^>]*>", "")).trim();
+        String prefixUnit = ChatColor.stripColor(rawUnit.split("%value%")[0].replaceAll("<[^>]*>", "").replace("%amount%", "")).trim();
+        String prefixStack = ChatColor.stripColor(rawStack.split("%value%")[0].replaceAll("<[^>]*>", "").replace("%amount%", "")).trim();
+
+        String cleanPrefixStackAlternative = prefixStack.replace("(Stack)", "").replace("Stack", "").trim();
+
         String prefixShulker = ChatColor.stripColor(rawShulker.split("%value%")[0].replaceAll("<[^>]*>", "")).trim();
         String prefixNotSellable = ChatColor.stripColor(rawNotSellable.replaceAll("<[^>]*>", "")).trim();
 
@@ -144,6 +194,7 @@ public class ItemWorthManager {
             String stripped = ChatColor.stripColor(line);
             return (!prefixUnit.isEmpty() && stripped.contains(prefixUnit)) ||
                     (!prefixStack.isEmpty() && stripped.contains(prefixStack)) ||
+                    (!cleanPrefixStackAlternative.isEmpty() && stripped.contains(cleanPrefixStackAlternative)) ||
                     (!prefixShulker.isEmpty() && stripped.contains(prefixShulker)) ||
                     (!prefixNotSellable.isEmpty() && stripped.contains(prefixNotSellable));
         });
@@ -181,7 +232,17 @@ public class ItemWorthManager {
 
             if (amount > 1) {
                 String stackLine = plugin.getShopConfig().getMessage("item-worth.worth-stack",
-                        "%value%", String.format("%.2f", netValue));
+                        "%value%", String.format("%.2f", netValue),
+                        "%amount%", String.valueOf(amount));
+
+                if (stackLine.contains("(Stack)")) {
+                    stackLine = stackLine.replace("(Stack)", "(x" + amount + ")");
+                } else if (stackLine.contains("Stack")) {
+                    stackLine = stackLine.replace("Stack", "x" + amount);
+                } else if (stackLine.contains("stack")) {
+                    stackLine = stackLine.replace("stack", "x" + amount);
+                }
+
                 lore.add(stackLine + HIDDEN_MARKER);
             } else {
                 String unitLine = plugin.getShopConfig().getMessage("item-worth.worth-unit",
