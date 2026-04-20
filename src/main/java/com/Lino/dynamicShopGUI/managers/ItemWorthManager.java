@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
@@ -26,6 +27,7 @@ public class ItemWorthManager {
     private final Map<Material, CachedItem> itemCache = new ConcurrentHashMap<>();
     private final Map<Material, Boolean> sellableCache = new ConcurrentHashMap<>();
     private BukkitTask cacheUpdateTask;
+    private final String HIDDEN_MARKER = ChatColor.COLOR_CHAR + "x" + ChatColor.COLOR_CHAR + "y" + ChatColor.COLOR_CHAR + "z";
 
     private static class CachedItem {
         final double sellPrice;
@@ -126,6 +128,26 @@ public class ItemWorthManager {
         if (meta == null) return item;
 
         List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+
+        String rawUnit = plugin.getShopConfig().getMessageManager().getConfig().getString("item-worth.worth-unit", "Worth (1x):");
+        String rawStack = plugin.getShopConfig().getMessageManager().getConfig().getString("item-worth.worth-stack", "Worth (Stack):");
+        String rawShulker = plugin.getShopConfig().getMessageManager().getConfig().getString("item-worth.shulker-contents", "Contents Value:");
+        String rawNotSellable = plugin.getShopConfig().getMessageManager().getConfig().getString("item-worth.not-sellable", "Not Sellable");
+
+        String prefixUnit = ChatColor.stripColor(rawUnit.split("%value%")[0].replaceAll("<[^>]*>", "")).trim();
+        String prefixStack = ChatColor.stripColor(rawStack.split("%value%")[0].replaceAll("<[^>]*>", "")).trim();
+        String prefixShulker = ChatColor.stripColor(rawShulker.split("%value%")[0].replaceAll("<[^>]*>", "")).trim();
+        String prefixNotSellable = ChatColor.stripColor(rawNotSellable.replaceAll("<[^>]*>", "")).trim();
+
+        lore.removeIf(line -> {
+            if (line.endsWith(HIDDEN_MARKER)) return true;
+            String stripped = ChatColor.stripColor(line);
+            return (!prefixUnit.isEmpty() && stripped.contains(prefixUnit)) ||
+                    (!prefixStack.isEmpty() && stripped.contains(prefixStack)) ||
+                    (!prefixShulker.isEmpty() && stripped.contains(prefixShulker)) ||
+                    (!prefixNotSellable.isEmpty() && stripped.contains(prefixNotSellable));
+        });
+
         boolean hasContentValue = false;
 
         if (meta instanceof BlockStateMeta) {
@@ -136,7 +158,7 @@ public class ItemWorthManager {
                     hasContentValue = true;
                     String shulkerLine = plugin.getShopConfig().getMessage("item-worth.shulker-contents",
                             "%value%", String.format("%.2f", shulkerValue));
-                    lore.add(shulkerLine);
+                    lore.add(shulkerLine + HIDDEN_MARKER);
                 }
             }
         }
@@ -148,9 +170,8 @@ public class ItemWorthManager {
         if (notSellableText == null) notSellableText = "Not Sellable";
 
         if (isSellable == null || !isSellable) {
-            // MOSTRA "Not Sellable" SOLO SE NON HA CONTENUTO DI VALORE
             if (!hasContentValue) {
-                lore.add(notSellableText);
+                lore.add(notSellableText + HIDDEN_MARKER);
             }
         } else if (cachedItem != null) {
             int amount = item.getAmount();
@@ -161,11 +182,11 @@ public class ItemWorthManager {
             if (amount > 1) {
                 String stackLine = plugin.getShopConfig().getMessage("item-worth.worth-stack",
                         "%value%", String.format("%.2f", netValue));
-                lore.add(stackLine);
+                lore.add(stackLine + HIDDEN_MARKER);
             } else {
                 String unitLine = plugin.getShopConfig().getMessage("item-worth.worth-unit",
                         "%value%", String.format("%.2f", netValue));
-                lore.add(unitLine);
+                lore.add(unitLine + HIDDEN_MARKER);
             }
         }
 
