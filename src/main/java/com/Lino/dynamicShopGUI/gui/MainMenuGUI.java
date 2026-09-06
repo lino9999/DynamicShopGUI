@@ -11,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import com.Lino.dynamicShopGUI.utils.MenuBuilder;
 import java.util.*;
 
 public class MainMenuGUI {
@@ -21,10 +22,16 @@ public class MainMenuGUI {
         this.plugin = plugin;
     }
 
-    public void open(Player player) {
+    public void open(Player player, int page) {
         Map<String, CategoryConfigLoader.CategoryConfig> categories = plugin.getShopConfig().getAllCategories();
+        List<Map.Entry<String, CategoryConfigLoader.CategoryConfig>> sortedCategories = new ArrayList<>(categories.entrySet());
+        sortedCategories.sort(Map.Entry.comparingByKey());
+        int itemsPerPage = plugin.getShopConfig().getMenuConfigManager()
+                .getInt("gui.main-categories-per-page", 15);
+        int totalPages = Math.max(1, (int) Math.ceil((double) sortedCategories.size() / itemsPerPage));
+        int finalPage = Math.max(0, Math.min(page, totalPages - 1));
 
-        Inventory inv = Bukkit.createInventory(null, 54, plugin.getShopConfig().getMessage("gui.main-title"));
+        Inventory inv = MenuBuilder.create(plugin.getShopConfig().getMessage("gui.main-title"), 6).build();
 
         ItemStack glassFiller = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
         ItemMeta glassMeta = glassFiller.getItemMeta();
@@ -82,11 +89,9 @@ public class MainMenuGUI {
         int[] categorySlots = {20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 38, 39, 40, 41, 42};
         int slotIndex = 0;
 
-        List<Map.Entry<String, CategoryConfigLoader.CategoryConfig>> sortedCategories = new ArrayList<>(categories.entrySet());
-        sortedCategories.sort(Map.Entry.comparingByKey());
-
-        for (Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry : sortedCategories) {
-            if (slotIndex >= categorySlots.length) break;
+        int startIndex = finalPage * itemsPerPage;
+        for (int i = startIndex; i < sortedCategories.size() && slotIndex < categorySlots.length; i++) {
+            Map.Entry<String, CategoryConfigLoader.CategoryConfig> entry = sortedCategories.get(i);
 
             CategoryConfigLoader.CategoryConfig category = entry.getValue();
 
@@ -142,6 +147,30 @@ public class MainMenuGUI {
         bookMeta.setLore(bookLore);
         infoBook.setItemMeta(bookMeta);
         inv.setItem(48, infoBook);
+
+        if (finalPage > 0) {
+            ItemStack previous = new ItemStack(Material.ARROW);
+            ItemMeta previousMeta = previous.getItemMeta();
+            previousMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.previous-page"));
+            previous.setItemMeta(previousMeta);
+            inv.setItem(47, previous);
+        }
+        if (finalPage < totalPages - 1) {
+            ItemStack next = new ItemStack(Material.ARROW);
+            ItemMeta nextMeta = next.getItemMeta();
+            nextMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.next-page"));
+            next.setItemMeta(nextMeta);
+            inv.setItem(51, next);
+        }
+        if (totalPages > 1) {
+            ItemStack pageInfo = new ItemStack(Material.PAPER);
+            ItemMeta pageMeta = pageInfo.getItemMeta();
+            pageMeta.setDisplayName(plugin.getShopConfig().getMessage("gui.page-info",
+                    "%current%", String.valueOf(finalPage + 1),
+                    "%total%", String.valueOf(totalPages)));
+            pageInfo.setItemMeta(pageMeta);
+            inv.setItem(52, pageInfo);
+        }
 
         for (ShopConfig.CustomButtonConfig btn : plugin.getShopConfig().getCustomButtons()) {
             int slot = btn.getSlot();

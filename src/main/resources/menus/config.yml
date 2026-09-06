@@ -1,0 +1,33 @@
+# Shop menu settings.
+# This file is kept separate from the economy and stock settings in config.yml.
+
+gui:
+  sounds-enabled: true
+  items-per-page: 45
+  main-categories-per-page: 15
+  show-stock: true
+  show-price-trends: true
+  show-tax-info: true
+
+custom-buttons:
+  blackmarket:
+    enabled: false
+    slot: 12
+    material: NETHER_STAR
+    command: "blackmarket"
+    display-name: "<gradient:#ff00ff:#ffff00>Black Market</gradient>"
+    lore:
+      - ""
+      - "<gradient:#ff0000:#ff8800>» Click to open</gradient>"
+      - "<gradient:#888888:#bbbbbb>Access the black market</gradient>"
+      - "<gradient:#888888:#bbbbbb>for special items!</gradient>"
+  auction_house:
+    enabled: false
+    slot: 14
+    material: GOLD_INGOT
+    command: "ah"
+    display-name: "<gradient:#00aaff:#00ffee>Auction House</gradient>"
+    lore:
+      - ""
+      - "<gradient:#00ff00:#00aa00>» Click to view</gradient>"
+      - "&7View player listings"

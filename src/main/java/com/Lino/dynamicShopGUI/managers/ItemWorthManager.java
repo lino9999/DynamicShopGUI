@@ -77,8 +77,7 @@ public class ItemWorthManager implements Listener {
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(
                 plugin,
                 ListenerPriority.HIGH,
-                PacketType.Play.Server.WINDOW_ITEMS,
-                PacketType.Play.Server.SET_SLOT
+                PacketType.Play.Server.WINDOW_ITEMS
         ) {
             @Override
             public void onPacketSending(PacketEvent event) {
@@ -91,24 +90,17 @@ public class ItemWorthManager implements Listener {
 
                 PacketContainer packet = event.getPacket();
 
-                if (event.getPacketType() == PacketType.Play.Server.SET_SLOT) {
-                    ItemStack item = packet.getItemModifier().read(0);
-                    if (item != null && item.getType() != Material.AIR) {
-                        packet.getItemModifier().write(0, addWorthLore(item));
-                    }
-                } else if (event.getPacketType() == PacketType.Play.Server.WINDOW_ITEMS) {
-                    List<ItemStack> items = packet.getItemListModifier().read(0);
-                    if (items != null) {
-                        List<ItemStack> newItems = new ArrayList<>();
-                        for (ItemStack item : items) {
-                            if (item != null && item.getType() != Material.AIR) {
-                                newItems.add(addWorthLore(item));
-                            } else {
-                                newItems.add(item);
-                            }
+                List<ItemStack> items = packet.getItemListModifier().read(0);
+                if (items != null) {
+                    List<ItemStack> newItems = new ArrayList<>();
+                    for (ItemStack item : items) {
+                        if (item != null && item.getType() != Material.AIR) {
+                            newItems.add(addWorthLore(item));
+                        } else {
+                            newItems.add(item);
                         }
-                        packet.getItemListModifier().write(0, newItems);
                     }
+                    packet.getItemListModifier().write(0, newItems);
                 }
             }
         });

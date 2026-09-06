@@ -36,8 +36,13 @@ public class GUIManager {
     }
 
     public void openMainMenu(Player player) {
+        openMainMenu(player, 0);
+    }
+
+    public void openMainMenu(Player player, int page) {
+        playerPage.put(player.getUniqueId(), page);
         playerGUIType.put(player.getUniqueId(), GUIType.MAIN_MENU);
-        mainMenuGUI.open(player);
+        mainMenuGUI.open(player, page);
     }
 
     public void setPlayerMainMenu(UUID uuid) {

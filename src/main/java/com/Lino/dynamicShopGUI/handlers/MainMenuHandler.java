@@ -26,6 +26,17 @@ public class MainMenuHandler {
             return;
         }
 
+        if (slot == 47 && clicked.getType() == Material.ARROW) {
+            plugin.getGUIManager().openMainMenu(player,
+                    Math.max(0, plugin.getGUIManager().getPlayerPage(player.getUniqueId()) - 1));
+            return;
+        }
+        if (slot == 51 && clicked.getType() == Material.ARROW) {
+            plugin.getGUIManager().openMainMenu(player,
+                    plugin.getGUIManager().getPlayerPage(player.getUniqueId()) + 1);
+            return;
+        }
+
         for (ShopConfig.CustomButtonConfig btn : plugin.getShopConfig().getCustomButtons()) {
             if (slot == btn.getSlot()) {
                 String command = btn.getCommand();
@@ -37,7 +48,7 @@ public class MainMenuHandler {
             }
         }
 
-        if (slot == 48 || slot == 49 || slot == 4) {
+        if (slot == 48 || slot == 49 || slot == 52 || slot == 4) {
             return;
         }
 

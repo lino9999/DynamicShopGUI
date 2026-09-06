@@ -9,9 +9,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -29,7 +31,7 @@ public class ShopListener implements Listener {
         this.transactionMenuHandler = new TransactionMenuHandler(plugin);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
 
@@ -70,6 +72,7 @@ public class ShopListener implements Listener {
         if (!(event.getPlayer() instanceof Player)) {
             return;
         }
+
         Player player = (Player) event.getPlayer();
 
         if (plugin.getGUIManager().getPlayerGUIType(player.getUniqueId()) != null) {
@@ -83,6 +86,15 @@ public class ShopListener implements Listener {
 
                     if (player.getOpenInventory().getTopInventory().getType() == org.bukkit.event.inventory.InventoryType.CRAFTING) {
                         plugin.getGUIManager().clearPlayerData(player.getUniqueId());
+                    }
+                }
+
+                @EventHandler
+                public void onInventoryDrag(InventoryDragEvent event) {
+                    if (event.getWhoClicked() instanceof Player
+                            && plugin.getGUIManager().getPlayerGUIType(event.getWhoClicked().getUniqueId()) != null
+                            && event.getRawSlots().stream().anyMatch(slot -> slot < event.getView().getTopInventory().getSize())) {
+                        event.setCancelled(true);
                     }
                 }
             }.runTaskLater(plugin, 1L);

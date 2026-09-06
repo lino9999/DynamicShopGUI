@@ -16,16 +16,19 @@ public class ShopConfig {
     private final DynamicShopGUI plugin;
     private final CategoryConfigLoader categoryLoader;
     private final MessageManager messageManager;
+    private final MenuConfigManager menuConfigManager;
 
     public ShopConfig(DynamicShopGUI plugin) {
         this.plugin = plugin;
         this.messageManager = new MessageManager(plugin);
         this.categoryLoader = new CategoryConfigLoader(plugin);
+        this.menuConfigManager = new MenuConfigManager(plugin);
     }
 
     public void reload() {
         plugin.reloadConfig();
         messageManager.reload();
+        menuConfigManager.reload();
         categoryLoader.reload();
         plugin.getDatabaseManager().syncWithConfig();
 
@@ -174,30 +177,30 @@ public class ShopConfig {
     }
 
     public boolean isSoundEnabled() {
-        return plugin.getConfig().getBoolean("gui.sounds-enabled", true);
+        return menuConfigManager.getBoolean("gui.sounds-enabled", true);
     }
 
     public int getItemsPerPage() {
-        return plugin.getConfig().getInt("gui.items-per-page", 45);
+        return menuConfigManager.getInt("gui.items-per-page", 45);
     }
 
     public boolean showStock() {
-        return plugin.getConfig().getBoolean("gui.show-stock", true);
+        return menuConfigManager.getBoolean("gui.show-stock", true);
     }
 
     public boolean showPriceTrends() {
-        return plugin.getConfig().getBoolean("gui.show-price-trends", true);
+        return menuConfigManager.getBoolean("gui.show-price-trends", true);
     }
 
     public boolean showTaxInfo() {
-        return plugin.getConfig().getBoolean("gui.show-tax-info", true);
+        return menuConfigManager.getBoolean("gui.show-tax-info", true);
     }
 
     public List<CustomButtonConfig> getCustomButtons() {
         List<CustomButtonConfig> buttons = new ArrayList<>();
 
-        if (plugin.getConfig().isConfigurationSection("custom-buttons")) {
-            ConfigurationSection section = plugin.getConfig().getConfigurationSection("custom-buttons");
+        if (menuConfigManager.isConfigurationSection("custom-buttons")) {
+            ConfigurationSection section = menuConfigManager.getSection("custom-buttons");
             for (String key : section.getKeys(false)) {
                 if (section.getBoolean(key + ".enabled")) {
                     buttons.add(new CustomButtonConfig(
@@ -313,6 +316,10 @@ public class ShopConfig {
 
     public CategoryConfigLoader getCategoryLoader() {
         return categoryLoader;
+    }
+
+    public MenuConfigManager getMenuConfigManager() {
+        return menuConfigManager;
     }
 
     public Map<String, CategoryConfigLoader.CategoryConfig> getAllCategories() {

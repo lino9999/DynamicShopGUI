@@ -32,11 +32,33 @@ public class ShopManager {
     public void sellHandItem(Player player) {
         ItemStack hand = player.getInventory().getItemInMainHand();
         if (hand == null || hand.getType() == Material.AIR) {
-            player.sendMessage(plugin.getShopConfig().getMessage("transaction.sell-no-item-hand"));
+            sendSellFeedback(player, new TransactionResult(false,
+                    plugin.getShopConfig().getMessage("transaction.sell-no-item-hand")));
             return;
         }
 
-        sellItem(player, hand.getType(), hand.getAmount());
+        Material material = hand.getType();
+        int amount = hand.getAmount();
+        sellItem(player, material, amount).thenAccept(result ->
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    sendSellFeedback(player, result);
+                })
+        ).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            plugin.getServer().getScheduler().runTask(plugin, () ->
+                    sendSellFeedback(player, new TransactionResult(false,
+                            plugin.getShopConfig().getMessage("errors.transaction-error"))));
+            return null;
+        });
+    }
+
+    private void sendSellFeedback(Player player, TransactionResult result) {
+        player.sendMessage(plugin.getShopConfig().getPrefix() + result.getMessage());
+        if (plugin.getShopConfig().isSoundEnabled()) {
+            player.playSound(player.getLocation(),
+                    result.isSuccess() ? "entity.experience_orb.pickup" : "entity.villager.no",
+                    result.isSuccess() ? 0.7f : 0.5f, result.isSuccess() ? 1.0f : 1.0f);
+        }
     }
 
     public void sellAllItems(Player player) {
